@@ -1,46 +1,167 @@
-.required {
-  color: var(--ion-color-danger);
+// ── Form ─────────────────────────────────────────────────────────────────────
+
+.form-wrap {
+  padding: 16px 16px 80px;
 }
 
-.rules-header {
-  margin-top: 12px;
-  font-size: 0.85rem;
+.form-section {
+  background: var(--ion-card-background, #fff);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.form-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ion-color-primary);
+  margin-bottom: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-field {
+  margin-bottom: 12px;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--ion-color-medium-shade);
+  margin-bottom: 5px;
+
+  .req { color: var(--ion-color-danger); }
 }
 
-.form-card {
-  margin-bottom: 16px;
-
-  ion-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    margin-bottom: 4px;
-  }
+.modern-input {
+  --background: var(--ion-color-light);
+  --border-radius: 10px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
 }
 
 .form-actions {
-  margin-top: 16px;
+  margin-top: 4px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+
+  .save-btn {
+    --border-radius: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
 }
 
-.active-course {
-  --background: rgba(var(--ion-color-primary-rgb), 0.06);
+// ── Course list ───────────────────────────────────────────────────────────────
+
+.course-list {
+  padding: 12px 0 80px;
 }
+
+.course-item {
+  --background: var(--ion-card-background, #fff);
+  --inner-padding-end: 16px;
+  margin: 0 16px 10px;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+
+  &.course-active {
+    --background: rgba(var(--ion-color-primary-rgb), 0.05);
+    box-shadow: 0 2px 10px rgba(var(--ion-color-primary-rgb), 0.2);
+  }
+}
+
+.course-left {
+  margin-right: 10px;
+}
+
+.course-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--ion-color-medium-tint);
+  transition: all 0.15s;
+
+  &.radio-on {
+    border-color: var(--ion-color-primary);
+    background: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.2);
+  }
+}
+
+.course-label {
+  h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .course-range {
+    font-size: 0.75rem;
+    color: var(--ion-color-medium);
+    margin-bottom: 8px;
+  }
+}
+
+.course-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cchip {
+  background: var(--ion-color-light);
+  color: var(--ion-color-medium-shade);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 0.7rem;
+  font-weight: 600;
+
+  &.cchip-absence {
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+    color: var(--ion-color-danger-shade);
+  }
+
+  &.cchip-late {
+    background: rgba(var(--ion-color-warning-rgb), 0.15);
+    color: var(--ion-color-warning-shade);
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
 
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 60px 24px;
+  padding: 64px 24px;
   text-align: center;
   color: var(--ion-color-medium);
 
-  .empty-icon {
-    font-size: 4rem;
+  .empty-icon-wrap {
+    width: 72px;
+    height: 72px;
+    background: rgba(var(--ion-color-primary-rgb), 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 16px;
-    color: var(--ion-color-medium-tint);
+    ion-icon { font-size: 2rem; color: var(--ion-color-primary); }
   }
+
+  h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; color: var(--ion-text-color); }
+  p  { font-size: 0.9rem; margin: 0; }
 }

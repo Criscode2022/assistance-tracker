@@ -1,31 +1,50 @@
 import { Injectable } from '@angular/core';
-import { AttendanceStatus, Course, DayEntry, MonthStats } from '../models/attendance.model';
+import {
+  AttendanceStatus,
+  Course,
+  DayEntry,
+  DayRecord,
+  MonthStats,
+} from '../models/attendance.model';
 
 @Injectable({ providedIn: 'root' })
 export class AttendanceService {
+  // Records keyed by courseId → date → DayRecord
+  private records: Record<string, Record<string, DayRecord>> = {};
   private courses: Course[] = [];
-  private records: Record<string, Record<string, AttendanceStatus>> = {};
   private _selectedCourseId: string | null = null;
 
   constructor() {
     this.load();
   }
 
-  // ── Persistence ────────────────────────────────────────────────────────────
+  // ── Persistence ─────────────────────────────────────────────────────────────
 
   private load(): void {
     try {
       const rawCourses = localStorage.getItem('courses_v1');
       this.courses = rawCourses ? JSON.parse(rawCourses) : [];
 
-      const rawRecords = localStorage.getItem('attendance_v2');
-      this.records = rawRecords ? JSON.parse(rawRecords) : {};
-
-      // Migrate records from v1 (before multi-course support)
-      const oldRaw = localStorage.getItem('attendance_records_v1');
-      if (oldRaw && !rawRecords) {
-        this.records['__legacy__'] = JSON.parse(oldRaw);
-        this.saveRecords();
+      // v3: DayRecord objects.  Migrate from v2 (plain status strings) if needed.
+      const rawV3 = localStorage.getItem('attendance_v3');
+      if (rawV3) {
+        this.records = JSON.parse(rawV3);
+      } else {
+        const rawV2 = localStorage.getItem('attendance_v2');
+        if (rawV2) {
+          const v2: Record<string, Record<string, unknown>> = JSON.parse(rawV2);
+          for (const cid of Object.keys(v2)) {
+            this.records[cid] = {};
+            for (const date of Object.keys(v2[cid])) {
+              const val = v2[cid][date];
+              this.records[cid][date] =
+                typeof val === 'string'
+                  ? { status: val as AttendanceStatus }
+                  : (val as DayRecord);
+            }
+          }
+          this.saveRecords();
+        }
       }
 
       const saved = localStorage.getItem('selected_course_id');
@@ -45,10 +64,10 @@ export class AttendanceService {
   }
 
   private saveRecords(): void {
-    localStorage.setItem('attendance_v2', JSON.stringify(this.records));
+    localStorage.setItem('attendance_v3', JSON.stringify(this.records));
   }
 
-  // ── Courses ─────────────────────────────────────────────────────────────────
+  // ── Courses ──────────────────────────────────────────────────────────────────
 
   getCourses(): Course[] {
     return [...this.courses];
@@ -64,9 +83,7 @@ export class AttendanceService {
       this.courses[idx] = course;
     } else {
       this.courses.push(course);
-      if (!this._selectedCourseId) {
-        this.selectedCourseId = course.id;
-      }
+      if (!this._selectedCourseId) this.selectedCourseId = course.id;
     }
     this.saveCourses();
   }
@@ -74,9 +91,8 @@ export class AttendanceService {
   deleteCourse(id: string): void {
     this.courses = this.courses.filter((c) => c.id !== id);
     delete this.records[id];
-    if (this._selectedCourseId === id) {
+    if (this._selectedCourseId === id)
       this.selectedCourseId = this.courses[0]?.id ?? null;
-    }
     this.saveCourses();
     this.saveRecords();
   }
@@ -95,36 +111,57 @@ export class AttendanceService {
   }
 
   getSelectedCourse(): Course | null {
-    return this._selectedCourseId ? this.getCourse(this._selectedCourseId) : null;
+    return this._selectedCourseId
+      ? this.getCourse(this._selectedCourseId)
+      : null;
   }
 
   // ── Records ──────────────────────────────────────────────────────────────────
 
-  setRecord(date: string, status: AttendanceStatus, courseId?: string): void {
+  setDayRecord(date: string, record: DayRecord, courseId?: string): void {
     const cid = courseId ?? this._selectedCourseId ?? '__default__';
     if (!this.records[cid]) this.records[cid] = {};
-    if (status === 'unlogged') {
+    if (record.status === 'unlogged') {
       delete this.records[cid][date];
     } else {
-      this.records[cid][date] = status;
+      this.records[cid][date] = record;
     }
     this.saveRecords();
   }
 
-  getRecord(date: string, courseId?: string): AttendanceStatus {
+  getDayRecord(date: string, courseId?: string): DayRecord {
     const cid = courseId ?? this._selectedCourseId ?? '__default__';
-    return this.records[cid]?.[date] ?? 'unlogged';
+    return this.records[cid]?.[date] ?? { status: 'unlogged' };
   }
 
   // ── Date helpers ─────────────────────────────────────────────────────────────
 
-  // Uses local calendar date, avoiding UTC-offset drift from toISOString()
   private localDateStr(d: Date): string {
     return (
       `${d.getFullYear()}-` +
       `${String(d.getMonth() + 1).padStart(2, '0')}-` +
       `${String(d.getDate()).padStart(2, '0')}`
     );
+  }
+
+  private toMinutes(t: string): number {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  private hoursFromRecord(record: DayRecord, hoursPerDay: number): number {
+    if (record.status === 'absent') return 0;
+    if (record.status !== 'late' || !record.entryTime || !record.exitTime)
+      return hoursPerDay;
+    return Math.max(
+      0,
+      (this.toMinutes(record.exitTime) - this.toMinutes(record.entryTime)) / 60
+    );
+  }
+
+  private lostMinsFromRecord(record: DayRecord, courseStartTime?: string): number {
+    if (record.status !== 'late' || !record.entryTime || !courseStartTime) return 0;
+    return Math.max(0, this.toMinutes(record.entryTime) - this.toMinutes(courseStartTime));
   }
 
   getCurrentMonth(): string {
@@ -136,7 +173,15 @@ export class AttendanceService {
     return this.localDateStr(new Date());
   }
 
-  // Returns Mon–Fri days in the month, clipped to optional [startDate, endDate]
+  calcDefaultExitTime(course: Course | null): string {
+    if (!course?.startTime) return '14:00';
+    const totalMins = this.toMinutes(course.startTime) + course.hoursPerDay * 60;
+    return (
+      `${String(Math.floor(totalMins / 60)).padStart(2, '0')}:` +
+      `${String(totalMins % 60).padStart(2, '0')}`
+    );
+  }
+
   getWorkingDaysInMonth(month: string, startDate?: string, endDate?: string): string[] {
     const [year, m] = month.split('-').map(Number);
     const days: string[] = [];
@@ -145,9 +190,8 @@ export class AttendanceService {
       const dow = cursor.getDay();
       if (dow !== 0 && dow !== 6) {
         const ds = this.localDateStr(cursor);
-        if ((!startDate || ds >= startDate) && (!endDate || ds <= endDate)) {
+        if ((!startDate || ds >= startDate) && (!endDate || ds <= endDate))
           days.push(ds);
-        }
       }
       cursor.setDate(cursor.getDate() + 1);
     }
@@ -165,11 +209,16 @@ export class AttendanceService {
     );
     return workingDays.map((date) => {
       const d = new Date(date + 'T12:00:00');
+      const record = this.getDayRecord(date, cid ?? undefined);
       return {
         date,
         dateLabel: d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }),
         dayLabel: d.toLocaleDateString('es-MX', { weekday: 'long' }),
-        status: this.getRecord(date, cid ?? undefined),
+        status: record.status,
+        entryTime: record.entryTime,
+        exitTime: record.exitTime,
+        hoursAttended: this.hoursFromRecord(record, course?.hoursPerDay ?? 5),
+        lostMinutes: this.lostMinsFromRecord(record, course?.startTime),
         isToday: date === today,
         isFuture: date > today,
       };
@@ -192,26 +241,37 @@ export class AttendanceService {
       course?.endDate
     );
     const totalWorkingDays = workingDays.length;
+    const elapsedWorkingDays = workingDays.filter((d) => d <= today).length;
 
-    let presentDays = 0;
-    let absentDays = 0;
-    let lateDays = 0;
-    let unloggedDays = 0;
+    let presentDays = 0, absentDays = 0, lateDays = 0, unloggedDays = 0;
+    let totalHoursAttended = 0, totalLostMinutes = 0;
 
     for (const day of workingDays) {
       if (day > today) continue;
-      const status = this.getRecord(day, cid ?? undefined);
-      if (status === 'present') presentDays++;
-      else if (status === 'absent') absentDays++;
-      else if (status === 'late') lateDays++;
-      else unloggedDays++;
+      const record = this.getDayRecord(day, cid ?? undefined);
+      switch (record.status) {
+        case 'present':
+          presentDays++;
+          totalHoursAttended += hoursPerDay;
+          break;
+        case 'absent':
+          absentDays++;
+          break;
+        case 'late':
+          lateDays++;
+          totalHoursAttended += this.hoursFromRecord(record, hoursPerDay);
+          totalLostMinutes += this.lostMinsFromRecord(record, course?.startTime);
+          break;
+        default:
+          unloggedDays++;
+          totalHoursAttended += hoursPerDay; // benefit of doubt
+      }
     }
 
-    // Unlogged past days treated as present (benefit of doubt)
-    const attendedDays = presentDays + lateDays + unloggedDays;
+    const expectedHoursToDate = elapsedWorkingDays * hoursPerDay;
     const attendancePercent =
-      totalWorkingDays > 0
-        ? Math.round((attendedDays / totalWorkingDays) * 100)
+      expectedHoursToDate > 0
+        ? Math.min(100, Math.round((totalHoursAttended / expectedHoursToDate) * 100))
         : 100;
 
     const absencesRemaining = Math.max(0, maxAbsences - absentDays);
@@ -237,11 +297,15 @@ export class AttendanceService {
       month,
       monthLabel: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1),
       totalWorkingDays,
+      elapsedWorkingDays,
       presentDays,
       absentDays,
       lateDays,
       unloggedDays,
       attendancePercent,
+      totalHoursAttended: Math.round(totalHoursAttended * 10) / 10,
+      expectedHoursToDate,
+      totalLostMinutes,
       absencesRemaining,
       latenessRemaining,
       maxAbsences,
@@ -252,7 +316,6 @@ export class AttendanceService {
     };
   }
 
-  // All months between course start and end, most recent first
   getMonthsForCourse(courseId?: string): string[] {
     const cid = courseId ?? this._selectedCourseId ?? null;
     const course = cid ? this.getCourse(cid) : null;

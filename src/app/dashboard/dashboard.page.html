@@ -1,135 +1,145 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="modern-header">
+  <ion-toolbar>
     <ion-title>Resumen</ion-title>
   </ion-toolbar>
-
-  <!-- Selectors toolbar -->
-  <ion-toolbar *ngIf="courses.length > 0">
+  <ion-toolbar class="selectors-bar" *ngIf="courses.length > 0">
     <ion-select
       [(ngModel)]="selectedCourseId"
       (ionChange)="onCourseChange()"
       interface="action-sheet"
       placeholder="Selecciona un curso"
       class="course-select">
-      <ion-select-option *ngFor="let c of courses" [value]="c.id">
-        {{ c.name }}
-      </ion-select-option>
+      <ion-select-option *ngFor="let c of courses" [value]="c.id">{{ c.name }}</ion-select-option>
     </ion-select>
-
     <ion-select
       slot="end"
       [(ngModel)]="selectedMonth"
       (ionChange)="onMonthChange()"
       interface="popover"
       class="month-select">
-      <ion-select-option *ngFor="let m of availableMonths" [value]="m">
-        {{ monthLabel(m) }}
-      </ion-select-option>
+      <ion-select-option *ngFor="let m of availableMonths" [value]="m">{{ monthLabelFor(m) }}</ion-select-option>
     </ion-select>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
 
-  <!-- No courses state -->
+  <!-- No courses -->
   <div *ngIf="courses.length === 0" class="empty-state">
-    <ion-icon name="book-outline" class="empty-icon"></ion-icon>
-    <p>Crea un curso en la pestaña <strong>Cursos</strong> para empezar a registrar tu asistencia.</p>
+    <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
+    <h3>Sin cursos</h3>
+    <p>Ve a la pestaña <strong>Cursos</strong> y crea tu primer curso.</p>
   </div>
 
   <ng-container *ngIf="stats && courses.length > 0">
 
-    <!-- Status banner -->
-    <ion-card [color]="stats.overallStatus === 'ok' ? 'success' : stats.overallStatus === 'warning' ? 'warning' : 'danger'">
-      <ion-card-header>
-        <ion-card-subtitle style="color:white; opacity:0.85">{{ stats.monthLabel }}</ion-card-subtitle>
-        <ion-card-title style="color:white; display:flex; align-items:center; gap:8px">
+    <!-- ── Hero ──────────────────────────────────────────────────────────────── -->
+    <div class="hero" [style.background]="heroGradient">
+
+      <!-- Ring -->
+      <div class="ring-wrap">
+        <svg viewBox="0 0 100 100" class="ring-svg">
+          <circle cx="50" cy="50" r="40" fill="none"
+            stroke="rgba(255,255,255,0.2)" stroke-width="9"/>
+          <circle cx="50" cy="50" r="40" fill="none"
+            [attr.stroke]="ringColor"
+            stroke-width="9"
+            stroke-linecap="round"
+            [attr.stroke-dasharray]="progressArc + ' ' + CIRC"
+            transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="ring-label">
+          <span class="ring-pct">{{ stats.attendancePercent }}%</span>
+          <span class="ring-sub">asistencia</span>
+        </div>
+      </div>
+
+      <!-- Status info -->
+      <div class="hero-info">
+        <div class="course-name">{{ courseName }}</div>
+        <div class="status-badge" [attr.data-status]="stats.overallStatus">
           <ion-icon [name]="statusIcon"></ion-icon>
           {{ statusText }}
-        </ion-card-title>
-      </ion-card-header>
-    </ion-card>
+        </div>
+        <div class="hero-sub">
+          Mín. {{ stats.minAttendancePercent }}% · {{ stats.elapsedWorkingDays }} de {{ stats.totalWorkingDays }} días hábiles
+        </div>
+      </div>
 
-    <!-- Attendance % -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-subtitle>Asistencia</ion-card-subtitle>
-        <ion-card-title>
-          <span [style.color]="stats.attendancePercent < stats.minAttendancePercent ? 'var(--ion-color-danger)' : 'var(--ion-color-success)'">
-            {{ stats.attendancePercent }}%
-          </span>
-          <span class="limit-label"> / mínimo {{ stats.minAttendancePercent }}%</span>
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-progress-bar [value]="stats.attendancePercent / 100" [color]="attendanceColor"></ion-progress-bar>
-        <div class="stat-row">
-          <span>Días hábiles: <strong>{{ stats.totalWorkingDays }}</strong></span>
-          <span>Horas totales: <strong>{{ hoursTotal }}h</strong></span>
-        </div>
-        <div class="stat-row">
-          <span>Horas asistidas: <strong>{{ hoursAttended }}h</strong></span>
-          <span *ngIf="stats.unloggedDays > 0" class="muted">{{ stats.unloggedDays }} sin registrar</span>
-        </div>
-      </ion-card-content>
-    </ion-card>
+    </div>
 
-    <!-- Absences -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-subtitle>Faltas</ion-card-subtitle>
-        <ion-card-title>
-          <ion-badge [color]="absencesColor">{{ stats.absentDays }} / {{ stats.maxAbsences }}</ion-badge>
-          <span class="limit-label"> máximo permitido</span>
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-progress-bar [value]="stats.absentDays / stats.maxAbsences" [color]="absencesColor"></ion-progress-bar>
-        <div class="stat-row" *ngIf="stats.absencesRemaining > 0">
-          <span>Te quedan <strong>{{ stats.absencesRemaining }}</strong> falta(s) disponible(s)</span>
-        </div>
-        <div class="stat-row danger-text" *ngIf="stats.absentDays > stats.maxAbsences">
-          <ion-icon name="alert-circle" color="danger"></ion-icon>
-          Límite de faltas excedido
-        </div>
-      </ion-card-content>
-    </ion-card>
+    <!-- ── Metric grid ────────────────────────────────────────────────────────── -->
+    <div class="metrics-grid">
 
-    <!-- Tardiness -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-subtitle>Impuntualidades</ion-card-subtitle>
-        <ion-card-title>
-          <ion-badge [color]="latenessColor">{{ stats.lateDays }} / {{ stats.maxTardiness }}</ion-badge>
-          <span class="limit-label"> máximo permitido</span>
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-progress-bar [value]="stats.lateDays / stats.maxTardiness" [color]="latenessColor"></ion-progress-bar>
-        <div class="stat-row" *ngIf="stats.latenessRemaining > 0">
-          <span>Te quedan <strong>{{ stats.latenessRemaining }}</strong> impuntualidad(es) disponible(s)</span>
+      <!-- Absences -->
+      <div class="metric-card" [class.metric-over]="stats.absentDays > stats.maxAbsences">
+        <div class="metric-head">
+          <div class="metric-icon absence-icon">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </div>
+          <span class="metric-title">Faltas</span>
         </div>
-        <div class="stat-row danger-text" *ngIf="stats.lateDays > stats.maxTardiness">
-          <ion-icon name="alert-circle" color="danger"></ion-icon>
-          Límite de impuntualidades excedido
+        <div class="metric-num">
+          {{ stats.absentDays }}<span class="metric-denom">/{{ stats.maxAbsences }}</span>
         </div>
-      </ion-card-content>
-    </ion-card>
+        <ion-progress-bar [value]="absencesBarValue" [color]="absencesColor" class="metric-bar"></ion-progress-bar>
+        <div class="metric-foot" [class.metric-foot-ok]="stats.absencesRemaining > 1" [class.metric-foot-warn]="stats.absencesRemaining === 1" [class.metric-foot-over]="stats.absentDays > stats.maxAbsences">
+          {{ stats.absentDays > stats.maxAbsences ? 'Límite superado' : stats.absencesRemaining + ' disponibles' }}
+        </div>
+      </div>
 
-    <!-- Summary chips -->
+      <!-- Tardiness -->
+      <div class="metric-card" [class.metric-over]="stats.lateDays > stats.maxTardiness">
+        <div class="metric-head">
+          <div class="metric-icon tardiness-icon">
+            <ion-icon name="time-outline"></ion-icon>
+          </div>
+          <span class="metric-title">Impunt.</span>
+        </div>
+        <div class="metric-num">
+          {{ stats.lateDays }}<span class="metric-denom">/{{ stats.maxTardiness }}</span>
+        </div>
+        <ion-progress-bar [value]="latenessBarValue" [color]="latenessColor" class="metric-bar"></ion-progress-bar>
+        <div class="metric-foot" [class.metric-foot-ok]="stats.latenessRemaining > 2" [class.metric-foot-warn]="stats.latenessRemaining <= 2 && stats.lateDays <= stats.maxTardiness" [class.metric-foot-over]="stats.lateDays > stats.maxTardiness">
+          {{ stats.lateDays > stats.maxTardiness ? 'Límite superado' : stats.latenessRemaining + ' disponibles' }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Hours card ─────────────────────────────────────────────────────────── -->
+    <div class="hours-card">
+      <div class="hours-header">
+        <div>
+          <div class="hours-title">Horas asistidas</div>
+          <div class="hours-sub">hasta hoy</div>
+        </div>
+        <div class="hours-value">
+          {{ formatHours(stats.totalHoursAttended) }}
+          <span class="hours-total"> / {{ stats.expectedHoursToDate }}h</span>
+        </div>
+      </div>
+      <ion-progress-bar [value]="hoursBarValue" [color]="attendanceBarColor" class="hours-bar"></ion-progress-bar>
+      <div class="lost-row" *ngIf="stats.totalLostMinutes > 0">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        −{{ stats.totalLostMinutes }} min perdidos por tardanzas
+      </div>
+    </div>
+
+    <!-- ── Summary chips ──────────────────────────────────────────────────────── -->
     <div class="chips-row">
-      <ion-chip [color]="stats.presentDays > 0 ? 'success' : 'medium'">
-        <ion-icon name="checkmark-circle-outline"></ion-icon>
-        <ion-label>{{ stats.presentDays }} presentes</ion-label>
-      </ion-chip>
-      <ion-chip [color]="stats.lateDays > 0 ? 'warning' : 'medium'">
-        <ion-icon name="time-outline"></ion-icon>
-        <ion-label>{{ stats.lateDays }} tardanzas</ion-label>
-      </ion-chip>
-      <ion-chip [color]="stats.absentDays > 0 ? 'danger' : 'medium'">
-        <ion-icon name="close-circle-outline"></ion-icon>
-        <ion-label>{{ stats.absentDays }} faltas</ion-label>
-      </ion-chip>
+      <div class="summary-chip chip-present">
+        <ion-icon name="checkmark-circle"></ion-icon>
+        {{ stats.presentDays }} presentes
+      </div>
+      <div class="summary-chip chip-late">
+        <ion-icon name="time"></ion-icon>
+        {{ stats.lateDays }} tardanzas
+      </div>
+      <div class="summary-chip chip-absent">
+        <ion-icon name="close-circle"></ion-icon>
+        {{ stats.absentDays }} faltas
+      </div>
     </div>
 
   </ng-container>

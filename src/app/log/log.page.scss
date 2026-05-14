@@ -1,50 +1,144 @@
-.status-icon {
-  font-size: 1.6rem;
+.day-list {
+  padding: 12px 16px 24px;
 }
 
-.today-item {
-  --background: rgba(var(--ion-color-primary-rgb), 0.06);
+.month-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+  padding: 8px 4px 12px;
 }
 
-.today-badge {
-  font-size: 0.65rem;
-  margin-left: 6px;
-  vertical-align: middle;
-}
-
-ion-note {
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.legend {
+.day-card {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 16px;
+  align-items: center;
+  gap: 12px;
+  background: var(--ion-card-background, #fff);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  border-left: 4px solid transparent;
+
+  &:active { transform: scale(0.98); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+
+  &.day-today { border-left-color: var(--ion-color-primary); }
+  &.day-present { border-left-color: var(--ion-color-success); }
+  &.day-absent  { border-left-color: var(--ion-color-danger); }
+  &.day-late    { border-left-color: var(--ion-color-warning); }
+  &.day-future  { opacity: 0.45; cursor: default; }
 }
 
+.day-date-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 38px;
+
+  .day-num {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ion-text-color);
+  }
+
+  .day-name {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--ion-color-medium);
+    margin-top: 2px;
+  }
+
+  .today-pip {
+    margin-top: 3px;
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+}
+
+.day-icon-col {
+  ion-icon {
+    font-size: 1.5rem;
+  }
+}
+
+.day-info-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.day-status-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  &[data-status="present"] { color: var(--ion-color-success-shade); }
+  &[data-status="absent"]  { color: var(--ion-color-danger-shade); }
+  &[data-status="late"]    { color: var(--ion-color-warning-shade); }
+  &[data-status="unlogged"]{ color: var(--ion-color-medium); }
+}
+
+.day-time-label {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium-shade);
+
+  &.muted { font-style: italic; }
+}
+
+.lost-tag {
+  display: inline-block;
+  background: rgba(var(--ion-color-danger-rgb), 0.12);
+  color: var(--ion-color-danger-shade);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+.day-chevron {
+  font-size: 1rem;
+}
+
+// Empty state
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 60px 24px;
+  padding: 64px 24px;
   text-align: center;
   color: var(--ion-color-medium);
 
-  .empty-icon {
-    font-size: 4rem;
+  .empty-icon-wrap {
+    width: 72px;
+    height: 72px;
+    background: rgba(var(--ion-color-primary-rgb), 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 16px;
-    color: var(--ion-color-medium-tint);
+
+    ion-icon {
+      font-size: 2rem;
+      color: var(--ion-color-primary);
+    }
   }
-}
 
-.course-select {
-  max-width: 60%;
-}
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--ion-text-color);
+  }
 
-.month-select {
-  font-size: 0.85rem;
+  p { font-size: 0.9rem; margin: 0; }
 }
