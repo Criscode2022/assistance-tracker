@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AttendanceService } from '../services/attendance.service';
-import { MonthStats } from '../models/attendance.model';
+import { Course, MonthStats } from '../models/attendance.model';
 
 @Component({
   selector: 'app-history',
@@ -10,16 +10,27 @@ import { MonthStats } from '../models/attendance.model';
 })
 export class HistoryPage {
   monthStatsList: MonthStats[] = [];
+  courses: Course[] = [];
+  selectedCourseId: string | null = null;
 
   constructor(private svc: AttendanceService) {}
 
   ionViewWillEnter(): void {
+    this.courses = this.svc.getCourses();
+    this.selectedCourseId = this.svc.selectedCourseId;
+    this.load();
+  }
+
+  onCourseChange(): void {
+    this.svc.selectedCourseId = this.selectedCourseId;
     this.load();
   }
 
   load(): void {
-    const months = this.svc.getAvailableMonths();
-    this.monthStatsList = months.map((m) => this.svc.getMonthStats(m));
+    const months = this.svc.getMonthsForCourse(this.selectedCourseId ?? undefined);
+    this.monthStatsList = months.map((m) =>
+      this.svc.getMonthStats(m, this.selectedCourseId ?? undefined)
+    );
   }
 
   statusColor(stats: MonthStats): string {

@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
-import { HistoryPage } from './history.page';
+import { CoursesPage } from './courses.page';
 
-const routes: Routes = [{ path: '', component: HistoryPage }];
+const routes: Routes = [{ path: '', component: CoursesPage }];
 
 @NgModule({
-  declarations: [HistoryPage],
+  declarations: [CoursesPage],
   imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes)],
 })
-export class HistoryPageModule {}
+export class CoursesPageModule {}

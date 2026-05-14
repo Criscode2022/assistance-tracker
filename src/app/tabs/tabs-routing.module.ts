@@ -23,6 +23,11 @@ const routes: Routes = [
           import('../history/history.module').then((m) => m.HistoryPageModule),
       },
       {
+        path: 'courses',
+        loadChildren: () =>
+          import('../courses/courses.module').then((m) => m.CoursesPageModule),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',

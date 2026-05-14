@@ -1,13 +1,45 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Resumen del Mes</ion-title>
+    <ion-title>Resumen</ion-title>
+  </ion-toolbar>
+
+  <!-- Selectors toolbar -->
+  <ion-toolbar *ngIf="courses.length > 0">
+    <ion-select
+      [(ngModel)]="selectedCourseId"
+      (ionChange)="onCourseChange()"
+      interface="action-sheet"
+      placeholder="Selecciona un curso"
+      class="course-select">
+      <ion-select-option *ngFor="let c of courses" [value]="c.id">
+        {{ c.name }}
+      </ion-select-option>
+    </ion-select>
+
+    <ion-select
+      slot="end"
+      [(ngModel)]="selectedMonth"
+      (ionChange)="onMonthChange()"
+      interface="popover"
+      class="month-select">
+      <ion-select-option *ngFor="let m of availableMonths" [value]="m">
+        {{ monthLabel(m) }}
+      </ion-select-option>
+    </ion-select>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ng-container *ngIf="stats">
 
-    <!-- Month title & status banner -->
+  <!-- No courses state -->
+  <div *ngIf="courses.length === 0" class="empty-state">
+    <ion-icon name="book-outline" class="empty-icon"></ion-icon>
+    <p>Crea un curso en la pestaña <strong>Cursos</strong> para empezar a registrar tu asistencia.</p>
+  </div>
+
+  <ng-container *ngIf="stats && courses.length > 0">
+
+    <!-- Status banner -->
     <ion-card [color]="stats.overallStatus === 'ok' ? 'success' : stats.overallStatus === 'warning' ? 'warning' : 'danger'">
       <ion-card-header>
         <ion-card-subtitle style="color:white; opacity:0.85">{{ stats.monthLabel }}</ion-card-subtitle>
@@ -23,19 +55,16 @@
       <ion-card-header>
         <ion-card-subtitle>Asistencia</ion-card-subtitle>
         <ion-card-title>
-          <span [style.color]="stats.attendancePercent < svc.MIN_ATTENDANCE_PERCENT ? 'var(--ion-color-danger)' : 'var(--ion-color-success)'">
+          <span [style.color]="stats.attendancePercent < stats.minAttendancePercent ? 'var(--ion-color-danger)' : 'var(--ion-color-success)'">
             {{ stats.attendancePercent }}%
           </span>
-          <span class="limit-label"> / mínimo 75%</span>
+          <span class="limit-label"> / mínimo {{ stats.minAttendancePercent }}%</span>
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-progress-bar
-          [value]="stats.attendancePercent / 100"
-          [color]="attendanceColor">
-        </ion-progress-bar>
+        <ion-progress-bar [value]="stats.attendancePercent / 100" [color]="attendanceColor"></ion-progress-bar>
         <div class="stat-row">
-          <span>Días hábiles totales: <strong>{{ stats.totalWorkingDays }}</strong></span>
+          <span>Días hábiles: <strong>{{ stats.totalWorkingDays }}</strong></span>
           <span>Horas totales: <strong>{{ hoursTotal }}h</strong></span>
         </div>
         <div class="stat-row">
@@ -50,21 +79,18 @@
       <ion-card-header>
         <ion-card-subtitle>Faltas</ion-card-subtitle>
         <ion-card-title>
-          <ion-badge [color]="absencesColor">{{ stats.absentDays }} / {{ svc.MAX_ABSENCES }}</ion-badge>
+          <ion-badge [color]="absencesColor">{{ stats.absentDays }} / {{ stats.maxAbsences }}</ion-badge>
           <span class="limit-label"> máximo permitido</span>
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-progress-bar
-          [value]="stats.absentDays / svc.MAX_ABSENCES"
-          [color]="absencesColor">
-        </ion-progress-bar>
+        <ion-progress-bar [value]="stats.absentDays / stats.maxAbsences" [color]="absencesColor"></ion-progress-bar>
         <div class="stat-row" *ngIf="stats.absencesRemaining > 0">
           <span>Te quedan <strong>{{ stats.absencesRemaining }}</strong> falta(s) disponible(s)</span>
         </div>
-        <div class="stat-row danger-text" *ngIf="stats.absentDays > svc.MAX_ABSENCES">
+        <div class="stat-row danger-text" *ngIf="stats.absentDays > stats.maxAbsences">
           <ion-icon name="alert-circle" color="danger"></ion-icon>
-          <span>Límite de faltas excedido</span>
+          Límite de faltas excedido
         </div>
       </ion-card-content>
     </ion-card>
@@ -74,26 +100,23 @@
       <ion-card-header>
         <ion-card-subtitle>Impuntualidades</ion-card-subtitle>
         <ion-card-title>
-          <ion-badge [color]="latenessColor">{{ stats.lateDays }} / {{ svc.MAX_TARDINESS }}</ion-badge>
+          <ion-badge [color]="latenessColor">{{ stats.lateDays }} / {{ stats.maxTardiness }}</ion-badge>
           <span class="limit-label"> máximo permitido</span>
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-progress-bar
-          [value]="stats.lateDays / svc.MAX_TARDINESS"
-          [color]="latenessColor">
-        </ion-progress-bar>
+        <ion-progress-bar [value]="stats.lateDays / stats.maxTardiness" [color]="latenessColor"></ion-progress-bar>
         <div class="stat-row" *ngIf="stats.latenessRemaining > 0">
           <span>Te quedan <strong>{{ stats.latenessRemaining }}</strong> impuntualidad(es) disponible(s)</span>
         </div>
-        <div class="stat-row danger-text" *ngIf="stats.lateDays > svc.MAX_TARDINESS">
+        <div class="stat-row danger-text" *ngIf="stats.lateDays > stats.maxTardiness">
           <ion-icon name="alert-circle" color="danger"></ion-icon>
-          <span>Límite de impuntualidades excedido</span>
+          Límite de impuntualidades excedido
         </div>
       </ion-card-content>
     </ion-card>
 
-    <!-- Quick summary chips -->
+    <!-- Summary chips -->
     <div class="chips-row">
       <ion-chip [color]="stats.presentDays > 0 ? 'success' : 'medium'">
         <ion-icon name="checkmark-circle-outline"></ion-icon>
