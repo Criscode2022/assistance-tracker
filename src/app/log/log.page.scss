@@ -1,0 +1,26 @@
+.status-icon {
+  font-size: 1.6rem;
+}
+
+.today-item {
+  --background: rgba(var(--ion-color-primary-rgb), 0.06);
+}
+
+.today-badge {
+  font-size: 0.65rem;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+ion-note {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+}

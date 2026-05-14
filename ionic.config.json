@@ -1,0 +1,7 @@
+{
+  "name": "temp-tracker",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

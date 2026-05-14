@@ -1,0 +1,113 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Resumen del Mes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ng-container *ngIf="stats">
+
+    <!-- Month title & status banner -->
+    <ion-card [color]="stats.overallStatus === 'ok' ? 'success' : stats.overallStatus === 'warning' ? 'warning' : 'danger'">
+      <ion-card-header>
+        <ion-card-subtitle style="color:white; opacity:0.85">{{ stats.monthLabel }}</ion-card-subtitle>
+        <ion-card-title style="color:white; display:flex; align-items:center; gap:8px">
+          <ion-icon [name]="statusIcon"></ion-icon>
+          {{ statusText }}
+        </ion-card-title>
+      </ion-card-header>
+    </ion-card>
+
+    <!-- Attendance % -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Asistencia</ion-card-subtitle>
+        <ion-card-title>
+          <span [style.color]="stats.attendancePercent < svc.MIN_ATTENDANCE_PERCENT ? 'var(--ion-color-danger)' : 'var(--ion-color-success)'">
+            {{ stats.attendancePercent }}%
+          </span>
+          <span class="limit-label"> / mínimo 75%</span>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-progress-bar
+          [value]="stats.attendancePercent / 100"
+          [color]="attendanceColor">
+        </ion-progress-bar>
+        <div class="stat-row">
+          <span>Días hábiles totales: <strong>{{ stats.totalWorkingDays }}</strong></span>
+          <span>Horas totales: <strong>{{ hoursTotal }}h</strong></span>
+        </div>
+        <div class="stat-row">
+          <span>Horas asistidas: <strong>{{ hoursAttended }}h</strong></span>
+          <span *ngIf="stats.unloggedDays > 0" class="muted">{{ stats.unloggedDays }} sin registrar</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Absences -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Faltas</ion-card-subtitle>
+        <ion-card-title>
+          <ion-badge [color]="absencesColor">{{ stats.absentDays }} / {{ svc.MAX_ABSENCES }}</ion-badge>
+          <span class="limit-label"> máximo permitido</span>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-progress-bar
+          [value]="stats.absentDays / svc.MAX_ABSENCES"
+          [color]="absencesColor">
+        </ion-progress-bar>
+        <div class="stat-row" *ngIf="stats.absencesRemaining > 0">
+          <span>Te quedan <strong>{{ stats.absencesRemaining }}</strong> falta(s) disponible(s)</span>
+        </div>
+        <div class="stat-row danger-text" *ngIf="stats.absentDays > svc.MAX_ABSENCES">
+          <ion-icon name="alert-circle" color="danger"></ion-icon>
+          <span>Límite de faltas excedido</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Tardiness -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Impuntualidades</ion-card-subtitle>
+        <ion-card-title>
+          <ion-badge [color]="latenessColor">{{ stats.lateDays }} / {{ svc.MAX_TARDINESS }}</ion-badge>
+          <span class="limit-label"> máximo permitido</span>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-progress-bar
+          [value]="stats.lateDays / svc.MAX_TARDINESS"
+          [color]="latenessColor">
+        </ion-progress-bar>
+        <div class="stat-row" *ngIf="stats.latenessRemaining > 0">
+          <span>Te quedan <strong>{{ stats.latenessRemaining }}</strong> impuntualidad(es) disponible(s)</span>
+        </div>
+        <div class="stat-row danger-text" *ngIf="stats.lateDays > svc.MAX_TARDINESS">
+          <ion-icon name="alert-circle" color="danger"></ion-icon>
+          <span>Límite de impuntualidades excedido</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Quick summary chips -->
+    <div class="chips-row">
+      <ion-chip [color]="stats.presentDays > 0 ? 'success' : 'medium'">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <ion-label>{{ stats.presentDays }} presentes</ion-label>
+      </ion-chip>
+      <ion-chip [color]="stats.lateDays > 0 ? 'warning' : 'medium'">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>{{ stats.lateDays }} tardanzas</ion-label>
+      </ion-chip>
+      <ion-chip [color]="stats.absentDays > 0 ? 'danger' : 'medium'">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        <ion-label>{{ stats.absentDays }} faltas</ion-label>
+      </ion-chip>
+    </div>
+
+  </ng-container>
+</ion-content>
