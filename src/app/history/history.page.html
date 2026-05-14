@@ -2,66 +2,93 @@
   <ion-toolbar color="primary">
     <ion-title>Historial</ion-title>
   </ion-toolbar>
+
+  <ion-toolbar *ngIf="courses.length > 0">
+    <ion-select
+      [(ngModel)]="selectedCourseId"
+      (ionChange)="onCourseChange()"
+      interface="action-sheet"
+      placeholder="Selecciona un curso"
+      class="course-select">
+      <ion-select-option *ngFor="let c of courses" [value]="c.id">
+        {{ c.name }}
+      </ion-select-option>
+    </ion-select>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
-  <div *ngIf="monthStatsList.length === 0" class="empty-state">
-    <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
-    <p>No hay historial aún.<br>Registra tu asistencia en la pestaña <strong>Registro</strong>.</p>
+  <div *ngIf="courses.length === 0" class="empty-state">
+    <ion-icon name="book-outline" class="empty-icon"></ion-icon>
+    <p>Crea un curso en la pestaña <strong>Cursos</strong> para ver el historial.</p>
   </div>
 
-  <ion-card *ngFor="let stats of monthStatsList" class="month-card">
-    <ion-card-header>
-      <div class="month-header">
-        <div>
-          <ion-card-subtitle>Mes</ion-card-subtitle>
-          <ion-card-title>{{ stats.monthLabel }}</ion-card-title>
-        </div>
-        <ion-icon
-          [name]="statusIcon(stats)"
-          [color]="statusColor(stats)"
-          class="status-badge-icon">
-        </ion-icon>
-      </div>
-    </ion-card-header>
+  <ng-container *ngIf="courses.length > 0">
 
-    <ion-card-content>
-      <!-- Attendance bar -->
-      <div class="metric-row">
-        <span class="metric-label">Asistencia</span>
-        <span class="metric-value" [class.ok]="stats.attendancePercent >= 75" [class.fail]="stats.attendancePercent < 75">
-          {{ stats.attendancePercent }}%
-        </span>
-      </div>
-      <ion-progress-bar
-        [value]="stats.attendancePercent / 100"
-        [color]="stats.attendancePercent >= 75 ? 'success' : 'danger'">
-      </ion-progress-bar>
+    <div *ngIf="monthStatsList.length === 0" class="empty-state">
+      <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
+      <p>No hay datos aún para este curso.</p>
+    </div>
 
-      <div class="stats-grid">
-        <div class="stat-cell">
-          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-          <span class="stat-num">{{ stats.presentDays }}</span>
-          <span class="stat-label">Presentes</span>
+    <ion-card *ngFor="let stats of monthStatsList" class="month-card">
+      <ion-card-header>
+        <div class="month-header">
+          <div>
+            <ion-card-subtitle>Mes</ion-card-subtitle>
+            <ion-card-title>{{ stats.monthLabel }}</ion-card-title>
+          </div>
+          <ion-icon
+            [name]="statusIcon(stats)"
+            [color]="statusColor(stats)"
+            class="status-badge-icon">
+          </ion-icon>
         </div>
-        <div class="stat-cell">
-          <ion-icon name="time-outline" color="warning"></ion-icon>
-          <span class="stat-num" [class.over]="stats.lateDays > 7">{{ stats.lateDays }}/7</span>
-          <span class="stat-label">Tardanzas</span>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="metric-row">
+          <span class="metric-label">Asistencia</span>
+          <span class="metric-value"
+            [class.ok]="stats.attendancePercent >= stats.minAttendancePercent"
+            [class.fail]="stats.attendancePercent < stats.minAttendancePercent">
+            {{ stats.attendancePercent }}%
+          </span>
         </div>
-        <div class="stat-cell">
-          <ion-icon name="close-circle-outline" color="danger"></ion-icon>
-          <span class="stat-num" [class.over]="stats.absentDays > 3">{{ stats.absentDays }}/3</span>
-          <span class="stat-label">Faltas</span>
+        <ion-progress-bar
+          [value]="stats.attendancePercent / 100"
+          [color]="stats.attendancePercent >= stats.minAttendancePercent ? 'success' : 'danger'">
+        </ion-progress-bar>
+
+        <div class="stats-grid">
+          <div class="stat-cell">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <span class="stat-num">{{ stats.presentDays }}</span>
+            <span class="stat-label">Presentes</span>
+          </div>
+          <div class="stat-cell">
+            <ion-icon name="time-outline" color="warning"></ion-icon>
+            <span class="stat-num" [class.over]="stats.lateDays > stats.maxTardiness">
+              {{ stats.lateDays }}/{{ stats.maxTardiness }}
+            </span>
+            <span class="stat-label">Tardanzas</span>
+          </div>
+          <div class="stat-cell">
+            <ion-icon name="close-circle-outline" color="danger"></ion-icon>
+            <span class="stat-num" [class.over]="stats.absentDays > stats.maxAbsences">
+              {{ stats.absentDays }}/{{ stats.maxAbsences }}
+            </span>
+            <span class="stat-label">Faltas</span>
+          </div>
+          <div class="stat-cell">
+            <ion-icon name="grid-outline" color="medium"></ion-icon>
+            <span class="stat-num">{{ stats.totalWorkingDays }}</span>
+            <span class="stat-label">Días hábiles</span>
+          </div>
         </div>
-        <div class="stat-cell">
-          <ion-icon name="grid-outline" color="medium"></ion-icon>
-          <span class="stat-num">{{ stats.totalWorkingDays }}</span>
-          <span class="stat-label">Días hábiles</span>
-        </div>
-      </div>
-    </ion-card-content>
-  </ion-card>
+      </ion-card-content>
+    </ion-card>
+
+  </ng-container>
 
 </ion-content>

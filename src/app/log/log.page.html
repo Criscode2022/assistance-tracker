@@ -1,60 +1,99 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Registro de Asistencia</ion-title>
+    <ion-title>Registro</ion-title>
+  </ion-toolbar>
+
+  <!-- Selectors toolbar -->
+  <ion-toolbar *ngIf="courses.length > 0">
+    <ion-select
+      [(ngModel)]="selectedCourseId"
+      (ionChange)="onCourseChange()"
+      interface="action-sheet"
+      placeholder="Selecciona un curso"
+      class="course-select">
+      <ion-select-option *ngFor="let c of courses" [value]="c.id">
+        {{ c.name }}
+      </ion-select-option>
+    </ion-select>
+
+    <ion-select
+      slot="end"
+      [(ngModel)]="selectedMonth"
+      (ionChange)="onMonthChange()"
+      interface="popover"
+      class="month-select">
+      <ion-select-option *ngFor="let m of availableMonths" [value]="m">
+        {{ monthLabelFor(m) }}
+      </ion-select-option>
+    </ion-select>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list-header>
-    <ion-label>{{ monthLabel }}</ion-label>
-  </ion-list-header>
 
-  <ion-list>
-    <ion-item
-      *ngFor="let day of days"
-      [class.today-item]="day.isToday"
-      [disabled]="day.isFuture"
-      button
-      (click)="openStatusPicker(day)"
-      detail="false">
-
-      <!-- Status icon -->
-      <ion-icon
-        slot="start"
-        [name]="statusIcon(day.status)"
-        [color]="statusColor(day.status)"
-        class="status-icon">
-      </ion-icon>
-
-      <!-- Day info -->
-      <ion-label>
-        <h2>
-          {{ day.dateLabel }}
-          <ion-badge *ngIf="day.isToday" color="primary" class="today-badge">Hoy</ion-badge>
-        </h2>
-        <p>{{ day.dayLabel | titlecase }}</p>
-      </ion-label>
-
-      <!-- Status label -->
-      <ion-note slot="end" [color]="statusColor(day.status)">
-        {{ statusLabel(day.status) }}
-      </ion-note>
-
-    </ion-item>
-  </ion-list>
-
-  <div class="legend">
-    <ion-chip color="success" outline>
-      <ion-icon name="checkmark-circle"></ion-icon>
-      <ion-label>Presente</ion-label>
-    </ion-chip>
-    <ion-chip color="warning" outline>
-      <ion-icon name="time"></ion-icon>
-      <ion-label>Impuntual</ion-label>
-    </ion-chip>
-    <ion-chip color="danger" outline>
-      <ion-icon name="close-circle"></ion-icon>
-      <ion-label>Falta</ion-label>
-    </ion-chip>
+  <!-- No courses -->
+  <div *ngIf="courses.length === 0" class="empty-state">
+    <ion-icon name="book-outline" class="empty-icon"></ion-icon>
+    <p>Crea un curso en la pestaña <strong>Cursos</strong> para registrar tu asistencia.</p>
   </div>
+
+  <ng-container *ngIf="courses.length > 0">
+
+    <!-- No days in selected month/course -->
+    <div *ngIf="days.length === 0" class="empty-state">
+      <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
+      <p>No hay días hábiles para este mes en el rango del curso.</p>
+    </div>
+
+    <ion-list-header *ngIf="days.length > 0">
+      <ion-label>{{ monthLabel }}</ion-label>
+    </ion-list-header>
+
+    <ion-list *ngIf="days.length > 0">
+      <ion-item
+        *ngFor="let day of days"
+        [class.today-item]="day.isToday"
+        [disabled]="day.isFuture"
+        button
+        (click)="openStatusPicker(day)"
+        detail="false">
+
+        <ion-icon
+          slot="start"
+          [name]="statusIcon(day.status)"
+          [color]="statusColor(day.status)"
+          class="status-icon">
+        </ion-icon>
+
+        <ion-label>
+          <h2>
+            {{ day.dateLabel }}
+            <ion-badge *ngIf="day.isToday" color="primary" class="today-badge">Hoy</ion-badge>
+          </h2>
+          <p>{{ day.dayLabel | titlecase }}</p>
+        </ion-label>
+
+        <ion-note slot="end" [color]="statusColor(day.status)">
+          {{ statusLabel(day.status) }}
+        </ion-note>
+
+      </ion-item>
+    </ion-list>
+
+    <div class="legend" *ngIf="days.length > 0">
+      <ion-chip color="success" outline>
+        <ion-icon name="checkmark-circle"></ion-icon>
+        <ion-label>Presente</ion-label>
+      </ion-chip>
+      <ion-chip color="warning" outline>
+        <ion-icon name="time"></ion-icon>
+        <ion-label>Impuntual</ion-label>
+      </ion-chip>
+      <ion-chip color="danger" outline>
+        <ion-icon name="close-circle"></ion-icon>
+        <ion-label>Falta</ion-label>
+      </ion-chip>
+    </div>
+
+  </ng-container>
 </ion-content>

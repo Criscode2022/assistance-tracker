@@ -1,10 +1,5 @@
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'unlogged';
 
-export interface AttendanceRecord {
-  date: string; // YYYY-MM-DD
-  status: AttendanceStatus;
-}
-
 export interface DayEntry {
   date: string;
   dateLabel: string;
@@ -15,7 +10,7 @@ export interface DayEntry {
 }
 
 export interface MonthStats {
-  month: string;       // YYYY-MM
+  month: string;
   monthLabel: string;
   totalWorkingDays: number;
   presentDays: number;
@@ -25,5 +20,20 @@ export interface MonthStats {
   attendancePercent: number;
   absencesRemaining: number;
   latenessRemaining: number;
+  maxAbsences: number;
+  maxTardiness: number;
+  minAttendancePercent: number;
+  hoursPerDay: number;
   overallStatus: 'ok' | 'warning' | 'failed';
+}
+
+export interface Course {
+  id: string;
+  name: string;
+  startDate: string;  // YYYY-MM-DD
+  endDate: string;    // YYYY-MM-DD
+  hoursPerDay: number;
+  maxAbsences: number;
+  maxTardiness: number;
+  minAttendancePercent: number;
 }

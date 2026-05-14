@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActionSheetController } from '@ionic/angular';
 import { AttendanceService } from '../services/attendance.service';
-import { AttendanceStatus, DayEntry } from '../models/attendance.model';
+import { AttendanceStatus, Course, DayEntry } from '../models/attendance.model';
 
 @Component({
   selector: 'app-log',
@@ -9,31 +9,65 @@ import { AttendanceStatus, DayEntry } from '../models/attendance.model';
   styleUrls: ['log.page.scss'],
   standalone: false,
 })
-export class LogPage implements OnInit {
+export class LogPage {
   days: DayEntry[] = [];
-  currentMonth!: string;
+  courses: Course[] = [];
+  selectedCourseId: string | null = null;
+  selectedMonth: string = '';
+  availableMonths: string[] = [];
 
   constructor(
     private svc: AttendanceService,
     private actionSheet: ActionSheetController
   ) {}
 
-  ngOnInit(): void {
-    this.currentMonth = this.svc.getCurrentMonth();
+  ionViewWillEnter(): void {
+    this.courses = this.svc.getCourses();
+    this.selectedCourseId = this.svc.selectedCourseId;
+    this.refreshMonths();
     this.loadDays();
   }
 
-  ionViewWillEnter(): void {
+  private refreshMonths(): void {
+    this.availableMonths = this.svc.getMonthsForCourse(
+      this.selectedCourseId ?? undefined
+    );
+    const current = this.svc.getCurrentMonth();
+    this.selectedMonth = this.availableMonths.includes(current)
+      ? current
+      : (this.availableMonths[0] ?? current);
+  }
+
+  onCourseChange(): void {
+    this.svc.selectedCourseId = this.selectedCourseId;
+    this.refreshMonths();
+    this.loadDays();
+  }
+
+  onMonthChange(): void {
     this.loadDays();
   }
 
   loadDays(): void {
-    this.days = this.svc.getDayEntriesForMonth(this.currentMonth);
+    this.days = this.svc.getDayEntriesForMonth(
+      this.selectedMonth,
+      this.selectedCourseId ?? undefined
+    );
   }
 
   get monthLabel(): string {
-    const d = new Date(this.currentMonth + '-15');
-    const label = d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+    const label = new Date(this.selectedMonth + '-15').toLocaleDateString('es-MX', {
+      month: 'long',
+      year: 'numeric',
+    });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  monthLabelFor(m: string): string {
+    const label = new Date(m + '-15').toLocaleDateString('es-MX', {
+      month: 'long',
+      year: 'numeric',
+    });
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
@@ -64,17 +98,14 @@ export class LogPage implements OnInit {
           icon: 'remove-circle-outline',
           handler: () => this.setStatus(day.date, 'unlogged'),
         },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-        },
+        { text: 'Cancelar', role: 'cancel' },
       ],
     });
     await sheet.present();
   }
 
   private setStatus(date: string, status: AttendanceStatus): void {
-    this.svc.setRecord(date, status);
+    this.svc.setRecord(date, status, this.selectedCourseId ?? undefined);
     this.loadDays();
   }
 
