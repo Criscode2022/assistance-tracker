@@ -30,6 +30,7 @@ export class CoursesPage {
       name: '',
       startDate: '',
       endDate: '',
+      startTime: '09:00',
       hoursPerDay: 5,
       maxAbsences: 3,
       maxTardiness: 7,
@@ -49,6 +50,7 @@ export class CoursesPage {
       name: course.name,
       startDate: course.startDate,
       endDate: course.endDate,
+      startTime: course.startTime ?? '09:00',
       hoursPerDay: course.hoursPerDay,
       maxAbsences: course.maxAbsences,
       maxTardiness: course.maxTardiness,
@@ -63,12 +65,13 @@ export class CoursesPage {
   }
 
   saveForm(): void {
-    if (!this.form.name.trim() || !this.form.startDate || !this.form.endDate) return;
-    if (this.form.endDate < this.form.startDate) return;
-
+    if (!this.isFormValid()) return;
     const course: Course = {
       id: this.editingId ?? this.svc.generateId(),
-      ...this.form,
+      name: this.form.name.trim(),
+      startDate: this.form.startDate,
+      endDate: this.form.endDate,
+      startTime: this.form.startTime || '09:00',
       hoursPerDay: Number(this.form.hoursPerDay),
       maxAbsences: Number(this.form.maxAbsences),
       maxTardiness: Number(this.form.maxTardiness),
@@ -87,12 +90,14 @@ export class CoursesPage {
   async confirmDelete(course: Course): Promise<void> {
     const al = await this.alert.create({
       header: 'Eliminar curso',
-      message: `¿Eliminar "<strong>${course.name}</strong>"? Se perderán todos sus registros.`,
+      message: `¿Eliminar "<strong>${course.name}</strong>"? Se perderán todos sus registros de asistencia.`,
+      cssClass: 'danger-alert',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
           text: 'Eliminar',
           role: 'destructive',
+          cssClass: 'alert-btn-danger',
           handler: () => {
             this.svc.deleteCourse(course.id);
             this.courses = this.svc.getCourses();
@@ -106,11 +111,16 @@ export class CoursesPage {
   dateRangeLabel(course: Course): string {
     const fmt = (ds: string) =>
       new Date(ds + 'T12:00:00').toLocaleDateString('es-MX', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
+        day: 'numeric', month: 'short', year: 'numeric',
       });
-    return `${fmt(course.startDate)} — ${fmt(course.endDate)}`;
+    return `${fmt(course.startDate)} → ${fmt(course.endDate)}`;
+  }
+
+  get calcExitTime(): string {
+    if (!this.form.startTime || !this.form.hoursPerDay) return '';
+    const [h, m] = this.form.startTime.split(':').map(Number);
+    const total = h * 60 + m + Number(this.form.hoursPerDay) * 60;
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
   }
 
   isFormValid(): boolean {

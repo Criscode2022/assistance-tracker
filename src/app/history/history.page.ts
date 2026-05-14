@@ -33,15 +33,11 @@ export class HistoryPage {
     );
   }
 
-  statusColor(stats: MonthStats): string {
-    if (stats.overallStatus === 'failed') return 'danger';
-    if (stats.overallStatus === 'warning') return 'warning';
-    return 'success';
+  statusColor(s: MonthStats): string {
+    return s.overallStatus === 'failed' ? 'danger' : s.overallStatus === 'warning' ? 'warning' : 'success';
   }
 
-  statusIcon(stats: MonthStats): string {
-    if (stats.overallStatus === 'failed') return 'close-circle';
-    if (stats.overallStatus === 'warning') return 'warning';
-    return 'checkmark-circle';
+  statusIcon(s: MonthStats): string {
+    return s.overallStatus === 'failed' ? 'close-circle' : s.overallStatus === 'warning' ? 'warning' : 'checkmark-circle';
   }
 }

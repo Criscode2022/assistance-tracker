@@ -1,107 +1,124 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Mis Cursos</ion-title>
+<ion-header class="modern-header">
+  <ion-toolbar>
+    <ion-title>{{ showForm ? (editingId ? 'Editar Curso' : 'Nuevo Curso') : 'Mis Cursos' }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openNew()" *ngIf="!showForm">
+      <ion-button *ngIf="!showForm" (click)="openNew()">
         <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="showForm" (click)="cancelForm()" color="medium">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
 
   <!-- ── Course form ──────────────────────────────────────────────────────── -->
-  <ion-card *ngIf="showForm" class="form-card">
-    <ion-card-header>
-      <ion-card-title>{{ editingId ? 'Editar curso' : 'Nuevo curso' }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
+  <div *ngIf="showForm" class="form-wrap">
 
-      <ion-item>
-        <ion-label position="stacked">Nombre del curso <span class="required">*</span></ion-label>
+    <div class="form-section">
+      <div class="form-section-label">Información del curso</div>
+
+      <div class="form-field">
+        <label class="field-label">Nombre del curso <span class="req">*</span></label>
         <ion-input
           [(ngModel)]="form.name"
           placeholder="Ej. Matemáticas I"
-          type="text"
+          class="modern-input"
           clearInput>
         </ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Fecha de inicio <span class="required">*</span></ion-label>
-        <ion-input [(ngModel)]="form.startDate" type="date"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Fecha de fin <span class="required">*</span></ion-label>
-        <ion-input [(ngModel)]="form.endDate" type="date" [min]="form.startDate"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Horas por día</ion-label>
-        <ion-input [(ngModel)]="form.hoursPerDay" type="number" min="1" max="12"></ion-input>
-      </ion-item>
-
-      <ion-list-header class="rules-header">
-        <ion-label>Límites mensuales</ion-label>
-      </ion-list-header>
-
-      <ion-item>
-        <ion-label position="stacked">Máx. faltas</ion-label>
-        <ion-input [(ngModel)]="form.maxAbsences" type="number" min="0" max="31"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Máx. impuntualidades</ion-label>
-        <ion-input [(ngModel)]="form.maxTardiness" type="number" min="0" max="31"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">% asistencia mínima</ion-label>
-        <ion-input [(ngModel)]="form.minAttendancePercent" type="number" min="1" max="100"></ion-input>
-      </ion-item>
-
-      <div class="form-actions">
-        <ion-button expand="block" (click)="saveForm()" [disabled]="!isFormValid()">
-          <ion-icon slot="start" name="checkmark-outline"></ion-icon>
-          Guardar
-        </ion-button>
-        <ion-button expand="block" fill="outline" color="medium" (click)="cancelForm()">
-          Cancelar
-        </ion-button>
       </div>
 
-    </ion-card-content>
-  </ion-card>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="field-label">Fecha de inicio <span class="req">*</span></label>
+          <ion-input [(ngModel)]="form.startDate" type="date" class="modern-input"></ion-input>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Fecha de fin <span class="req">*</span></label>
+          <ion-input [(ngModel)]="form.endDate" type="date" [min]="form.startDate" class="modern-input"></ion-input>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="field-label">Hora de entrada</label>
+          <ion-input [(ngModel)]="form.startTime" type="time" class="modern-input"></ion-input>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Hora de salida</label>
+          <ion-input [value]="calcExitTime" class="modern-input" readonly></ion-input>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">Horas por día</label>
+        <ion-input [(ngModel)]="form.hoursPerDay" type="number" min="1" max="12" class="modern-input"></ion-input>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-label">Límites mensuales</div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="field-label">Máx. faltas</label>
+          <ion-input [(ngModel)]="form.maxAbsences" type="number" min="0" class="modern-input"></ion-input>
+        </div>
+        <div class="form-field">
+          <label class="field-label">Máx. impuntualidades</label>
+          <ion-input [(ngModel)]="form.maxTardiness" type="number" min="0" class="modern-input"></ion-input>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">% asistencia mínima</label>
+        <ion-input [(ngModel)]="form.minAttendancePercent" type="number" min="1" max="100" class="modern-input"></ion-input>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <ion-button expand="block" (click)="saveForm()" [disabled]="!isFormValid()" class="save-btn">
+        <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+        Guardar curso
+      </ion-button>
+      <ion-button expand="block" fill="clear" color="medium" (click)="cancelForm()">Cancelar</ion-button>
+    </div>
+
+  </div>
 
   <!-- ── Courses list ─────────────────────────────────────────────────────── -->
   <div *ngIf="!showForm">
 
     <div *ngIf="courses.length === 0" class="empty-state">
-      <ion-icon name="book-outline" class="empty-icon"></ion-icon>
-      <p>No tienes cursos.<br>Pulsa <strong>+</strong> para crear uno.</p>
+      <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
+      <h3>Sin cursos</h3>
+      <p>Pulsa <strong>+</strong> para crear tu primer curso.</p>
     </div>
 
-    <ion-list *ngIf="courses.length > 0">
+    <div class="course-list" *ngIf="courses.length > 0">
       <ion-item-sliding *ngFor="let course of courses">
 
         <ion-item
-          [class.active-course]="svc.selectedCourseId === course.id"
+          class="course-item"
+          [class.course-active]="svc.selectedCourseId === course.id"
           (click)="selectCourse(course.id)"
-          button
-          detail="false">
+          button detail="false" lines="none">
 
-          <ion-icon
-            slot="start"
-            [name]="svc.selectedCourseId === course.id ? 'radio-button-on' : 'radio-button-off'"
-            [color]="svc.selectedCourseId === course.id ? 'primary' : 'medium'">
-          </ion-icon>
+          <div class="course-left" slot="start">
+            <div class="course-radio" [class.radio-on]="svc.selectedCourseId === course.id"></div>
+          </div>
 
-          <ion-label>
+          <ion-label class="course-label">
             <h2>{{ course.name }}</h2>
-            <p>{{ dateRangeLabel(course) }}</p>
-            <p>{{ course.hoursPerDay }}h/día · máx. {{ course.maxAbsences }} faltas · máx. {{ course.maxTardiness }} tardanzas · ≥{{ course.minAttendancePercent }}%</p>
+            <p class="course-range">{{ dateRangeLabel(course) }}</p>
+            <div class="course-chips">
+              <span class="cchip">{{ course.hoursPerDay }}h/día</span>
+              <span class="cchip">≥{{ course.minAttendancePercent }}%</span>
+              <span class="cchip cchip-absence">≤{{ course.maxAbsences }} faltas</span>
+              <span class="cchip cchip-late">≤{{ course.maxTardiness }} tardanzas</span>
+            </div>
           </ion-label>
 
         </ion-item>
@@ -116,14 +133,14 @@
         </ion-item-options>
 
       </ion-item-sliding>
-    </ion-list>
+    </div>
 
   </div>
 
 </ion-content>
 
 <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!showForm">
-  <ion-fab-button (click)="openNew()" color="primary">
+  <ion-fab-button (click)="openNew()">
     <ion-icon name="add"></ion-icon>
   </ion-fab-button>
 </ion-fab>

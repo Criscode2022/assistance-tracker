@@ -1,99 +1,87 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="modern-header">
+  <ion-toolbar>
     <ion-title>Registro</ion-title>
   </ion-toolbar>
-
-  <!-- Selectors toolbar -->
-  <ion-toolbar *ngIf="courses.length > 0">
+  <ion-toolbar class="selectors-bar" *ngIf="courses.length > 0">
     <ion-select
       [(ngModel)]="selectedCourseId"
       (ionChange)="onCourseChange()"
       interface="action-sheet"
       placeholder="Selecciona un curso"
       class="course-select">
-      <ion-select-option *ngFor="let c of courses" [value]="c.id">
-        {{ c.name }}
-      </ion-select-option>
+      <ion-select-option *ngFor="let c of courses" [value]="c.id">{{ c.name }}</ion-select-option>
     </ion-select>
-
     <ion-select
       slot="end"
       [(ngModel)]="selectedMonth"
       (ionChange)="onMonthChange()"
       interface="popover"
       class="month-select">
-      <ion-select-option *ngFor="let m of availableMonths" [value]="m">
-        {{ monthLabelFor(m) }}
-      </ion-select-option>
+      <ion-select-option *ngFor="let m of availableMonths" [value]="m">{{ monthLabelFor(m) }}</ion-select-option>
     </ion-select>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
-  <!-- No courses -->
   <div *ngIf="courses.length === 0" class="empty-state">
-    <ion-icon name="book-outline" class="empty-icon"></ion-icon>
-    <p>Crea un curso en la pestaña <strong>Cursos</strong> para registrar tu asistencia.</p>
+    <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
+    <h3>Sin cursos</h3>
+    <p>Crea un curso en la pestaña <strong>Cursos</strong> para empezar.</p>
   </div>
 
   <ng-container *ngIf="courses.length > 0">
-
-    <!-- No days in selected month/course -->
     <div *ngIf="days.length === 0" class="empty-state">
-      <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
-      <p>No hay días hábiles para este mes en el rango del curso.</p>
+      <div class="empty-icon-wrap"><ion-icon name="calendar-outline"></ion-icon></div>
+      <h3>Sin días hábiles</h3>
+      <p>No hay días en este mes dentro del rango del curso.</p>
     </div>
 
-    <ion-list-header *ngIf="days.length > 0">
-      <ion-label>{{ monthLabel }}</ion-label>
-    </ion-list-header>
+    <div class="day-list" *ngIf="days.length > 0">
+      <div class="month-section-label">{{ monthLabel }}</div>
 
-    <ion-list *ngIf="days.length > 0">
-      <ion-item
+      <div
         *ngFor="let day of days"
-        [class.today-item]="day.isToday"
-        [disabled]="day.isFuture"
-        button
-        (click)="openStatusPicker(day)"
-        detail="false">
+        class="day-card"
+        [class.day-today]="day.isToday"
+        [class.day-future]="day.isFuture"
+        [class.day-present]="day.status === 'present'"
+        [class.day-absent]="day.status === 'absent'"
+        [class.day-late]="day.status === 'late'"
+        (click)="openStatusPicker(day)">
 
-        <ion-icon
-          slot="start"
-          [name]="statusIcon(day.status)"
-          [color]="statusColor(day.status)"
-          class="status-icon">
-        </ion-icon>
+        <!-- Date column -->
+        <div class="day-date-col">
+          <span class="day-num">{{ day.date | slice:8:10 }}</span>
+          <span class="day-name">{{ day.dayLabel | slice:0:3 | uppercase }}</span>
+          <ion-badge *ngIf="day.isToday" color="primary" class="today-pip">HOY</ion-badge>
+        </div>
 
-        <ion-label>
-          <h2>
-            {{ day.dateLabel }}
-            <ion-badge *ngIf="day.isToday" color="primary" class="today-badge">Hoy</ion-badge>
-          </h2>
-          <p>{{ day.dayLabel | titlecase }}</p>
-        </ion-label>
+        <!-- Status icon -->
+        <div class="day-icon-col">
+          <ion-icon [name]="statusIcon(day)" [color]="statusColor(day)"></ion-icon>
+        </div>
 
-        <ion-note slot="end" [color]="statusColor(day.status)">
-          {{ statusLabel(day.status) }}
-        </ion-note>
+        <!-- Info -->
+        <div class="day-info-col">
+          <span class="day-status-label" [attr.data-status]="day.status">
+            {{ statusLabel(day) }}
+          </span>
+          <span class="day-time-label"
+            *ngIf="day.status === 'late' && day.entryTime && day.exitTime">
+            {{ day.entryTime }} → {{ day.exitTime }}
+            &nbsp;•&nbsp;{{ formatHours(day.hoursAttended) }}
+            <span class="lost-tag" *ngIf="day.lostMinutes > 0">−{{ day.lostMinutes }}min</span>
+          </span>
+          <span class="day-time-label muted"
+            *ngIf="day.status === 'late' && (!day.entryTime || !day.exitTime)">
+            Sin horario registrado
+          </span>
+        </div>
 
-      </ion-item>
-    </ion-list>
-
-    <div class="legend" *ngIf="days.length > 0">
-      <ion-chip color="success" outline>
-        <ion-icon name="checkmark-circle"></ion-icon>
-        <ion-label>Presente</ion-label>
-      </ion-chip>
-      <ion-chip color="warning" outline>
-        <ion-icon name="time"></ion-icon>
-        <ion-label>Impuntual</ion-label>
-      </ion-chip>
-      <ion-chip color="danger" outline>
-        <ion-icon name="close-circle"></ion-icon>
-        <ion-label>Falta</ion-label>
-      </ion-chip>
+        <ion-icon name="chevron-forward-outline" class="day-chevron" *ngIf="!day.isFuture" color="medium"></ion-icon>
+      </div>
     </div>
-
   </ng-container>
+
 </ion-content>

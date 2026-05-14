@@ -1,86 +1,130 @@
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 24px;
-  text-align: center;
-  color: var(--ion-color-medium);
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 16px;
-    color: var(--ion-color-medium-tint);
-  }
+.history-list {
+  padding: 16px 16px 24px;
 }
 
 .month-card {
+  background: var(--ion-card-background, #fff);
+  border-radius: 16px;
+  padding: 16px;
   margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
 }
 
-.month-header {
+.month-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 12px;
+
+  &[data-status="failed"] .month-label { color: var(--ion-color-danger); }
+  &[data-status="warning"] .month-label { color: var(--ion-color-warning-shade); }
+  &[data-status="ok"] .month-label { color: var(--ion-text-color); }
 }
 
-.status-badge-icon {
-  font-size: 2rem;
+.month-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.metric-row {
+.month-label {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.month-days {
+  font-size: 0.72rem;
+  color: var(--ion-color-medium);
+}
+
+.month-status-icon {
+  ion-icon { font-size: 1.6rem; }
+}
+
+.att-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 4px;
 }
 
-.metric-label {
-  font-size: 0.85rem;
+.att-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--ion-color-medium-shade);
 }
 
-.metric-value {
+.att-value {
   font-size: 1.2rem;
-  font-weight: 700;
+  font-weight: 800;
 
-  &.ok { color: var(--ion-color-success); }
-  &.fail { color: var(--ion-color-danger); }
+  &.att-ok   { color: var(--ion-color-success-shade); }
+  &.att-fail { color: var(--ion-color-danger); }
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 16px;
-  text-align: center;
+.att-bar {
+  height: 6px;
+  border-radius: 3px;
+  margin-bottom: 14px;
 }
 
-.stat-cell {
+.stat-chips {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
-  ion-icon {
-    font-size: 1.3rem;
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ion-color-light);
+  border-radius: 10px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ion-text-color);
+
+  ion-icon { font-size: 0.95rem; }
+
+  .chip-label {
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--ion-color-medium);
+  }
+
+  &.chip-over {
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+    color: var(--ion-color-danger-shade);
+
+    .chip-label { color: var(--ion-color-danger-shade); }
   }
 }
 
-.stat-num {
-  font-size: 1.1rem;
-  font-weight: 700;
-
-  &.over { color: var(--ion-color-danger); }
-}
-
-.stat-label {
-  font-size: 0.65rem;
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  text-align: center;
   color: var(--ion-color-medium);
-}
 
-ion-progress-bar {
-  margin-bottom: 12px;
-  height: 6px;
-  border-radius: 3px;
+  .empty-icon-wrap {
+    width: 72px;
+    height: 72px;
+    background: rgba(var(--ion-color-primary-rgb), 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    ion-icon { font-size: 2rem; color: var(--ion-color-primary); }
+  }
+
+  h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; color: var(--ion-text-color); }
+  p  { font-size: 0.9rem; margin: 0; }
 }

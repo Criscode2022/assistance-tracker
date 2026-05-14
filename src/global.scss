@@ -25,13 +25,92 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+// ── Global resets ─────────────────────────────────────────────────────────────
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+* { box-sizing: border-box; }
+
+ion-content { --background: var(--ion-background-color); }
+
+// ── Modern header ─────────────────────────────────────────────────────────────
+
+.modern-header ion-toolbar:first-child {
+  --background: var(--ion-color-primary);
+  --color: #fff;
+
+  ion-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+
+  ion-button { --color: rgba(255,255,255,0.85); }
+}
+
+// Selectors toolbar (second toolbar inside header)
+.selectors-bar {
+  --background: #ffffff;
+  --border-color: var(--ion-color-light-shade);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+
+  .course-select {
+    --placeholder-color: var(--ion-color-medium);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    max-width: 58%;
+  }
+
+  .month-select {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ion-color-medium-shade);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .selectors-bar {
+    --background: #1e293b;
+    --border-color: #334155;
+  }
+}
+
+// ── Tab bar ───────────────────────────────────────────────────────────────────
+
+ion-tab-bar {
+  --background: #ffffff;
+  border-top: 1px solid var(--ion-color-light-shade);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+
+  ion-tab-button {
+    --color: var(--ion-color-medium);
+    --color-selected: var(--ion-color-primary);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+
+    ion-icon { font-size: 1.3rem; }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  ion-tab-bar {
+    --background: #1e293b;
+    border-top-color: #334155;
+  }
+}
+
+// ── ion-progress-bar ──────────────────────────────────────────────────────────
+
+ion-progress-bar { border-radius: 100px; }
+
+// ── ion-item-sliding radius ───────────────────────────────────────────────────
+
+ion-item-sliding { border-radius: 14px; overflow: hidden; }
+
+// ── Alert customisation ───────────────────────────────────────────────────────
+
+.time-alert .alert-wrapper { border-radius: 18px !important; }
+
+.alert-btn-primary { font-weight: 700 !important; color: var(--ion-color-primary) !important; }
+.alert-btn-neutral { color: var(--ion-color-medium-shade) !important; }
+.alert-btn-danger  { color: var(--ion-color-danger) !important; }
