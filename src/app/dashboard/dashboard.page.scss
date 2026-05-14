@@ -1,0 +1,47 @@
+ion-card {
+  margin-bottom: 12px;
+}
+
+.limit-label {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+  font-weight: normal;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--ion-color-medium-shade);
+}
+
+.danger-text {
+  color: var(--ion-color-danger);
+  gap: 4px;
+}
+
+.muted {
+  color: var(--ion-color-medium);
+  font-style: italic;
+}
+
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: center;
+}
+
+ion-progress-bar {
+  margin-top: 8px;
+  height: 8px;
+  border-radius: 4px;
+}
+
+ion-badge {
+  font-size: 1rem;
+  padding: 4px 10px;
+}
