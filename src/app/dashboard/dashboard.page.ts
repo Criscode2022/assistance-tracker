@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { NavController } from '@ionic/angular';
 import { AttendanceService } from '../services/attendance.service';
 import { Course, MonthStats } from '../models/attendance.model';
 
@@ -18,7 +19,7 @@ export class DashboardPage {
   // SVG ring constants: r=40, circumference = 2π*40 = 251.33
   readonly CIRC = 251.33;
 
-  constructor(public svc: AttendanceService) {}
+  constructor(public svc: AttendanceService, private nav: NavController) {}
 
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();
@@ -145,5 +146,9 @@ export class DashboardPage {
     return this.stats.expectedHoursToDate > 0
       ? Math.min(1, this.stats.totalHoursAttended / this.stats.expectedHoursToDate)
       : 1;
+  }
+
+  openConfig(): void {
+    this.nav.navigateForward('/config');
   }
 }

@@ -1,0 +1,150 @@
+.config-content {
+  --background: var(--ion-background-color, #f0f2f7);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 20px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ion-color-primary);
+
+  ion-icon {
+    font-size: 18px;
+  }
+
+  &.danger {
+    color: var(--ion-color-danger);
+  }
+}
+
+.settings-list {
+  margin: 0 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+  ion-item-divider {
+    --background: var(--ion-background-color);
+    --color: var(--ion-color-medium);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 4px;
+  }
+
+  ion-item {
+    --background: white;
+    --padding-start: 16px;
+
+    h3 {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.time-input {
+  font-size: 15px;
+  text-align: right;
+}
+
+.info-card,
+.permission-card,
+.danger-card {
+  margin: 8px 16px;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.permission-card {
+  &.granted {
+    border-left: 4px solid var(--ion-color-success);
+  }
+  &.denied {
+    border-left: 4px solid var(--ion-color-danger);
+  }
+}
+
+.permission-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.permission-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  strong {
+    font-size: 14px;
+    display: block;
+  }
+}
+
+.permission-label {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin: 2px 0 0;
+}
+
+.denied-hint {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(var(--ion-color-danger-rgb), 0.08);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--ion-color-danger);
+  line-height: 1.5;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+
+  ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+}
+
+.action-row {
+  padding: 12px 16px 4px;
+}
+
+.test-btn {
+  --border-radius: 12px;
+}
+
+.danger-card {
+  border-left: 4px solid var(--ion-color-danger);
+}
+
+.danger-desc {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+.bottom-spacer {
+  height: 40px;
+}
