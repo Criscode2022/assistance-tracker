@@ -1,7 +1,14 @@
-import { Component } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { AlertController, ToastController } from '@ionic/angular';
 import { AttendanceService } from '../services/attendance.service';
-import { Course } from '../models/attendance.model';
+import { Course, DayRecord } from '../models/attendance.model';
+
+export interface CourseExport {
+  version: 1;
+  exported: string;
+  courses: Course[];
+  records: Record<string, Record<string, DayRecord>>;
+}
 
 @Component({
   selector: 'app-courses',
@@ -10,19 +17,27 @@ import { Course } from '../models/attendance.model';
   standalone: false,
 })
 export class CoursesPage {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   courses: Course[] = [];
   showForm = false;
   editingId: string | null = null;
 
   form: Omit<Course, 'id'> = this.blankForm();
 
+  // ── Select / export mode ─────────────────────────────────────────────────────
+  selectMode = false;
+  selectedIds = new Set<string>();
+
   constructor(
     public svc: AttendanceService,
-    private alert: AlertController
+    private alert: AlertController,
+    private toast: ToastController,
   ) {}
 
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();
+    this.exitSelectMode();
   }
 
   private blankForm(): Omit<Course, 'id'> {
@@ -84,7 +99,11 @@ export class CoursesPage {
   }
 
   selectCourse(id: string): void {
-    this.svc.selectedCourseId = id;
+    if (this.selectMode) {
+      this.toggleSelectId(id);
+    } else {
+      this.svc.selectedCourseId = id;
+    }
   }
 
   async confirmDelete(course: Course): Promise<void> {
@@ -107,6 +126,148 @@ export class CoursesPage {
     });
     await al.present();
   }
+
+  // ── Select mode ──────────────────────────────────────────────────────────────
+
+  enterSelectMode(): void {
+    this.selectMode = true;
+    this.selectedIds.clear();
+  }
+
+  exitSelectMode(): void {
+    this.selectMode = false;
+    this.selectedIds.clear();
+  }
+
+  toggleSelectId(id: string): void {
+    if (this.selectedIds.has(id)) {
+      this.selectedIds.delete(id);
+    } else {
+      this.selectedIds.add(id);
+    }
+  }
+
+  isSelected(id: string): boolean {
+    return this.selectedIds.has(id);
+  }
+
+  get selectedCount(): number {
+    return this.selectedIds.size;
+  }
+
+  // ── Export ───────────────────────────────────────────────────────────────────
+
+  exportSelected(): void {
+    const ids = [...this.selectedIds];
+    this.exportCourseIds(ids);
+    this.exitSelectMode();
+  }
+
+  exportSingle(course: Course): void {
+    this.exportCourseIds([course.id]);
+  }
+
+  private exportCourseIds(ids: string[]): void {
+    const courses = this.courses.filter((c) => ids.includes(c.id));
+    const records: Record<string, Record<string, DayRecord>> = {};
+    for (const id of ids) {
+      records[id] = this.svc.getRecordsForCourse(id);
+    }
+    const data: CourseExport = {
+      version: 1,
+      exported: new Date().toISOString(),
+      courses,
+      records,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const label =
+      courses.length === 1
+        ? courses[0].name.replace(/\s+/g, '_').toLowerCase()
+        : `presencia_cursos_${courses.length}`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${label}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Import ───────────────────────────────────────────────────────────────────
+
+  triggerImport(): void {
+    this.fileInput.nativeElement.value = '';
+    this.fileInput.nativeElement.click();
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    let raw: string;
+    try {
+      raw = await file.text();
+    } catch {
+      await this.showToast('No se pudo leer el archivo.', 'danger');
+      return;
+    }
+
+    let data: unknown;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      await this.showToast('El archivo no es un JSON válido.', 'danger');
+      return;
+    }
+
+    if (!this.isValidExport(data)) {
+      await this.showToast('El archivo no tiene el formato esperado.', 'danger');
+      return;
+    }
+
+    const exportData = data as CourseExport;
+    const count = exportData.courses.length;
+
+    const al = await this.alert.create({
+      header: 'Importar cursos',
+      message: `Se importar${count === 1 ? 'á 1 curso' : `án ${count} cursos`} con sus registros. Los cursos con el mismo ID se sobreescribirán.`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Importar',
+          handler: () => {
+            for (const course of exportData.courses) {
+              const recs = exportData.records[course.id] ?? {};
+              this.svc.importCourseData(course, recs);
+            }
+            this.courses = this.svc.getCourses();
+            this.showToast(
+              `${count === 1 ? '1 curso importado' : `${count} cursos importados`} correctamente.`,
+              'success'
+            );
+          },
+        },
+      ],
+    });
+    await al.present();
+  }
+
+  private isValidExport(data: unknown): boolean {
+    if (typeof data !== 'object' || data === null) return false;
+    const d = data as Record<string, unknown>;
+    return (
+      d['version'] === 1 &&
+      Array.isArray(d['courses']) &&
+      typeof d['records'] === 'object'
+    );
+  }
+
+  private async showToast(message: string, color: string): Promise<void> {
+    const t = await this.toast.create({ message, color, duration: 2500, position: 'bottom' });
+    await t.present();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
 
   dateRangeLabel(course: Course): string {
     const fmt = (ds: string) =>

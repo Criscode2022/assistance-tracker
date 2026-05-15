@@ -134,6 +134,23 @@ export class AttendanceService {
     return this.records[cid]?.[date] ?? { status: 'unlogged' };
   }
 
+  getRecordsForCourse(courseId: string): Record<string, DayRecord> {
+    return { ...(this.records[courseId] ?? {}) };
+  }
+
+  importCourseData(course: Course, records: Record<string, DayRecord>): void {
+    const existing = this.courses.find((c) => c.id === course.id);
+    if (!existing) {
+      this.courses.push(course);
+      if (!this._selectedCourseId) this.selectedCourseId = course.id;
+    } else {
+      this.courses[this.courses.indexOf(existing)] = course;
+    }
+    this.records[course.id] = records;
+    this.saveCourses();
+    this.saveRecords();
+  }
+
   // ── Date helpers ─────────────────────────────────────────────────────────────
 
   private localDateStr(d: Date): string {

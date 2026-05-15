@@ -1,16 +1,46 @@
 <ion-header class="modern-header">
   <ion-toolbar>
-    <ion-title>{{ showForm ? (editingId ? 'Editar Curso' : 'Nuevo Curso') : 'Mis Cursos' }}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button *ngIf="!showForm" (click)="openNew()">
-        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-      </ion-button>
-      <ion-button *ngIf="showForm" (click)="cancelForm()" color="medium">
+    <ion-title>{{ showForm ? (editingId ? 'Editar Curso' : 'Nuevo Curso') : (selectMode ? 'Seleccionar' : 'Mis Cursos') }}</ion-title>
+
+    <!-- Form mode -->
+    <ion-buttons slot="end" *ngIf="showForm">
+      <ion-button (click)="cancelForm()" color="medium">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <!-- Select mode -->
+    <ng-container *ngIf="!showForm && selectMode">
+      <ion-buttons slot="start">
+        <ion-button (click)="exitSelectMode()" color="medium">Cancelar</ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+        <ion-button
+          (click)="exportSelected()"
+          [disabled]="selectedCount === 0"
+          color="primary">
+          <ion-icon slot="start" name="download-outline"></ion-icon>
+          Exportar{{ selectedCount > 0 ? ' (' + selectedCount + ')' : '' }}
+        </ion-button>
+      </ion-buttons>
+    </ng-container>
+
+    <!-- Normal mode -->
+    <ion-buttons slot="end" *ngIf="!showForm && !selectMode">
+      <ion-button (click)="enterSelectMode()">
+        <ion-icon slot="icon-only" name="checkmark-done-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<!-- Hidden file input for import -->
+<input
+  #fileInput
+  type="file"
+  accept=".json,application/json"
+  style="display:none"
+  (change)="onFileSelected($event)" />
 
 <ion-content>
 
@@ -91,6 +121,20 @@
   <!-- ── Courses list ─────────────────────────────────────────────────────── -->
   <div *ngIf="!showForm">
 
+    <!-- Import card (top of list, always visible) -->
+    <div class="course-list-wrap">
+      <div class="import-card" (click)="triggerImport()">
+        <div class="import-icon-wrap">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+        </div>
+        <div class="import-label">
+          <span class="import-title">Importar curso</span>
+          <span class="import-sub">Desde archivo JSON</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="import-chevron"></ion-icon>
+      </div>
+    </div>
+
     <div *ngIf="courses.length === 0" class="empty-state">
       <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
       <h3>Sin cursos</h3>
@@ -98,16 +142,28 @@
     </div>
 
     <div class="course-list" *ngIf="courses.length > 0">
-      <ion-item-sliding *ngFor="let course of courses">
+      <ion-item-sliding
+        *ngFor="let course of courses"
+        [disabled]="selectMode">
 
         <ion-item
           class="course-item"
-          [class.course-active]="svc.selectedCourseId === course.id"
+          [class.course-active]="!selectMode && svc.selectedCourseId === course.id"
+          [class.course-selected]="selectMode && isSelected(course.id)"
           (click)="selectCourse(course.id)"
           button detail="false" lines="none">
 
           <div class="course-left" slot="start">
-            <div class="course-radio" [class.radio-on]="svc.selectedCourseId === course.id"></div>
+            <!-- Radio (normal mode) -->
+            <div
+              *ngIf="!selectMode"
+              class="course-radio"
+              [class.radio-on]="svc.selectedCourseId === course.id">
+            </div>
+            <!-- Checkbox (select mode) -->
+            <div *ngIf="selectMode" class="course-checkbox" [class.checkbox-on]="isSelected(course.id)">
+              <ion-icon *ngIf="isSelected(course.id)" name="checkmark" class="check-icon"></ion-icon>
+            </div>
           </div>
 
           <ion-label class="course-label">
@@ -124,6 +180,9 @@
         </ion-item>
 
         <ion-item-options side="end">
+          <ion-item-option color="tertiary" (click)="exportSingle(course)">
+            <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+          </ion-item-option>
           <ion-item-option color="primary" (click)="openEdit(course)">
             <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
           </ion-item-option>
@@ -139,7 +198,7 @@
 
 </ion-content>
 
-<ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!showForm">
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!showForm && !selectMode">
   <ion-fab-button (click)="openNew()">
     <ion-icon name="add"></ion-icon>
   </ion-fab-button>
