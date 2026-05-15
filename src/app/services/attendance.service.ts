@@ -320,6 +320,18 @@ export class AttendanceService {
     };
   }
 
+  clearAllData(): void {
+    this.courses = [];
+    this.records = {};
+    this._selectedCourseId = null;
+    localStorage.removeItem('courses_v1');
+    localStorage.removeItem('attendance_v3');
+    localStorage.removeItem('attendance_v2');
+    localStorage.removeItem('attendance_v1');
+    localStorage.removeItem('selected_course_id');
+    localStorage.removeItem('notification_settings_v1');
+  }
+
   getMonthsForCourse(courseId?: string): string[] {
     const cid = courseId ?? this._selectedCourseId ?? null;
     const course = cid ? this.getCourse(cid) : null;
