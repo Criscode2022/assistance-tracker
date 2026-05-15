@@ -264,25 +264,29 @@ export class AttendanceService {
           break;
         default:
           unloggedDays++;
-          totalHoursAttended += hoursPerDay; // benefit of doubt
+          // Unlogged days are not counted as attended
       }
     }
 
     const expectedHoursToDate = elapsedWorkingDays * hoursPerDay;
+    // Future months (no elapsed days) show 0%, not 100%
     const attendancePercent =
       expectedHoursToDate > 0
         ? Math.min(100, Math.round((totalHoursAttended / expectedHoursToDate) * 100))
-        : 100;
+        : 0;
 
     const absencesRemaining = Math.max(0, maxAbsences - absentDays);
     const latenessRemaining = Math.max(0, maxTardiness - lateDays);
 
+    // Only flag failed/warning when there are actual elapsed days to evaluate
     const failed =
-      absentDays > maxAbsences ||
-      lateDays > maxTardiness ||
-      attendancePercent < minAttendancePercent;
+      elapsedWorkingDays > 0 &&
+      (absentDays > maxAbsences ||
+        lateDays > maxTardiness ||
+        attendancePercent < minAttendancePercent);
 
     const warning =
+      elapsedWorkingDays > 0 &&
       !failed &&
       (absencesRemaining <= 1 ||
         latenessRemaining <= 2 ||
