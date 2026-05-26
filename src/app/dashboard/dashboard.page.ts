@@ -62,9 +62,12 @@ export class DashboardPage {
   }
 
   get ringColor(): string {
-    if (this.stats.attendancePercent < this.stats.minAttendancePercent) return '#ef4444';
-    if (this.stats.attendancePercent < this.stats.minAttendancePercent + 5) return '#f59e0b';
-    return '#22c55e';
+    const colors: Record<string, string> = {
+      ok: '#ddd6fe',
+      warning: '#fef08a',
+      failed: '#ffcaca',
+    };
+    return colors[this.stats?.overallStatus ?? 'ok'];
   }
 
   // ── Hero gradient ─────────────────────────────────────────────────────────────
