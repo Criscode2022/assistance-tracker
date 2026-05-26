@@ -1,0 +1,101 @@
+<ion-header class="modern-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Modo en línea</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="auth-content">
+  <div class="auth-hero">
+    <ion-icon name="cloud-upload-outline"></ion-icon>
+    <h1>Sincroniza en la nube</h1>
+    <p>Accede a tus cursos desde cualquier dispositivo con tu cuenta.</p>
+  </div>
+
+  <ion-card class="offline-banner" *ngIf="hasOfflineData && tab === 'signup'">
+    <ion-card-content>
+      <div class="banner-row">
+        <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+        <span>
+          Tienes datos locales. Al crear una cuenta, tus cursos se subirán automáticamente a la nube.
+        </span>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="offline-banner muted" *ngIf="hasOfflineData && tab === 'signin'">
+    <ion-card-content>
+      <div class="banner-row">
+        <ion-icon name="swap-horizontal-outline" color="medium"></ion-icon>
+        <span>
+          Al iniciar sesión, los datos de la nube reemplazarán los datos locales en este dispositivo.
+        </span>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="tab-row">
+    <button type="button" class="tab-btn" [class.active]="tab === 'signup'" (click)="setTab('signup')">
+      Crear cuenta
+    </button>
+    <button type="button" class="tab-btn" [class.active]="tab === 'signin'" (click)="setTab('signin')">
+      Iniciar sesión
+    </button>
+  </div>
+
+  <form class="auth-form" (ngSubmit)="submit()">
+    <ion-list lines="none" class="form-list">
+      <ion-item *ngIf="tab === 'signup'">
+        <ion-input
+          label="Nombre"
+          labelPlacement="stacked"
+          type="text"
+          [(ngModel)]="name"
+          name="name"
+          placeholder="Tu nombre"
+          autocomplete="name">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Correo electrónico"
+          labelPlacement="stacked"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="tu@email.com"
+          required
+          autocomplete="email">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Contraseña"
+          labelPlacement="stacked"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Mínimo 8 caracteres"
+          required
+          minlength="8"
+          autocomplete="{{ tab === 'signup' ? 'new-password' : 'current-password' }}">
+        </ion-input>
+      </ion-item>
+    </ion-list>
+
+    <ion-button expand="block" type="submit" class="submit-btn" [disabled]="loading">
+      <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+      <span *ngIf="!loading">{{ tab === 'signup' ? 'Crear cuenta y continuar' : 'Iniciar sesión' }}</span>
+    </ion-button>
+  </form>
+
+  <p class="auth-hint">
+    El modo sin conexión sigue disponible. Puedes volver a él en cualquier momento desde Configuración.
+  </p>
+</ion-content>

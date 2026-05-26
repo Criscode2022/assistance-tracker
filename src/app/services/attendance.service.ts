@@ -13,9 +13,19 @@ export class AttendanceService {
   private records: Record<string, Record<string, DayRecord>> = {};
   private courses: Course[] = [];
   private _selectedCourseId: string | null = null;
+  private syncCallback: (() => void) | null = null;
+  private suppressSync = false;
 
   constructor() {
     this.load();
+  }
+
+  setSyncCallback(cb: () => void): void {
+    this.syncCallback = cb;
+  }
+
+  private notifyChange(): void {
+    if (!this.suppressSync) this.syncCallback?.();
   }
 
   // ── Persistence ─────────────────────────────────────────────────────────────
@@ -61,10 +71,12 @@ export class AttendanceService {
 
   private saveCourses(): void {
     localStorage.setItem('courses_v1', JSON.stringify(this.courses));
+    this.notifyChange();
   }
 
   private saveRecords(): void {
     localStorage.setItem('attendance_v3', JSON.stringify(this.records));
+    this.notifyChange();
   }
 
   // ── Courses ──────────────────────────────────────────────────────────────────
@@ -108,6 +120,7 @@ export class AttendanceService {
   set selectedCourseId(id: string | null) {
     this._selectedCourseId = id;
     localStorage.setItem('selected_course_id', id ?? '');
+    this.notifyChange();
   }
 
   getSelectedCourse(): Course | null {
@@ -337,6 +350,30 @@ export class AttendanceService {
     };
   }
 
+  /** Replace all local data (used when syncing from cloud on login). */
+  replaceAllData(
+    courses: Course[],
+    records: Record<string, Record<string, DayRecord>>,
+    selectedCourseId: string | null,
+    skipSync = false,
+  ): void {
+    this.suppressSync = skipSync;
+    this.courses = [...courses];
+    this.records = { ...records };
+    this._selectedCourseId =
+      selectedCourseId && this.courses.find((c) => c.id === selectedCourseId)
+        ? selectedCourseId
+        : (this.courses[0]?.id ?? null);
+    localStorage.setItem('courses_v1', JSON.stringify(this.courses));
+    localStorage.setItem('attendance_v3', JSON.stringify(this.records));
+    localStorage.setItem('selected_course_id', this._selectedCourseId ?? '');
+    this.suppressSync = false;
+  }
+
+  hasLocalData(): boolean {
+    return this.courses.length > 0;
+  }
+
   clearAllData(): void {
     this.courses = [];
     this.records = {};
@@ -347,6 +384,7 @@ export class AttendanceService {
     localStorage.removeItem('attendance_v1');
     localStorage.removeItem('selected_course_id');
     localStorage.removeItem('notification_settings_v1');
+    this.notifyChange();
   }
 
   getMonthsForCourse(courseId?: string): string[] {

@@ -9,6 +9,69 @@
 
 <ion-content class="config-content">
 
+  <!-- ── Online mode ──────────────────────────────────────────────────────── -->
+  <div class="section-header">
+    <ion-icon name="cloud-outline"></ion-icon>
+    <span>Sincronización en la nube</span>
+  </div>
+
+  <ion-card class="online-card" [class.active]="onlineActive">
+    <ion-card-content>
+
+      <!-- Active online: account view (no toggle) -->
+      <ng-container *ngIf="onlineActive">
+        <div class="online-header">
+          <h3>Modo en línea</h3>
+          <p>Sincroniza cursos y asistencia con tu cuenta</p>
+        </div>
+
+        <div class="online-status" *ngIf="onlineUser">
+          <ion-icon name="person-circle-outline" color="success"></ion-icon>
+          <div>
+            <strong>{{ onlineUser.email }}</strong>
+            <p>Datos sincronizados automáticamente</p>
+          </div>
+        </div>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          color="medium"
+          class="signout-btn"
+          (click)="signOutOnline()"
+          [disabled]="switchingMode">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          Cerrar sesión
+        </ion-button>
+      </ng-container>
+
+      <!-- Offline: toggle to enable -->
+      <ng-container *ngIf="!onlineActive">
+        <ion-item lines="none" class="online-toggle-item">
+          <ion-label>
+            <h3>Modo en línea</h3>
+            <p>Sincroniza cursos y asistencia con tu cuenta</p>
+          </ion-label>
+          <ion-toggle
+            slot="end"
+            [(ngModel)]="onlineMode"
+            (ionChange)="onOnlineModeChange($event)"
+            [disabled]="switchingMode">
+          </ion-toggle>
+        </ion-item>
+
+        <div class="online-status pending" *ngIf="onlinePending">
+          <ion-icon name="time-outline" color="warning"></ion-icon>
+          <div>
+            <strong>Conexión pendiente</strong>
+            <p>Completa el inicio de sesión para activar la sincronización</p>
+          </div>
+        </div>
+      </ng-container>
+
+    </ion-card-content>
+  </ion-card>
+
   <!-- ── Notifications ────────────────────────────────────────────────────── -->
   <div class="section-header">
     <ion-icon name="notifications-outline"></ion-icon>
