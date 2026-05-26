@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavController, AlertController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { NotificationService, NotificationSettings } from '../services/notification.service';
 import { AttendanceService } from '../services/attendance.service';
 import { AppModeService } from '../services/app-mode.service';
 import { NeonService, AuthUser } from '../services/neon.service';
+import { AppLanguage, LanguageService } from '../services/language.service';
 
 @Component({
   selector: 'app-config',
@@ -13,12 +15,13 @@ import { NeonService, AuthUser } from '../services/neon.service';
   standalone: false,
 })
 export class ConfigPage {
-  settings!: NotificationSettings;
+  settings: NotificationSettings;
   permissionStatus: NotificationPermission | 'unsupported' = 'unsupported';
   testSent = false;
   onlineMode = false;
   onlineUser: AuthUser | null = null;
   switchingMode = false;
+  currentLang: AppLanguage = 'es';
 
   constructor(
     private nav: NavController,
@@ -29,13 +32,23 @@ export class ConfigPage {
     private appMode: AppModeService,
     private neon: NeonService,
     private toast: ToastController,
-  ) {}
+    private translate: TranslateService,
+    private lang: LanguageService,
+  ) {
+    this.settings = this.notifSvc.getSettings();
+    this.permissionStatus = this.notifSvc.getPermission();
+  }
 
-  async ionViewWillEnter(): Promise<void> {
+  ionViewWillEnter(): void {
     this.settings = this.notifSvc.getSettings();
     this.permissionStatus = this.notifSvc.getPermission();
     this.testSent = false;
     this.onlineMode = this.appMode.isOnline() || this.appMode.hasOnlineIntent();
+    this.currentLang = this.lang.current;
+    void this.loadOnlineUser();
+  }
+
+  private async loadOnlineUser(): Promise<void> {
     this.onlineUser = this.appMode.isOnline() ? await this.neon.getUser() : null;
   }
 
@@ -45,6 +58,12 @@ export class ConfigPage {
 
   get onlinePending(): boolean {
     return this.appMode.hasOnlineIntent();
+  }
+
+  onLanguageChange(event: CustomEvent): void {
+    const value = event.detail.value as AppLanguage;
+    this.currentLang = value;
+    this.lang.setLanguage(value);
   }
 
   goToAuth(): void {
@@ -63,7 +82,7 @@ export class ConfigPage {
         this.appMode.enableOnlineMode();
         this.onlineMode = true;
         this.onlineUser = await this.neon.getUser();
-        await this.showToast('Modo en línea activado', 'success');
+        await this.showToast(this.translate.instant('ONLINE.ENABLED'), 'success');
       } else {
         this.goToAuth();
       }
@@ -71,13 +90,16 @@ export class ConfigPage {
     }
 
     const alert = await this.alertCtrl.create({
-      header: 'Volver al modo sin conexión',
-      message:
-        'Dejarás de sincronizar con la nube. Tus datos locales se conservarán en este dispositivo.',
+      header: this.translate.instant('ONLINE.DISABLE_HEADER'),
+      message: this.translate.instant('ONLINE.DISABLE_MSG'),
       buttons: [
-        { text: 'Cancelar', role: 'cancel', handler: () => { this.onlineMode = true; } },
         {
-          text: 'Desactivar',
+          text: this.translate.instant('COMMON.CANCEL'),
+          role: 'cancel',
+          handler: () => { this.onlineMode = true; },
+        },
+        {
+          text: this.translate.instant('ONLINE.DISABLE_BTN'),
           handler: () => void this.disableOnlineMode(),
         },
       ],
@@ -92,7 +114,7 @@ export class ConfigPage {
       this.appMode.disableOnlineMode();
       this.onlineMode = false;
       this.onlineUser = null;
-      await this.showToast('Modo sin conexión activado', 'medium');
+      await this.showToast(this.translate.instant('ONLINE.DISABLED'), 'medium');
     } finally {
       this.switchingMode = false;
     }
@@ -100,12 +122,12 @@ export class ConfigPage {
 
   async signOutOnline(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Cerrar sesión',
-      message: 'Se cerrará tu sesión en la nube. Tus datos locales se mantendrán.',
+      header: this.translate.instant('ONLINE.SIGNOUT_HEADER'),
+      message: this.translate.instant('ONLINE.SIGNOUT_MSG'),
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'Cerrar sesión',
+          text: this.translate.instant('ONLINE.SIGN_OUT'),
           handler: () => void this.disableOnlineMode(),
         },
       ],
@@ -118,11 +140,12 @@ export class ConfigPage {
     await t.present();
   }
 
-  goBack(): void {
-    this.nav.back();
+  async goBack(): Promise<void> {
+    await this.nav.pop();
+    if (this.router.url.startsWith('/config')) {
+      await this.router.navigateByUrl('/dashboard');
+    }
   }
-
-  // ── Notifications ─────────────────────────────────────────────────────────────
 
   get notifSupported(): boolean {
     return this.notifSvc.isSupported();
@@ -134,10 +157,6 @@ export class ConfigPage {
 
   get permissionDenied(): boolean {
     return this.permissionStatus === 'denied';
-  }
-
-  get permissionDefault(): boolean {
-    return this.permissionStatus === 'default';
   }
 
   onSettingChange(): void {
@@ -163,17 +182,15 @@ export class ConfigPage {
     setTimeout(() => (this.testSent = false), 3000);
   }
 
-  // ── Danger zone ───────────────────────────────────────────────────────────────
-
   async confirmDeleteAll(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Borrar todos los datos',
-      message: 'Se eliminarán todos los cursos, registros de asistencia y configuración. Esta acción no se puede deshacer.',
+      header: this.translate.instant('CONFIG.DELETE_ALL_HEADER'),
+      message: this.translate.instant('CONFIG.DELETE_ALL_MSG'),
       cssClass: 'danger-alert',
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'Borrar todo',
+          text: this.translate.instant('CONFIG.DELETE_ALL_BTN'),
           role: 'destructive',
           cssClass: 'alert-btn-danger',
           handler: () => {

@@ -6,6 +6,7 @@ import {
   DayRecord,
   MonthStats,
 } from '../models/attendance.model';
+import { LanguageService } from './language.service';
 
 @Injectable({ providedIn: 'root' })
 export class AttendanceService {
@@ -16,7 +17,7 @@ export class AttendanceService {
   private syncCallback: (() => void) | null = null;
   private suppressSync = false;
 
-  constructor() {
+  constructor(private lang: LanguageService) {
     this.load();
   }
 
@@ -239,11 +240,12 @@ export class AttendanceService {
     );
     return workingDays.map((date) => {
       const d = new Date(date + 'T12:00:00');
+      const locale = this.lang.localeId;
       const record = this.getDayRecord(date, cid ?? undefined);
       return {
         date,
-        dateLabel: d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }),
-        dayLabel: d.toLocaleDateString('es-MX', { weekday: 'long' }),
+        dateLabel: d.toLocaleDateString(locale, { day: 'numeric', month: 'short' }),
+        dayLabel: d.toLocaleDateString(locale, { weekday: 'long' }),
         status: record.status,
         entryTime: record.entryTime,
         exitTime: record.exitTime,
@@ -322,14 +324,11 @@ export class AttendanceService {
         latenessRemaining <= 2 ||
         attendancePercent < minAttendancePercent + 5);
 
-    const monthLabel = new Date(month + '-15').toLocaleDateString('es-MX', {
-      month: 'long',
-      year: 'numeric',
-    });
+    const monthLabel = this.lang.formatMonthYear(month);
 
     return {
       month,
-      monthLabel: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1),
+      monthLabel,
       totalWorkingDays,
       elapsedWorkingDays,
       presentDays,

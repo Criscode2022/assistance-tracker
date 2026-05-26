@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { AttendanceService } from '../services/attendance.service';
 import { AppModeService } from '../services/app-mode.service';
 import { CloudSyncService } from '../services/cloud-sync.service';
@@ -28,6 +29,7 @@ export class AuthPage implements OnInit {
     private appMode: AppModeService,
     private cloudSync: CloudSyncService,
     private attendance: AttendanceService,
+    private translate: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -64,7 +66,10 @@ export class AuthPage implements OnInit {
   }
 
   private async handleSignUp(): Promise<void> {
-    const displayName = this.name.trim() || this.email.split('@')[0] || 'Usuario';
+    const displayName =
+      this.name.trim() ||
+      this.email.split('@')[0] ||
+      this.translate.instant('COMMON.USER');
     const result = await this.neon.signUp(this.email.trim(), this.password, displayName);
 
     if (result.error) {
@@ -76,16 +81,24 @@ export class AuthPage implements OnInit {
       try {
         const stats = await this.cloudSync.uploadLocalData();
         await this.showToast(
-          `Cuenta creada. ${stats.courses} curso(s) y ${stats.records} registro(s) subidos.`,
+          this.translate.instant('AUTH.ACCOUNT_CREATED_UPLOAD', {
+            courses: stats.courses,
+            records: stats.records,
+          }),
           'success',
         );
       } catch (uploadErr) {
         const msg =
-          uploadErr instanceof Error ? uploadErr.message : 'Error al subir datos';
-        await this.showToast(`Cuenta creada, pero falló la subida: ${msg}`, 'warning');
+          uploadErr instanceof Error
+            ? uploadErr.message
+            : this.translate.instant('AUTH.UPLOAD_ERROR');
+        await this.showToast(
+          this.translate.instant('AUTH.ACCOUNT_CREATED_UPLOAD_FAIL', { msg }),
+          'warning',
+        );
       }
     } else {
-      await this.showToast('Cuenta creada correctamente', 'success');
+      await this.showToast(this.translate.instant('AUTH.ACCOUNT_CREATED'), 'success');
     }
 
     this.appMode.enableOnlineMode();
@@ -102,10 +115,16 @@ export class AuthPage implements OnInit {
 
     try {
       await this.cloudSync.downloadFromCloud();
-      await this.showToast('Sesión iniciada. Datos sincronizados desde la nube.', 'success');
+      await this.showToast(this.translate.instant('AUTH.SIGNIN_OK'), 'success');
     } catch (syncErr) {
-      const msg = syncErr instanceof Error ? syncErr.message : 'Error de sincronización';
-      await this.showToast(`Sesión iniciada, pero falló la sincronización: ${msg}`, 'warning');
+      const msg =
+        syncErr instanceof Error
+          ? syncErr.message
+          : this.translate.instant('AUTH.SYNC_ERROR');
+      await this.showToast(
+        this.translate.instant('AUTH.SIGNIN_SYNC_FAIL', { msg }),
+        'warning',
+      );
     }
 
     this.appMode.enableOnlineMode();

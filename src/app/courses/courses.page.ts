@@ -1,6 +1,9 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
+import { LanguageService } from '../services/language.service';
 import { Course, DayRecord } from '../models/attendance.model';
 
 export interface CourseExport {
@@ -16,7 +19,7 @@ export interface CourseExport {
   styleUrls: ['courses.page.scss'],
   standalone: false,
 })
-export class CoursesPage {
+export class CoursesPage implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   courses: Course[] = [];
@@ -25,15 +28,26 @@ export class CoursesPage {
 
   form: Omit<Course, 'id'> = this.blankForm();
 
-  // ── Select / export mode ─────────────────────────────────────────────────────
   selectMode = false;
   selectedIds = new Set<string>();
+
+  private langSub?: Subscription;
 
   constructor(
     public svc: AttendanceService,
     private alert: AlertController,
     private toast: ToastController,
-  ) {}
+    private translate: TranslateService,
+    private lang: LanguageService,
+  ) {
+    this.langSub = this.lang.onLangChange().subscribe(() => {
+      this.courses = this.svc.getCourses();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
 
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();
@@ -108,13 +122,13 @@ export class CoursesPage {
 
   async confirmDelete(course: Course): Promise<void> {
     const al = await this.alert.create({
-      header: 'Eliminar curso',
-      message: `¿Eliminar "<strong>${course.name}</strong>"? Se perderán todos sus registros de asistencia.`,
+      header: this.translate.instant('COURSES.DELETE_HEADER'),
+      message: this.translate.instant('COURSES.DELETE_MSG', { name: course.name }),
       cssClass: 'danger-alert',
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'Eliminar',
+          text: this.translate.instant('COMMON.DELETE'),
           role: 'destructive',
           cssClass: 'alert-btn-danger',
           handler: () => {
@@ -126,8 +140,6 @@ export class CoursesPage {
     });
     await al.present();
   }
-
-  // ── Select mode ──────────────────────────────────────────────────────────────
 
   enterSelectMode(): void {
     this.selectMode = true;
@@ -155,7 +167,10 @@ export class CoursesPage {
     return this.selectedIds.size;
   }
 
-  // ── Export ───────────────────────────────────────────────────────────────────
+  get exportLabel(): string {
+    const countSuffix = this.selectedCount > 0 ? ` (${this.selectedCount})` : '';
+    return this.translate.instant('COURSES.EXPORT_COUNT', { count: countSuffix });
+  }
 
   exportSelected(): void {
     const ids = [...this.selectedIds];
@@ -192,8 +207,6 @@ export class CoursesPage {
     URL.revokeObjectURL(url);
   }
 
-  // ── Import ───────────────────────────────────────────────────────────────────
-
   triggerImport(): void {
     this.fileInput.nativeElement.value = '';
     this.fileInput.nativeElement.click();
@@ -208,7 +221,7 @@ export class CoursesPage {
     try {
       raw = await file.text();
     } catch {
-      await this.showToast('No se pudo leer el archivo.', 'danger');
+      await this.showToast(this.translate.instant('COURSES.FILE_READ_ERROR'), 'danger');
       return;
     }
 
@@ -216,12 +229,12 @@ export class CoursesPage {
     try {
       data = JSON.parse(raw);
     } catch {
-      await this.showToast('El archivo no es un JSON válido.', 'danger');
+      await this.showToast(this.translate.instant('COURSES.FILE_JSON_ERROR'), 'danger');
       return;
     }
 
     if (!this.isValidExport(data)) {
-      await this.showToast('El archivo no tiene el formato esperado.', 'danger');
+      await this.showToast(this.translate.instant('COURSES.FILE_FORMAT_ERROR'), 'danger');
       return;
     }
 
@@ -229,12 +242,14 @@ export class CoursesPage {
     const count = exportData.courses.length;
 
     const al = await this.alert.create({
-      header: 'Importar cursos',
-      message: `Se importar${count === 1 ? 'á 1 curso' : `án ${count} cursos`} con sus registros. Los cursos con el mismo ID se sobreescribirán.`,
+      header: this.translate.instant('COURSES.IMPORT_HEADER'),
+      message: count === 1
+        ? this.translate.instant('COURSES.IMPORT_MSG_ONE')
+        : this.translate.instant('COURSES.IMPORT_MSG_MANY', { count }),
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'Importar',
+          text: this.translate.instant('COMMON.IMPORT'),
           handler: () => {
             for (const course of exportData.courses) {
               const recs = exportData.records[course.id] ?? {};
@@ -242,7 +257,9 @@ export class CoursesPage {
             }
             this.courses = this.svc.getCourses();
             this.showToast(
-              `${count === 1 ? '1 curso importado' : `${count} cursos importados`} correctamente.`,
+              count === 1
+                ? this.translate.instant('COURSES.IMPORT_SUCCESS_ONE')
+                : this.translate.instant('COURSES.IMPORT_SUCCESS_MANY', { count }),
               'success'
             );
           },
@@ -267,13 +284,8 @@ export class CoursesPage {
     await t.present();
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────────
-
   dateRangeLabel(course: Course): string {
-    const fmt = (ds: string) =>
-      new Date(ds + 'T12:00:00').toLocaleDateString('es-MX', {
-        day: 'numeric', month: 'short', year: 'numeric',
-      });
+    const fmt = (ds: string) => this.lang.formatShortDate(ds);
     return `${fmt(course.startDate)} → ${fmt(course.endDate)}`;
   }
 

@@ -1,9 +1,11 @@
 <ion-header class="modern-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/" text=""></ion-back-button>
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title>Configuración</ion-title>
+    <ion-title>{{ 'CONFIG.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       <app-online-indicator></app-online-indicator>
     </ion-buttons>
@@ -15,24 +17,23 @@
   <!-- ── Online mode ──────────────────────────────────────────────────────── -->
   <div class="section-header">
     <ion-icon name="cloud-outline"></ion-icon>
-    <span>Sincronización en la nube</span>
+    <span>{{ 'ONLINE.SYNC_SECTION' | translate }}</span>
   </div>
 
   <ion-card class="online-card" [class.active]="onlineActive">
     <ion-card-content>
 
-      <!-- Active online: account view (no toggle) -->
       <ng-container *ngIf="onlineActive">
         <div class="online-header">
-          <h3>Modo en línea</h3>
-          <p>Sincroniza cursos y asistencia con tu cuenta</p>
+          <h3>{{ 'ONLINE.MODE' | translate }}</h3>
+          <p>{{ 'ONLINE.MODE_DESC' | translate }}</p>
         </div>
 
         <div class="online-status" *ngIf="onlineUser">
           <ion-icon name="person-circle-outline" color="success"></ion-icon>
           <div>
             <strong>{{ onlineUser.email }}</strong>
-            <p>Datos sincronizados automáticamente</p>
+            <p>{{ 'ONLINE.SYNCED_AUTO' | translate }}</p>
           </div>
         </div>
 
@@ -44,16 +45,15 @@
           (click)="signOutOnline()"
           [disabled]="switchingMode">
           <ion-icon slot="start" name="log-out-outline"></ion-icon>
-          Cerrar sesión
+          {{ 'ONLINE.SIGN_OUT' | translate }}
         </ion-button>
       </ng-container>
 
-      <!-- Offline: toggle to enable -->
       <ng-container *ngIf="!onlineActive">
         <ion-item lines="none" class="online-toggle-item">
           <ion-label>
-            <h3>Modo en línea</h3>
-            <p>Sincroniza cursos y asistencia con tu cuenta</p>
+            <h3>{{ 'ONLINE.MODE' | translate }}</h3>
+            <p>{{ 'ONLINE.MODE_DESC' | translate }}</p>
           </ion-label>
           <ion-toggle
             slot="end"
@@ -67,8 +67,8 @@
           <div class="online-status pending">
             <ion-icon name="time-outline" color="warning"></ion-icon>
             <div>
-              <strong>Conexión pendiente</strong>
-              <p>Completa el inicio de sesión para activar la sincronización</p>
+              <strong>{{ 'ONLINE.PENDING_TITLE' | translate }}</strong>
+              <p>{{ 'ONLINE.PENDING_DESC' | translate }}</p>
             </div>
           </div>
           <ion-button
@@ -77,7 +77,7 @@
             class="pending-auth-btn"
             (click)="goToAuth()">
             <ion-icon slot="start" name="log-in-outline"></ion-icon>
-            Ir a iniciar sesión
+            {{ 'ONLINE.GO_LOGIN' | translate }}
           </ion-button>
         </div>
       </ng-container>
@@ -85,25 +85,42 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- ── Language ─────────────────────────────────────────────────────────── -->
+  <div class="section-header">
+    <ion-icon name="language-outline"></ion-icon>
+    <span>{{ 'LANGUAGE.TITLE' | translate }}</span>
+  </div>
+
+  <ion-card class="language-card">
+    <ion-card-content>
+      <ion-segment [value]="currentLang" (ionChange)="onLanguageChange($event)">
+        <ion-segment-button value="es">
+          <ion-label>{{ 'LANGUAGE.SPANISH' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="en">
+          <ion-label>{{ 'LANGUAGE.ENGLISH' | translate }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-card-content>
+  </ion-card>
+
   <!-- ── Notifications ────────────────────────────────────────────────────── -->
   <div class="section-header">
     <ion-icon name="notifications-outline"></ion-icon>
-    <span>Notificaciones</span>
+    <span>{{ 'CONFIG.NOTIFICATIONS' | translate }}</span>
   </div>
 
-  <!-- Unsupported -->
   <ion-card class="info-card" *ngIf="!notifSupported">
     <ion-card-content>
       <div class="info-row">
         <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
-        <span>Tu navegador no admite notificaciones push.</span>
+        <span>{{ 'CONFIG.NOTIF_UNSUPPORTED' | translate }}</span>
       </div>
     </ion-card-content>
   </ion-card>
 
-  <ng-container *ngIf="notifSupported">
+  <ng-container *ngIf="notifSupported && settings">
 
-    <!-- Permission banner -->
     <ion-card class="permission-card" [class.granted]="permissionGranted" [class.denied]="permissionDenied">
       <ion-card-content>
         <div class="permission-row">
@@ -113,9 +130,13 @@
               [color]="permissionGranted ? 'success' : permissionDenied ? 'danger' : 'warning'">
             </ion-icon>
             <div>
-              <strong>Permiso de notificaciones</strong>
+              <strong>{{ 'CONFIG.NOTIF_PERMISSION' | translate }}</strong>
               <p class="permission-label">
-                {{ permissionGranted ? 'Concedido' : permissionDenied ? 'Bloqueado por el navegador' : 'No solicitado' }}
+                <ng-container [ngSwitch]="permissionStatus">
+                  <span *ngSwitchCase="'granted'">{{ 'CONFIG.NOTIF_GRANTED' | translate }}</span>
+                  <span *ngSwitchCase="'denied'">{{ 'CONFIG.NOTIF_DENIED' | translate }}</span>
+                  <span *ngSwitchDefault>{{ 'CONFIG.NOTIF_DEFAULT' | translate }}</span>
+                </ng-container>
               </p>
             </div>
           </div>
@@ -124,27 +145,26 @@
             size="small"
             [color]="permissionDenied ? 'medium' : 'primary'"
             (click)="requestPermission()">
-            {{ permissionDenied ? 'Cómo activar' : 'Activar' }}
+            {{ permissionDenied ? ('CONFIG.NOTIF_HOW_ENABLE' | translate) : ('CONFIG.NOTIF_ENABLE' | translate) }}
           </ion-button>
         </div>
         <div class="denied-hint" *ngIf="permissionDenied">
-          Ve a Configuración del navegador → Privacidad → Notificaciones y permite este sitio.
+          {{ 'CONFIG.NOTIF_DENIED_HINT' | translate }}
         </div>
       </ion-card-content>
     </ion-card>
 
-    <!-- Toggles -->
     <ion-list class="settings-list" lines="inset">
 
       <ion-item-group>
         <ion-item-divider>
-          <ion-label>Recordatorios</ion-label>
+          <ion-label>{{ 'CONFIG.REMINDERS' | translate }}</ion-label>
         </ion-item-divider>
 
         <ion-item>
           <ion-label>
-            <h3>Recordatorio diario</h3>
-            <p>Aviso para registrar asistencia (lunes–viernes)</p>
+            <h3>{{ 'CONFIG.DAILY_REMINDER' | translate }}</h3>
+            <p>{{ 'CONFIG.DAILY_REMINDER_DESC' | translate }}</p>
           </ion-label>
           <ion-toggle
             slot="end"
@@ -155,7 +175,7 @@
         </ion-item>
 
         <ion-item *ngIf="settings.dailyReminder">
-          <ion-label>Hora del recordatorio</ion-label>
+          <ion-label>{{ 'CONFIG.REMINDER_TIME' | translate }}</ion-label>
           <ion-input
             type="time"
             [(ngModel)]="settings.dailyReminderTime"
@@ -167,8 +187,8 @@
 
         <ion-item>
           <ion-label>
-            <h3>Resumen semanal</h3>
-            <p>Notificación los viernes a las 17:00</p>
+            <h3>{{ 'CONFIG.WEEKLY_SUMMARY' | translate }}</h3>
+            <p>{{ 'CONFIG.WEEKLY_SUMMARY_DESC' | translate }}</p>
           </ion-label>
           <ion-toggle
             slot="end"
@@ -181,13 +201,13 @@
 
       <ion-item-group>
         <ion-item-divider>
-          <ion-label>Alertas automáticas</ion-label>
+          <ion-label>{{ 'CONFIG.AUTO_ALERTS' | translate }}</ion-label>
         </ion-item-divider>
 
         <ion-item>
           <ion-label>
-            <h3>Límite de faltas</h3>
-            <p>Aviso al acercarte al máximo de faltas</p>
+            <h3>{{ 'CONFIG.ABSENCE_ALERT' | translate }}</h3>
+            <p>{{ 'CONFIG.ABSENCE_ALERT_DESC' | translate }}</p>
           </ion-label>
           <ion-toggle
             slot="end"
@@ -199,8 +219,8 @@
 
         <ion-item>
           <ion-label>
-            <h3>Límite de impuntualidades</h3>
-            <p>Aviso al acercarte al máximo de impuntualidades</p>
+            <h3>{{ 'CONFIG.TARDINESS_ALERT' | translate }}</h3>
+            <p>{{ 'CONFIG.TARDINESS_ALERT_DESC' | translate }}</p>
           </ion-label>
           <ion-toggle
             slot="end"
@@ -212,8 +232,8 @@
 
         <ion-item>
           <ion-label>
-            <h3>Asistencia baja</h3>
-            <p>Aviso cuando la asistencia baja del mínimo</p>
+            <h3>{{ 'CONFIG.ATTENDANCE_ALERT' | translate }}</h3>
+            <p>{{ 'CONFIG.ATTENDANCE_ALERT_DESC' | translate }}</p>
           </ion-label>
           <ion-toggle
             slot="end"
@@ -226,7 +246,6 @@
 
     </ion-list>
 
-    <!-- Test notification -->
     <div class="action-row">
       <ion-button
         expand="block"
@@ -235,7 +254,7 @@
         class="test-btn"
         (click)="sendTestNotification()">
         <ion-icon slot="start" [name]="testSent ? 'checkmark-outline' : 'paper-plane-outline'"></ion-icon>
-        {{ testSent ? 'Notificación enviada' : 'Enviar notificación de prueba' }}
+        {{ testSent ? ('CONFIG.TEST_SENT' | translate) : ('CONFIG.TEST_NOTIF' | translate) }}
       </ion-button>
     </div>
 
@@ -244,14 +263,13 @@
   <!-- ── Danger zone ────────────────────────────────────────────────────────── -->
   <div class="section-header danger">
     <ion-icon name="warning-outline"></ion-icon>
-    <span>Zona de peligro</span>
+    <span>{{ 'CONFIG.DANGER_ZONE' | translate }}</span>
   </div>
 
   <ion-card class="danger-card">
     <ion-card-content>
       <p class="danger-desc">
-        Elimina permanentemente todos los cursos, registros de asistencia y ajustes de la app.
-        No podrás recuperar los datos.
+        {{ 'CONFIG.DELETE_ALL_DESC' | translate }}
       </p>
       <ion-button
         expand="block"
@@ -259,7 +277,7 @@
         fill="solid"
         (click)="confirmDeleteAll()">
         <ion-icon slot="start" name="trash-outline"></ion-icon>
-        Borrar todos los datos
+        {{ 'CONFIG.DELETE_ALL' | translate }}
       </ion-button>
     </ion-card-content>
   </ion-card>

@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { AttendanceService } from '../services/attendance.service';
+import { LanguageService } from '../services/language.service';
 import { Course, MonthStats } from '../models/attendance.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-history',
@@ -8,12 +10,23 @@ import { Course, MonthStats } from '../models/attendance.model';
   styleUrls: ['history.page.scss'],
   standalone: false,
 })
-export class HistoryPage {
+export class HistoryPage implements OnDestroy {
   monthStatsList: MonthStats[] = [];
   courses: Course[] = [];
   selectedCourseId: string | null = null;
 
-  constructor(private svc: AttendanceService) {}
+  private langSub?: Subscription;
+
+  constructor(
+    private svc: AttendanceService,
+    private lang: LanguageService,
+  ) {
+    this.langSub = this.lang.onLangChange().subscribe(() => this.load());
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
 
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();

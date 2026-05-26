@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { NavController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
+import { LanguageService } from '../services/language.service';
 import { Course, MonthStats } from '../models/attendance.model';
 
 @Component({
@@ -9,17 +11,28 @@ import { Course, MonthStats } from '../models/attendance.model';
   styleUrls: ['dashboard.page.scss'],
   standalone: false,
 })
-export class DashboardPage {
+export class DashboardPage implements OnDestroy {
   stats!: MonthStats;
   courses: Course[] = [];
   selectedCourseId: string | null = null;
   selectedMonth = '';
   availableMonths: string[] = [];
 
-  // SVG ring constants: r=40, circumference = 2π*40 = 251.33
   readonly CIRC = 251.33;
 
-  constructor(public svc: AttendanceService, private nav: NavController) {}
+  private langSub?: Subscription;
+
+  constructor(
+    public svc: AttendanceService,
+    private nav: NavController,
+    private lang: LanguageService,
+  ) {
+    this.langSub = this.lang.onLangChange().subscribe(() => this.loadStats());
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
 
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();
@@ -55,8 +68,6 @@ export class DashboardPage {
     );
   }
 
-  // ── Ring ─────────────────────────────────────────────────────────────────────
-
   get progressArc(): number {
     return (Math.min(100, this.stats.attendancePercent) / 100) * this.CIRC;
   }
@@ -70,8 +81,6 @@ export class DashboardPage {
     return colors[this.stats?.overallStatus ?? 'ok'];
   }
 
-  // ── Hero gradient ─────────────────────────────────────────────────────────────
-
   get heroGradient(): string {
     const g: Record<string, string> = {
       ok:      'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
@@ -80,8 +89,6 @@ export class DashboardPage {
     };
     return g[this.stats?.overallStatus ?? 'ok'];
   }
-
-  // ── Colours ───────────────────────────────────────────────────────────────────
 
   get absencesColor(): string {
     if (this.stats.absentDays > this.stats.maxAbsences) return 'danger';
@@ -101,12 +108,10 @@ export class DashboardPage {
     return 'success';
   }
 
-  // ── Labels ────────────────────────────────────────────────────────────────────
-
-  get statusText(): string {
-    if (this.stats.overallStatus === 'failed') return 'En riesgo';
-    if (this.stats.overallStatus === 'warning') return 'Atención';
-    return 'Vas bien';
+  get statusKey(): string {
+    if (this.stats.overallStatus === 'failed') return 'DASHBOARD.STATUS_FAILED';
+    if (this.stats.overallStatus === 'warning') return 'DASHBOARD.STATUS_WARNING';
+    return 'DASHBOARD.STATUS_OK';
   }
 
   get statusIcon(): string {
@@ -120,11 +125,7 @@ export class DashboardPage {
   }
 
   monthLabelFor(m: string): string {
-    const l = new Date(m + '-15').toLocaleDateString('es-MX', {
-      month: 'long',
-      year: 'numeric',
-    });
-    return l.charAt(0).toUpperCase() + l.slice(1);
+    return this.lang.formatMonthYear(m);
   }
 
   formatHours(h: number): string {

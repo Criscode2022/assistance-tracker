@@ -1,8 +1,11 @@
 <ion-header class="modern-header">
   <ion-toolbar>
-    <ion-title>{{ showForm ? (editingId ? 'Editar Curso' : 'Nuevo Curso') : (selectMode ? 'Seleccionar' : 'Mis Cursos') }}</ion-title>
+    <ion-title>
+      <ng-container *ngIf="showForm">{{ (editingId ? 'COURSES.TITLE_EDIT' : 'COURSES.TITLE_NEW') | translate }}</ng-container>
+      <ng-container *ngIf="!showForm && selectMode">{{ 'COURSES.TITLE_SELECT' | translate }}</ng-container>
+      <ng-container *ngIf="!showForm && !selectMode">{{ 'COURSES.TITLE' | translate }}</ng-container>
+    </ion-title>
 
-    <!-- Form mode -->
     <ion-buttons slot="end" *ngIf="showForm">
       <app-online-indicator></app-online-indicator>
       <ion-button (click)="cancelForm()" color="medium">
@@ -10,10 +13,9 @@
       </ion-button>
     </ion-buttons>
 
-    <!-- Select mode -->
     <ng-container *ngIf="!showForm && selectMode">
       <ion-buttons slot="start">
-        <ion-button (click)="exitSelectMode()" color="medium">Cancelar</ion-button>
+        <ion-button (click)="exitSelectMode()" color="medium">{{ 'COMMON.CANCEL' | translate }}</ion-button>
       </ion-buttons>
       <ion-buttons slot="end">
         <app-online-indicator></app-online-indicator>
@@ -22,12 +24,11 @@
           [disabled]="selectedCount === 0"
           color="primary">
           <ion-icon slot="start" name="download-outline"></ion-icon>
-          Exportar{{ selectedCount > 0 ? ' (' + selectedCount + ')' : '' }}
+          {{ exportLabel }}
         </ion-button>
       </ion-buttons>
     </ng-container>
 
-    <!-- Normal mode -->
     <ion-buttons slot="end" *ngIf="!showForm && !selectMode">
       <app-online-indicator></app-online-indicator>
       <ion-button (click)="enterSelectMode()">
@@ -37,7 +38,6 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- Hidden file input for import -->
 <input
   #fileInput
   type="file"
@@ -47,17 +47,16 @@
 
 <ion-content>
 
-  <!-- ── Course form ──────────────────────────────────────────────────────── -->
   <div *ngIf="showForm" class="form-wrap">
 
     <div class="form-section">
-      <div class="form-section-label">Información del curso</div>
+      <div class="form-section-label">{{ 'COURSES.COURSE_INFO' | translate }}</div>
 
       <div class="form-field">
-        <label class="field-label">Nombre del curso <span class="req">*</span></label>
+        <label class="field-label">{{ 'COURSES.NAME' | translate }} <span class="req">*</span></label>
         <ion-input
           [(ngModel)]="form.name"
-          placeholder="Ej. Matemáticas I"
+          [placeholder]="'COURSES.NAME_PLACEHOLDER' | translate"
           class="modern-input"
           clearInput>
         </ion-input>
@@ -65,48 +64,48 @@
 
       <div class="form-row">
         <div class="form-field">
-          <label class="field-label">Fecha de inicio <span class="req">*</span></label>
+          <label class="field-label">{{ 'COURSES.START_DATE' | translate }} <span class="req">*</span></label>
           <ion-input [(ngModel)]="form.startDate" type="date" class="modern-input"></ion-input>
         </div>
         <div class="form-field">
-          <label class="field-label">Fecha de fin <span class="req">*</span></label>
+          <label class="field-label">{{ 'COURSES.END_DATE' | translate }} <span class="req">*</span></label>
           <ion-input [(ngModel)]="form.endDate" type="date" [min]="form.startDate" class="modern-input"></ion-input>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-field">
-          <label class="field-label">Hora de entrada</label>
+          <label class="field-label">{{ 'COURSES.ENTRY_TIME' | translate }}</label>
           <ion-input [(ngModel)]="form.startTime" type="time" class="modern-input"></ion-input>
         </div>
         <div class="form-field">
-          <label class="field-label">Hora de salida</label>
+          <label class="field-label">{{ 'COURSES.EXIT_TIME' | translate }}</label>
           <ion-input [value]="calcExitTime" class="modern-input" readonly></ion-input>
         </div>
       </div>
 
       <div class="form-field">
-        <label class="field-label">Horas por día</label>
+        <label class="field-label">{{ 'COURSES.HOURS_PER_DAY' | translate }}</label>
         <ion-input [(ngModel)]="form.hoursPerDay" type="number" min="1" max="12" class="modern-input"></ion-input>
       </div>
     </div>
 
     <div class="form-section">
-      <div class="form-section-label">Límites mensuales</div>
+      <div class="form-section-label">{{ 'COURSES.MONTHLY_LIMITS' | translate }}</div>
 
       <div class="form-row">
         <div class="form-field">
-          <label class="field-label">Máx. faltas</label>
+          <label class="field-label">{{ 'COURSES.MAX_ABSENCES' | translate }}</label>
           <ion-input [(ngModel)]="form.maxAbsences" type="number" min="0" class="modern-input"></ion-input>
         </div>
         <div class="form-field">
-          <label class="field-label">Máx. impuntualidades</label>
+          <label class="field-label">{{ 'COURSES.MAX_TARDINESS' | translate }}</label>
           <ion-input [(ngModel)]="form.maxTardiness" type="number" min="0" class="modern-input"></ion-input>
         </div>
       </div>
 
       <div class="form-field">
-        <label class="field-label">% asistencia mínima</label>
+        <label class="field-label">{{ 'COURSES.MIN_ATTENDANCE' | translate }}</label>
         <ion-input [(ngModel)]="form.minAttendancePercent" type="number" min="1" max="100" class="modern-input"></ion-input>
       </div>
     </div>
@@ -114,25 +113,23 @@
     <div class="form-actions">
       <ion-button expand="block" (click)="saveForm()" [disabled]="!isFormValid()" class="save-btn">
         <ion-icon slot="start" name="checkmark-outline"></ion-icon>
-        Guardar curso
+        {{ 'COURSES.SAVE_COURSE' | translate }}
       </ion-button>
-      <ion-button expand="block" fill="clear" color="medium" (click)="cancelForm()">Cancelar</ion-button>
+      <ion-button expand="block" fill="clear" color="medium" (click)="cancelForm()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
     </div>
 
   </div>
 
-  <!-- ── Courses list ─────────────────────────────────────────────────────── -->
   <div *ngIf="!showForm">
 
-    <!-- Import card (top of list, always visible) -->
     <div class="course-list-wrap">
       <div class="import-card" (click)="triggerImport()">
         <div class="import-icon-wrap">
           <ion-icon name="cloud-upload-outline"></ion-icon>
         </div>
         <div class="import-label">
-          <span class="import-title">Importar curso</span>
-          <span class="import-sub">Desde archivo JSON</span>
+          <span class="import-title">{{ 'COURSES.IMPORT_TITLE' | translate }}</span>
+          <span class="import-sub">{{ 'COURSES.IMPORT_SUB' | translate }}</span>
         </div>
         <ion-icon name="chevron-forward-outline" class="import-chevron"></ion-icon>
       </div>
@@ -140,8 +137,8 @@
 
     <div *ngIf="courses.length === 0" class="empty-state">
       <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
-      <h3>Sin cursos</h3>
-      <p>Pulsa <strong>+</strong> para crear tu primer curso.</p>
+      <h3>{{ 'COURSES.NO_COURSES' | translate }}</h3>
+      <p [innerHTML]="'COURSES.NO_COURSES_HINT' | translate"></p>
     </div>
 
     <div class="course-list" *ngIf="courses.length > 0">
@@ -157,13 +154,11 @@
           button detail="false" lines="none">
 
           <div class="course-left" slot="start">
-            <!-- Radio (normal mode) -->
             <div
               *ngIf="!selectMode"
               class="course-radio"
               [class.radio-on]="svc.selectedCourseId === course.id">
             </div>
-            <!-- Checkbox (select mode) -->
             <div *ngIf="selectMode" class="course-checkbox" [class.checkbox-on]="isSelected(course.id)">
               <ion-icon *ngIf="isSelected(course.id)" name="checkmark" class="check-icon"></ion-icon>
             </div>
@@ -173,10 +168,10 @@
             <h2>{{ course.name }}</h2>
             <p class="course-range">{{ dateRangeLabel(course) }}</p>
             <div class="course-chips">
-              <span class="cchip">{{ course.hoursPerDay }}h/día</span>
+              <span class="cchip">{{ 'COURSES.HOURS_DAY' | translate:{ hours: course.hoursPerDay } }}</span>
               <span class="cchip">≥{{ course.minAttendancePercent }}%</span>
-              <span class="cchip cchip-absence">≤{{ course.maxAbsences }} faltas</span>
-              <span class="cchip cchip-late">≤{{ course.maxTardiness }} tardanzas</span>
+              <span class="cchip cchip-absence">{{ 'COURSES.MAX_ABSENCES_CHIP' | translate:{ max: course.maxAbsences } }}</span>
+              <span class="cchip cchip-late">{{ 'COURSES.MAX_TARDINESS_CHIP' | translate:{ max: course.maxTardiness } }}</span>
             </div>
           </ion-label>
 

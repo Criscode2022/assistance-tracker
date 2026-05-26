@@ -10,8 +10,10 @@ const routes: Routes = [
   { path: '', component: AuthPage, canActivate: [GuestAuthGuard] },
 ];
 
+import { SharedModule } from '../shared/shared.module';
+
 @NgModule({
   declarations: [AuthPage],
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes)],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes), SharedModule],
 })
 export class AuthPageModule {}

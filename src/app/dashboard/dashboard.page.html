@@ -1,6 +1,6 @@
 <ion-header class="modern-header">
   <ion-toolbar>
-    <ion-title>Resumen</ion-title>
+    <ion-title>{{ 'DASHBOARD.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       <app-online-indicator></app-online-indicator>
       <ion-button (click)="openConfig()">
@@ -13,7 +13,7 @@
       [(ngModel)]="selectedCourseId"
       (ionChange)="onCourseChange()"
       interface="action-sheet"
-      placeholder="Selecciona un curso"
+      [placeholder]="'COMMON.SELECT_COURSE' | translate"
       class="course-select">
       <ion-select-option *ngFor="let c of courses" [value]="c.id">{{ c.name }}</ion-select-option>
     </ion-select>
@@ -30,19 +30,16 @@
 
 <ion-content>
 
-  <!-- No courses -->
   <div *ngIf="courses.length === 0" class="empty-state">
     <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
-    <h3>Sin cursos</h3>
-    <p>Ve a la pestaña <strong>Cursos</strong> y crea tu primer curso.</p>
+    <h3>{{ 'DASHBOARD.NO_COURSES' | translate }}</h3>
+    <p [innerHTML]="'DASHBOARD.NO_COURSES_HINT' | translate"></p>
   </div>
 
   <ng-container *ngIf="stats && courses.length > 0">
 
-    <!-- ── Hero ──────────────────────────────────────────────────────────────── -->
     <div class="hero" [style.background]="heroGradient">
 
-      <!-- Ring -->
       <div class="ring-wrap">
         <svg viewBox="0 0 100 100" class="ring-svg">
           <circle cx="50" cy="50" r="40" fill="none"
@@ -57,69 +54,70 @@
         </svg>
         <div class="ring-label">
           <span class="ring-pct">{{ stats.attendancePercent }}%</span>
-          <span class="ring-sub">asistencia</span>
+          <span class="ring-sub">{{ 'COMMON.ATTENDANCE' | translate }}</span>
         </div>
       </div>
 
-      <!-- Status info -->
       <div class="hero-info">
         <div class="course-name">{{ courseName }}</div>
         <div class="status-badge" [attr.data-status]="stats.overallStatus">
           <ion-icon [name]="statusIcon"></ion-icon>
-          {{ statusText }}
+          {{ statusKey | translate }}
         </div>
         <div class="hero-sub">
-          Mín. {{ stats.minAttendancePercent }}% · {{ stats.elapsedWorkingDays }} de {{ stats.totalWorkingDays }} días hábiles
+          {{ 'DASHBOARD.HERO_SUB' | translate:{ min: stats.minAttendancePercent, elapsed: stats.elapsedWorkingDays, total: stats.totalWorkingDays } }}
         </div>
       </div>
 
     </div>
 
-    <!-- ── Metric grid ────────────────────────────────────────────────────────── -->
     <div class="metrics-grid">
 
-      <!-- Absences -->
       <div class="metric-card" [class.metric-over]="stats.absentDays > stats.maxAbsences">
         <div class="metric-head">
           <div class="metric-icon absence-icon">
             <ion-icon name="close-circle-outline"></ion-icon>
           </div>
-          <span class="metric-title">Faltas</span>
+          <span class="metric-title">{{ 'DASHBOARD.ABSENCES' | translate }}</span>
         </div>
         <div class="metric-num">
           {{ stats.absentDays }}<span class="metric-denom">/{{ stats.maxAbsences }}</span>
         </div>
         <ion-progress-bar [value]="absencesBarValue" [color]="absencesColor" class="metric-bar"></ion-progress-bar>
         <div class="metric-foot" [class.metric-foot-ok]="stats.absencesRemaining > 1" [class.metric-foot-warn]="stats.absencesRemaining === 1" [class.metric-foot-over]="stats.absentDays > stats.maxAbsences">
-          {{ stats.absentDays > stats.maxAbsences ? 'Límite superado' : stats.absencesRemaining + ' disponibles' }}
+          <ng-container *ngIf="stats.absentDays > stats.maxAbsences; else absAvailable">
+            {{ 'COMMON.LIMIT_EXCEEDED' | translate }}
+          </ng-container>
+          <ng-template #absAvailable>{{ stats.absencesRemaining }} {{ 'COMMON.AVAILABLE' | translate }}</ng-template>
         </div>
       </div>
 
-      <!-- Tardiness -->
       <div class="metric-card" [class.metric-over]="stats.lateDays > stats.maxTardiness">
         <div class="metric-head">
           <div class="metric-icon tardiness-icon">
             <ion-icon name="time-outline"></ion-icon>
           </div>
-          <span class="metric-title">Impunt.</span>
+          <span class="metric-title">{{ 'DASHBOARD.TARDINESS' | translate }}</span>
         </div>
         <div class="metric-num">
           {{ stats.lateDays }}<span class="metric-denom">/{{ stats.maxTardiness }}</span>
         </div>
         <ion-progress-bar [value]="latenessBarValue" [color]="latenessColor" class="metric-bar"></ion-progress-bar>
         <div class="metric-foot" [class.metric-foot-ok]="stats.latenessRemaining > 2" [class.metric-foot-warn]="stats.latenessRemaining <= 2 && stats.lateDays <= stats.maxTardiness" [class.metric-foot-over]="stats.lateDays > stats.maxTardiness">
-          {{ stats.lateDays > stats.maxTardiness ? 'Límite superado' : stats.latenessRemaining + ' disponibles' }}
+          <ng-container *ngIf="stats.lateDays > stats.maxTardiness; else lateAvailable">
+            {{ 'COMMON.LIMIT_EXCEEDED' | translate }}
+          </ng-container>
+          <ng-template #lateAvailable>{{ stats.latenessRemaining }} {{ 'COMMON.AVAILABLE' | translate }}</ng-template>
         </div>
       </div>
 
     </div>
 
-    <!-- ── Hours card ─────────────────────────────────────────────────────────── -->
     <div class="hours-card">
       <div class="hours-header">
         <div>
-          <div class="hours-title">Horas asistidas</div>
-          <div class="hours-sub">hasta hoy</div>
+          <div class="hours-title">{{ 'DASHBOARD.HOURS_TITLE' | translate }}</div>
+          <div class="hours-sub">{{ 'DASHBOARD.HOURS_SUB' | translate }}</div>
         </div>
         <div class="hours-value">
           {{ formatHours(stats.totalHoursAttended) }}
@@ -129,23 +127,22 @@
       <ion-progress-bar [value]="hoursBarValue" [color]="attendanceBarColor" class="hours-bar"></ion-progress-bar>
       <div class="lost-row" *ngIf="stats.totalLostMinutes > 0">
         <ion-icon name="alert-circle-outline"></ion-icon>
-        −{{ stats.totalLostMinutes }} min perdidos por tardanzas
+        {{ 'DASHBOARD.LOST_MINS' | translate:{ mins: stats.totalLostMinutes } }}
       </div>
     </div>
 
-    <!-- ── Summary chips ──────────────────────────────────────────────────────── -->
     <div class="chips-row">
       <div class="summary-chip chip-present">
         <ion-icon name="checkmark-circle"></ion-icon>
-        {{ stats.presentDays }} presentes
+        {{ stats.presentDays }} {{ 'COMMON.PRESENT_PLURAL' | translate }}
       </div>
       <div class="summary-chip chip-late">
         <ion-icon name="time"></ion-icon>
-        {{ stats.lateDays }} tardanzas
+        {{ stats.lateDays }} {{ 'COMMON.LATE_PLURAL' | translate }}
       </div>
       <div class="summary-chip chip-absent">
         <ion-icon name="close-circle"></ion-icon>
-        {{ stats.absentDays }} faltas
+        {{ stats.absentDays }} {{ 'COMMON.ABSENT_PLURAL' | translate }}
       </div>
     </div>
 

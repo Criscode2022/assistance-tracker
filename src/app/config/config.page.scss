@@ -61,10 +61,24 @@
 .info-card,
 .permission-card,
 .danger-card,
-.online-card {
+.online-card,
+.language-card {
   margin: 8px 16px;
   border-radius: 16px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.language-card {
+  ion-segment {
+    --background: var(--ion-background-color, #f0f2f7);
+  }
+
+  ion-segment-button {
+    --indicator-color: var(--ion-color-primary);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
 }
 
 .online-card {

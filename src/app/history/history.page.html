@@ -1,6 +1,6 @@
 <ion-header class="modern-header">
   <ion-toolbar>
-    <ion-title>Historial</ion-title>
+    <ion-title>{{ 'HISTORY.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       <app-online-indicator></app-online-indicator>
     </ion-buttons>
@@ -10,7 +10,7 @@
       [(ngModel)]="selectedCourseId"
       (ionChange)="onCourseChange()"
       interface="action-sheet"
-      placeholder="Selecciona un curso"
+      [placeholder]="'COMMON.SELECT_COURSE' | translate"
       class="course-select">
       <ion-select-option *ngFor="let c of courses" [value]="c.id">{{ c.name }}</ion-select-option>
     </ion-select>
@@ -21,34 +21,32 @@
 
   <div *ngIf="courses.length === 0" class="empty-state">
     <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
-    <h3>Sin cursos</h3>
-    <p>Crea un curso para ver el historial.</p>
+    <h3>{{ 'HISTORY.NO_COURSES' | translate }}</h3>
+    <p>{{ 'HISTORY.NO_COURSES_HINT' | translate }}</p>
   </div>
 
   <ng-container *ngIf="courses.length > 0">
     <div *ngIf="monthStatsList.length === 0" class="empty-state">
       <div class="empty-icon-wrap"><ion-icon name="calendar-outline"></ion-icon></div>
-      <h3>Sin historial</h3>
-      <p>Registra asistencia para ver el historial mensual.</p>
+      <h3>{{ 'HISTORY.NO_HISTORY' | translate }}</h3>
+      <p>{{ 'HISTORY.NO_HISTORY_HINT' | translate }}</p>
     </div>
 
     <div class="history-list">
       <div *ngFor="let s of monthStatsList" class="month-card">
 
-        <!-- Month header -->
         <div class="month-card-header" [attr.data-status]="s.overallStatus">
           <div class="month-card-title">
             <span class="month-label">{{ s.monthLabel }}</span>
-            <span class="month-days">{{ s.totalWorkingDays }} días hábiles</span>
+            <span class="month-days">{{ s.totalWorkingDays }} {{ 'COMMON.WORKING_DAYS' | translate }}</span>
           </div>
           <div class="month-status-icon">
             <ion-icon [name]="statusIcon(s)" [color]="statusColor(s)"></ion-icon>
           </div>
         </div>
 
-        <!-- Attendance bar -->
         <div class="att-row">
-          <span class="att-label">Asistencia</span>
+          <span class="att-label">{{ 'HISTORY.ATTENDANCE_LABEL' | translate }}</span>
           <span class="att-value" [class.att-ok]="s.attendancePercent >= s.minAttendancePercent" [class.att-fail]="s.attendancePercent < s.minAttendancePercent">
             {{ s.attendancePercent }}%
           </span>
@@ -59,27 +57,26 @@
           class="att-bar">
         </ion-progress-bar>
 
-        <!-- Stats row -->
         <div class="stat-chips">
           <div class="stat-chip">
             <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
             <span>{{ s.presentDays }}</span>
-            <span class="chip-label">presentes</span>
+            <span class="chip-label">{{ 'COMMON.PRESENT_PLURAL' | translate }}</span>
           </div>
           <div class="stat-chip" [class.chip-over]="s.lateDays > s.maxTardiness">
             <ion-icon name="time-outline" color="warning"></ion-icon>
             <span>{{ s.lateDays }}/{{ s.maxTardiness }}</span>
-            <span class="chip-label">tardanzas</span>
+            <span class="chip-label">{{ 'COMMON.LATE_PLURAL' | translate }}</span>
           </div>
           <div class="stat-chip" [class.chip-over]="s.absentDays > s.maxAbsences">
             <ion-icon name="close-circle-outline" color="danger"></ion-icon>
             <span>{{ s.absentDays }}/{{ s.maxAbsences }}</span>
-            <span class="chip-label">faltas</span>
+            <span class="chip-label">{{ 'COMMON.ABSENT_PLURAL' | translate }}</span>
           </div>
           <div class="stat-chip" *ngIf="s.totalLostMinutes > 0">
             <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
             <span>−{{ s.totalLostMinutes }}min</span>
-            <span class="chip-label">perdidos</span>
+            <span class="chip-label">{{ 'COMMON.LOST' | translate }}</span>
           </div>
         </div>
 

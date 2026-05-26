@@ -5,24 +5,22 @@
         <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Modo en línea</ion-title>
+    <ion-title>{{ 'AUTH.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="auth-content">
   <div class="auth-hero">
     <ion-icon name="cloud-upload-outline"></ion-icon>
-    <h1>Sincroniza en la nube</h1>
-    <p>Accede a tus cursos desde cualquier dispositivo con tu cuenta.</p>
+    <h1>{{ 'AUTH.HERO_TITLE' | translate }}</h1>
+    <p>{{ 'AUTH.HERO_DESC' | translate }}</p>
   </div>
 
   <ion-card class="offline-banner" *ngIf="hasOfflineData && tab === 'signup'">
     <ion-card-content>
       <div class="banner-row">
         <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-        <span>
-          Tienes datos locales. Al crear una cuenta, tus cursos se subirán automáticamente a la nube.
-        </span>
+        <span>{{ 'AUTH.SIGNUP_BANNER' | translate }}</span>
       </div>
     </ion-card-content>
   </ion-card>
@@ -31,19 +29,17 @@
     <ion-card-content>
       <div class="banner-row">
         <ion-icon name="swap-horizontal-outline" color="medium"></ion-icon>
-        <span>
-          Al iniciar sesión, los datos de la nube reemplazarán los datos locales en este dispositivo.
-        </span>
+        <span>{{ 'AUTH.SIGNIN_BANNER' | translate }}</span>
       </div>
     </ion-card-content>
   </ion-card>
 
   <div class="tab-row">
     <button type="button" class="tab-btn" [class.active]="tab === 'signup'" (click)="setTab('signup')">
-      Crear cuenta
+      {{ 'AUTH.TAB_SIGNUP' | translate }}
     </button>
     <button type="button" class="tab-btn" [class.active]="tab === 'signin'" (click)="setTab('signin')">
-      Iniciar sesión
+      {{ 'AUTH.TAB_SIGNIN' | translate }}
     </button>
   </div>
 
@@ -51,19 +47,19 @@
     <ion-list lines="none" class="form-list">
       <ion-item *ngIf="tab === 'signup'">
         <ion-input
-          label="Nombre"
+          [label]="'AUTH.NAME' | translate"
           labelPlacement="stacked"
           type="text"
           [(ngModel)]="name"
           name="name"
-          placeholder="Tu nombre"
+          [placeholder]="'AUTH.NAME_PLACEHOLDER' | translate"
           autocomplete="name">
         </ion-input>
       </ion-item>
 
       <ion-item>
         <ion-input
-          label="Correo electrónico"
+          [label]="'AUTH.EMAIL' | translate"
           labelPlacement="stacked"
           type="email"
           [(ngModel)]="email"
@@ -76,12 +72,12 @@
 
       <ion-item>
         <ion-input
-          label="Contraseña"
+          [label]="'AUTH.PASSWORD' | translate"
           labelPlacement="stacked"
           type="password"
           [(ngModel)]="password"
           name="password"
-          placeholder="Mínimo 8 caracteres"
+          [placeholder]="'AUTH.PASSWORD_PLACEHOLDER' | translate"
           required
           minlength="8"
           autocomplete="{{ tab === 'signup' ? 'new-password' : 'current-password' }}">
@@ -91,11 +87,11 @@
 
     <ion-button expand="block" type="submit" class="submit-btn" [disabled]="loading">
       <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
-      <span *ngIf="!loading">{{ tab === 'signup' ? 'Crear cuenta y continuar' : 'Iniciar sesión' }}</span>
+      <span *ngIf="!loading">{{ (tab === 'signup' ? 'AUTH.SUBMIT_SIGNUP' : 'AUTH.SUBMIT_SIGNIN') | translate }}</span>
     </ion-button>
   </form>
 
   <p class="auth-hint">
-    El modo sin conexión sigue disponible. Puedes volver a él en cualquier momento desde Configuración.
+    {{ 'AUTH.HINT' | translate }}
   </p>
 </ion-content>

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { createClient } from '@neondatabase/neon-js';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments/environment';
-import { mapAuthError } from '../utils/auth-error.mapper';
+import { getAuthErrorKey } from '../utils/auth-error.mapper';
 
 export interface AuthUser {
   id: string;
@@ -13,7 +14,7 @@ export interface AuthUser {
 export class NeonService {
   readonly client: ReturnType<typeof createClient>;
 
-  constructor() {
+  constructor(private translate: TranslateService) {
     this.client = createClient({
       auth: { url: environment.neonAuthUrl },
       dataApi: { url: environment.neonDataApiUrl },
@@ -57,6 +58,6 @@ export class NeonService {
   }
 
   getAuthErrorMessage(error: unknown): string {
-    return mapAuthError(error);
+    return this.translate.instant(getAuthErrorKey(error));
   }
 }

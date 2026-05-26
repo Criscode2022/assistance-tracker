@@ -2,6 +2,6 @@
   *ngIf="isOnline"
   fill="clear"
   class="online-indicator-btn"
-  aria-label="Modo en línea activo">
+  [attr.aria-label]="'ONLINE.INDICATOR' | translate">
   <ion-icon slot="icon-only" name="cloud-outline"></ion-icon>
 </ion-button>

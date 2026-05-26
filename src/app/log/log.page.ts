@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ActionSheetController, AlertController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
+import { LanguageService } from '../services/language.service';
 import { Course, DayEntry } from '../models/attendance.model';
 
 @Component({
@@ -9,18 +12,28 @@ import { Course, DayEntry } from '../models/attendance.model';
   styleUrls: ['log.page.scss'],
   standalone: false,
 })
-export class LogPage {
+export class LogPage implements OnDestroy {
   days: DayEntry[] = [];
   courses: Course[] = [];
   selectedCourseId: string | null = null;
   selectedMonth = '';
   availableMonths: string[] = [];
 
+  private langSub?: Subscription;
+
   constructor(
     private svc: AttendanceService,
     private actionSheet: ActionSheetController,
-    private alertCtrl: AlertController
-  ) {}
+    private alertCtrl: AlertController,
+    private translate: TranslateService,
+    private lang: LanguageService,
+  ) {
+    this.langSub = this.lang.onLangChange().subscribe(() => this.loadDays());
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
 
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();
@@ -57,11 +70,7 @@ export class LogPage {
   }
 
   monthLabelFor(m: string): string {
-    const l = new Date(m + '-15').toLocaleDateString('es-MX', {
-      month: 'long',
-      year: 'numeric',
-    });
-    return l.charAt(0).toUpperCase() + l.slice(1);
+    return this.lang.formatMonthYear(m);
   }
 
   get monthLabel(): string {
@@ -76,7 +85,7 @@ export class LogPage {
       cssClass: 'modern-action-sheet',
       buttons: [
         {
-          text: 'Presente',
+          text: this.translate.instant('COMMON.PRESENT'),
           icon: 'checkmark-circle-outline',
           handler: () => {
             this.svc.setDayRecord(
@@ -88,15 +97,14 @@ export class LogPage {
           },
         },
         {
-          text: 'Impuntual (tardanza)',
+          text: this.translate.instant('LOG.LATE_OPTION'),
           icon: 'time-outline',
           handler: () => {
-            // Small delay so action sheet animates out before alert opens
             setTimeout(() => this.askForTimes(day), 300);
           },
         },
         {
-          text: 'Falta',
+          text: this.translate.instant('COMMON.ABSENT'),
           icon: 'close-circle-outline',
           role: 'destructive',
           handler: () => {
@@ -109,7 +117,7 @@ export class LogPage {
           },
         },
         {
-          text: 'Sin registrar',
+          text: this.translate.instant('COMMON.UNLOGGED'),
           icon: 'remove-circle-outline',
           handler: () => {
             this.svc.setDayRecord(
@@ -120,7 +128,7 @@ export class LogPage {
             this.loadDays();
           },
         },
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
       ],
     });
     await sheet.present();
@@ -136,26 +144,26 @@ export class LogPage {
       day.exitTime ?? this.svc.calcDefaultExitTime(course);
 
     const alert = await this.alertCtrl.create({
-      header: 'Horario del día',
+      header: this.translate.instant('LOG.DAY_SCHEDULE'),
       subHeader: `${day.dayLabel}, ${day.dateLabel}`,
       cssClass: 'time-alert',
       inputs: [
         {
           name: 'entry',
           type: 'time',
-          label: 'Hora de entrada',
+          label: this.translate.instant('LOG.ENTRY_TIME'),
           value: defaultEntry,
         },
         {
           name: 'exit',
           type: 'time',
-          label: 'Hora de salida',
+          label: this.translate.instant('LOG.EXIT_TIME'),
           value: defaultExit,
         },
       ],
       buttons: [
         {
-          text: 'Sin horario',
+          text: this.translate.instant('LOG.NO_SCHEDULE_BTN'),
           cssClass: 'alert-btn-neutral',
           handler: () => {
             this.svc.setDayRecord(
@@ -166,9 +174,9 @@ export class LogPage {
             this.loadDays();
           },
         },
-        { text: 'Cancelar', role: 'cancel' },
+        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'Guardar',
+          text: this.translate.instant('COMMON.SAVE'),
           cssClass: 'alert-btn-primary',
           handler: (data: { entry: string; exit: string }) => {
             this.svc.setDayRecord(
@@ -209,12 +217,12 @@ export class LogPage {
     }
   }
 
-  statusLabel(day: DayEntry): string {
+  statusLabelKey(day: DayEntry): string {
     switch (day.status) {
-      case 'present': return 'Presente';
-      case 'absent':  return 'Falta';
-      case 'late':    return 'Impuntual';
-      default:        return 'Sin registrar';
+      case 'present': return 'COMMON.PRESENT';
+      case 'absent':  return 'COMMON.ABSENT';
+      case 'late':    return 'COMMON.LATE';
+      default:        return 'COMMON.UNLOGGED';
     }
   }
 }
