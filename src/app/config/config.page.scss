@@ -134,7 +134,22 @@
 
   &.pending {
     background: rgba(var(--ion-color-warning-rgb), 0.1);
+    margin-top: 0;
   }
+}
+
+.pending-block {
+  margin-top: 14px;
+
+  .online-status {
+    margin-top: 0;
+  }
+}
+
+.pending-auth-btn {
+  margin-top: 12px;
+  --border-radius: 12px;
+  font-weight: 600;
 }
 
 .signout-btn {

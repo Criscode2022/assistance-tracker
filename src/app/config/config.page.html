@@ -4,6 +4,9 @@
       <ion-back-button defaultHref="/" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Configuración</ion-title>
+    <ion-buttons slot="end">
+      <app-online-indicator></app-online-indicator>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -60,12 +63,22 @@
           </ion-toggle>
         </ion-item>
 
-        <div class="online-status pending" *ngIf="onlinePending">
-          <ion-icon name="time-outline" color="warning"></ion-icon>
-          <div>
-            <strong>Conexión pendiente</strong>
-            <p>Completa el inicio de sesión para activar la sincronización</p>
+        <div class="pending-block" *ngIf="onlinePending">
+          <div class="online-status pending">
+            <ion-icon name="time-outline" color="warning"></ion-icon>
+            <div>
+              <strong>Conexión pendiente</strong>
+              <p>Completa el inicio de sesión para activar la sincronización</p>
+            </div>
           </div>
+          <ion-button
+            expand="block"
+            color="primary"
+            class="pending-auth-btn"
+            (click)="goToAuth()">
+            <ion-icon slot="start" name="log-in-outline"></ion-icon>
+            Ir a iniciar sesión
+          </ion-button>
         </div>
       </ng-container>
 

@@ -4,6 +4,7 @@
 
     <!-- Form mode -->
     <ion-buttons slot="end" *ngIf="showForm">
+      <app-online-indicator></app-online-indicator>
       <ion-button (click)="cancelForm()" color="medium">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
@@ -15,6 +16,7 @@
         <ion-button (click)="exitSelectMode()" color="medium">Cancelar</ion-button>
       </ion-buttons>
       <ion-buttons slot="end">
+        <app-online-indicator></app-online-indicator>
         <ion-button
           (click)="exportSelected()"
           [disabled]="selectedCount === 0"
@@ -27,6 +29,7 @@
 
     <!-- Normal mode -->
     <ion-buttons slot="end" *ngIf="!showForm && !selectMode">
+      <app-online-indicator></app-online-indicator>
       <ion-button (click)="enterSelectMode()">
         <ion-icon slot="icon-only" name="checkmark-done-outline"></ion-icon>
       </ion-button>

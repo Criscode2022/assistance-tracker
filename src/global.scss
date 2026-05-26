@@ -67,6 +67,10 @@ ion-content { --background: var(--ion-background-color); }
   }
 }
 
+  .modern-header ion-toolbar::part(container) {
+    padding-inline: 16px;
+  }
+
 @media (prefers-color-scheme: dark) {
   .selectors-bar {
     --background: #1e293b;

@@ -1,6 +1,9 @@
 <ion-header class="modern-header">
   <ion-toolbar>
     <ion-title>Historial</ion-title>
+    <ion-buttons slot="end">
+      <app-online-indicator></app-online-indicator>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="selectors-bar" *ngIf="courses.length > 0">
     <ion-select

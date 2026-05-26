@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { NavController, AlertController, ToastController } from '@ionic/angular';
 import { NotificationService, NotificationSettings } from '../services/notification.service';
 import { AttendanceService } from '../services/attendance.service';
@@ -21,6 +22,7 @@ export class ConfigPage {
 
   constructor(
     private nav: NavController,
+    private router: Router,
     private notifSvc: NotificationService,
     private attendanceSvc: AttendanceService,
     private alertCtrl: AlertController,
@@ -45,6 +47,12 @@ export class ConfigPage {
     return this.appMode.hasOnlineIntent();
   }
 
+  goToAuth(): void {
+    this.appMode.setOnlineIntent();
+    this.onlineMode = true;
+    void this.router.navigate(['/auth']);
+  }
+
   async onOnlineModeChange(event: CustomEvent): Promise<void> {
     const enabled = event.detail.checked;
 
@@ -57,7 +65,7 @@ export class ConfigPage {
         this.onlineUser = await this.neon.getUser();
         await this.showToast('Modo en línea activado', 'success');
       } else {
-        this.nav.navigateForward('/auth');
+        this.goToAuth();
       }
       return;
     }
