@@ -1,8 +1,26 @@
 import { Course, DayRecord } from '../app/models/attendance.model';
+import { CourseFormModel } from '../app/courses/courses.page';
 
 export function clearBrowserStorage(): void {
   localStorage.clear();
   sessionStorage.clear();
+}
+
+/** Valid defaults for CoursesPage signal form tests. */
+export function createCourseFormModel(
+  overrides: Partial<CourseFormModel> = {},
+): CourseFormModel {
+  return {
+    name: 'Curso de prueba',
+    startDate: '2026-05-01',
+    endDate: '2026-05-31',
+    startTime: '09:00',
+    hoursPerDay: 5,
+    maxAbsences: 3,
+    maxTardiness: 7,
+    minAttendancePercent: 75,
+    ...overrides,
+  };
 }
 
 export function createMockCourse(overrides: Partial<Course> = {}): Course {

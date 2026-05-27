@@ -200,6 +200,18 @@
     "ACTIONS_COUNT": "Actions ({{count}})",
     "ACTIONS_HEADER": "{{count}} selected",
     "DELETE_BULK_HEADER": "Delete courses",
-    "DELETE_BULK_MSG": "Delete {{count}} courses? All attendance records will be lost."
+    "DELETE_BULK_MSG": "Delete {{count}} courses? All attendance records will be lost.",
+    "ERRORS": {
+      "NAME_REQUIRED": "Enter a course name.",
+      "START_DATE_REQUIRED": "Select a start date.",
+      "END_DATE_REQUIRED": "Select an end date.",
+      "END_BEFORE_START": "End date must be on or after the start date.",
+      "HOURS_MIN": "At least 1 hour per day.",
+      "HOURS_MAX": "At most 12 hours per day.",
+      "MAX_ABSENCES_MIN": "Cannot be negative.",
+      "MAX_TARDINESS_MIN": "Cannot be negative.",
+      "MIN_ATTENDANCE_MIN": "Minimum attendance is 1%.",
+      "MIN_ATTENDANCE_MAX": "Maximum attendance is 100%."
+    }
   }
 }

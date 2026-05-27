@@ -1,5 +1,20 @@
-import { Component, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+  computed,
+  signal,
+} from '@angular/core';
 import { ActionSheetController, AlertController, ToastController } from '@ionic/angular';
+import {
+  form,
+  max,
+  min,
+  required,
+  validate,
+  type SchemaPathTree,
+} from '@angular/forms/signals';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
@@ -13,6 +28,58 @@ export interface CourseExport {
   records: Record<string, Record<string, DayRecord>>;
 }
 
+/** Form model shape (no id — assigned on save). */
+export interface CourseFormModel {
+  name: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  hoursPerDay: number;
+  maxAbsences: number;
+  maxTardiness: number;
+  minAttendancePercent: number;
+}
+
+type CourseFormField = keyof CourseFormModel;
+
+/** Fields with validators — used for canSave and inline errors. */
+const VALIDATED_COURSE_FIELDS = [
+  'name',
+  'startDate',
+  'endDate',
+  'hoursPerDay',
+  'maxAbsences',
+  'maxTardiness',
+  'minAttendancePercent',
+] as const satisfies readonly CourseFormField[];
+
+const courseFormSchema = (schemaPath: SchemaPathTree<CourseFormModel>) => {
+  validate(schemaPath.name, (ctx) => {
+    if (!ctx.value().trim()) {
+      return { kind: 'required', message: 'COURSES.ERRORS.NAME_REQUIRED' };
+    }
+    return null;
+  });
+  required(schemaPath.startDate, { message: 'COURSES.ERRORS.START_DATE_REQUIRED' });
+  required(schemaPath.endDate, { message: 'COURSES.ERRORS.END_DATE_REQUIRED' });
+
+  validate(schemaPath.endDate, (ctx) => {
+    const end = ctx.value();
+    const start = ctx.valueOf(schemaPath.startDate);
+    if (start && end && end < start) {
+      return { kind: 'dateRange', message: 'COURSES.ERRORS.END_BEFORE_START' };
+    }
+    return null;
+  });
+
+  min(schemaPath.hoursPerDay, 1, { message: 'COURSES.ERRORS.HOURS_MIN' });
+  max(schemaPath.hoursPerDay, 12, { message: 'COURSES.ERRORS.HOURS_MAX' });
+  min(schemaPath.maxAbsences, 0, { message: 'COURSES.ERRORS.MAX_ABSENCES_MIN' });
+  min(schemaPath.maxTardiness, 0, { message: 'COURSES.ERRORS.MAX_TARDINESS_MIN' });
+  min(schemaPath.minAttendancePercent, 1, { message: 'COURSES.ERRORS.MIN_ATTENDANCE_MIN' });
+  max(schemaPath.minAttendancePercent, 100, { message: 'COURSES.ERRORS.MIN_ATTENDANCE_MAX' });
+};
+
 @Component({
   selector: 'app-courses',
   templateUrl: 'courses.page.html',
@@ -22,16 +89,43 @@ export interface CourseExport {
 export class CoursesPage implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  courses: Course[] = [];
-  showForm = false;
-  editingId: string | null = null;
+  protected courses: Course[] = [];
+  protected showForm = false;
+  protected editingId: string | null = null;
 
-  form: Omit<Course, 'id'> = this.blankForm();
+  readonly courseModel = signal<CourseFormModel>(this.blankForm());
 
-  selectMode = false;
-  selectedIds = new Set<string>();
+  readonly courseForm = form(this.courseModel, courseFormSchema);
+
+  readonly isValidForm = computed(() =>
+    VALIDATED_COURSE_FIELDS.every((field) => this.fieldState(field).valid()),
+  );
+
+  readonly calcExitTime = computed(() => {
+    const { startTime, hoursPerDay } = this.courseModel();
+    if (!startTime || !hoursPerDay) return '';
+    const [h, m] = startTime.split(':').map(Number);
+    const total = h * 60 + m + Number(hoursPerDay) * 60;
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+  });
+
+  readonly formSubmitted = signal(false);
+
+  protected selectMode = signal(false);
+  protected selectedIds = new Set<string>();
 
   private langSub?: Subscription;
+
+  get selectedCount(): number {
+    return this.selectedIds.size;
+  }
+
+  get actionsLabel(): string {
+    const count = this.selectedCount;
+    return count > 0
+      ? this.translate.instant('COURSES.ACTIONS_COUNT', { count })
+      : this.translate.instant('COURSES.ACTIONS');
+  }
 
   constructor(
     public svc: AttendanceService,
@@ -46,16 +140,12 @@ export class CoursesPage implements OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
-  }
-
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();
     this.exitSelectMode();
   }
 
-  private blankForm(): Omit<Course, 'id'> {
+  private blankForm(): CourseFormModel {
     return {
       name: '',
       startDate: '',
@@ -68,15 +158,36 @@ export class CoursesPage implements OnDestroy {
     };
   }
 
-  openNew(): void {
+  private resetCourseModel(): void {
+    this.courseModel.set(this.blankForm());
+    this.formSubmitted.set(false);
+  }
+
+  private fieldState(field: CourseFormField) {
+    return this.courseForm[field]();
+  }
+
+  /** Show inline errors after touch, edit, or a save attempt. */
+  shouldShowErrors(field: CourseFormField): boolean {
+    const state = this.fieldState(field);
+    return (
+      (state.touched() || state.dirty() || this.formSubmitted()) && state.invalid()
+    );
+  }
+
+ protected fieldErrors(field: CourseFormField) {
+    return this.fieldState(field).errors();
+  }
+
+ protected openNew(): void {
     this.editingId = null;
-    this.form = this.blankForm();
+    this.resetCourseModel();
     this.showForm = true;
   }
 
-  openEdit(course: Course): void {
+ protected openEdit(course: Course): void {
     this.editingId = course.id;
-    this.form = {
+    this.courseModel.set({
       name: course.name,
       startDate: course.startDate,
       endDate: course.endDate,
@@ -85,27 +196,32 @@ export class CoursesPage implements OnDestroy {
       maxAbsences: course.maxAbsences,
       maxTardiness: course.maxTardiness,
       minAttendancePercent: course.minAttendancePercent,
-    };
+    });
+    this.formSubmitted.set(false);
     this.showForm = true;
   }
 
-  cancelForm(): void {
+  protected cancelForm(): void {
     this.showForm = false;
     this.editingId = null;
+    this.formSubmitted.set(false);
   }
 
-  saveForm(): void {
-    if (!this.isFormValid()) return;
+  protected saveForm(): void {
+    this.formSubmitted.set(true);
+    if (!this.isValidForm()) return;
+    this.formSubmitted.set(false);
+    const data = this.courseModel();
     const course: Course = {
       id: this.editingId ?? this.svc.generateId(),
-      name: this.form.name.trim(),
-      startDate: this.form.startDate,
-      endDate: this.form.endDate,
-      startTime: this.form.startTime || '09:00',
-      hoursPerDay: Number(this.form.hoursPerDay),
-      maxAbsences: Number(this.form.maxAbsences),
-      maxTardiness: Number(this.form.maxTardiness),
-      minAttendancePercent: Number(this.form.minAttendancePercent),
+      name: data.name.trim(),
+      startDate: data.startDate,
+      endDate: data.endDate,
+      startTime: data.startTime || '09:00',
+      hoursPerDay: Number(data.hoursPerDay),
+      maxAbsences: Number(data.maxAbsences),
+      maxTardiness: Number(data.maxTardiness),
+      minAttendancePercent: Number(data.minAttendancePercent),
     };
     this.svc.saveCourse(course);
     this.courses = this.svc.getCourses();
@@ -113,8 +229,8 @@ export class CoursesPage implements OnDestroy {
     this.editingId = null;
   }
 
-  selectCourse(id: string): void {
-    if (this.selectMode) {
+ protected selectCourse(id: string): void {
+    if (this.selectMode()) {
       this.toggleSelectId(id);
     } else {
       this.svc.selectedCourseId = id;
@@ -142,17 +258,17 @@ export class CoursesPage implements OnDestroy {
     await al.present();
   }
 
-  enterSelectMode(): void {
-    this.selectMode = true;
+ protected enterSelectMode(): void {
+  this.selectMode.set(true);
+  this.selectedIds.clear();
+  }
+
+  protected exitSelectMode(): void {
+    this.selectMode.set(false);
     this.selectedIds.clear();
   }
 
-  exitSelectMode(): void {
-    this.selectMode = false;
-    this.selectedIds.clear();
-  }
-
-  toggleSelectId(id: string): void {
+  protected toggleSelectId(id: string): void {
     if (this.selectedIds.has(id)) {
       this.selectedIds.delete(id);
     } else {
@@ -160,22 +276,11 @@ export class CoursesPage implements OnDestroy {
     }
   }
 
-  isSelected(id: string): boolean {
+  protected isSelected(id: string): boolean {
     return this.selectedIds.has(id);
   }
 
-  get selectedCount(): number {
-    return this.selectedIds.size;
-  }
-
-  get actionsLabel(): string {
-    const count = this.selectedCount;
-    return count > 0
-      ? this.translate.instant('COURSES.ACTIONS_COUNT', { count })
-      : this.translate.instant('COURSES.ACTIONS');
-  }
-
-  async openSelectionActions(): Promise<void> {
+  protected async openSelectionActions(): Promise<void> {
     if (this.selectedCount === 0) return;
 
     const sheet = await this.actionSheet.create({
@@ -205,7 +310,7 @@ export class CoursesPage implements OnDestroy {
     await sheet.present();
   }
 
-  async confirmDeleteSelected(): Promise<void> {
+  private async confirmDeleteSelected(): Promise<void> {
     const count = this.selectedCount;
     const names = this.courses
       .filter((c) => this.selectedIds.has(c.id))
@@ -239,13 +344,13 @@ export class CoursesPage implements OnDestroy {
     this.exitSelectMode();
   }
 
-  exportSelected(): void {
+ private exportSelected(): void {
     const ids = [...this.selectedIds];
     this.exportCourseIds(ids);
     this.exitSelectMode();
   }
 
-  exportSingle(course: Course): void {
+ protected exportSingle(course: Course): void {
     this.exportCourseIds([course.id]);
   }
 
@@ -274,7 +379,7 @@ export class CoursesPage implements OnDestroy {
     URL.revokeObjectURL(url);
   }
 
-  triggerImport(): void {
+ protected triggerImport(): void {
     this.fileInput.nativeElement.value = '';
     this.fileInput.nativeElement.click();
   }
@@ -351,24 +456,12 @@ export class CoursesPage implements OnDestroy {
     await t.present();
   }
 
-  dateRangeLabel(course: Course): string {
+ protected dateRangeLabel(course: Course): string {
     const fmt = (ds: string) => this.lang.formatShortDate(ds);
     return `${fmt(course.startDate)} → ${fmt(course.endDate)}`;
   }
 
-  get calcExitTime(): string {
-    if (!this.form.startTime || !this.form.hoursPerDay) return '';
-    const [h, m] = this.form.startTime.split(':').map(Number);
-    const total = h * 60 + m + Number(this.form.hoursPerDay) * 60;
-    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-  }
-
-  isFormValid(): boolean {
-    return (
-      !!this.form.name.trim() &&
-      !!this.form.startDate &&
-      !!this.form.endDate &&
-      this.form.endDate >= this.form.startDate
-    );
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 }

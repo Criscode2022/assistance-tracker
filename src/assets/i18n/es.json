@@ -200,6 +200,18 @@
     "ACTIONS_COUNT": "Acciones ({{count}})",
     "ACTIONS_HEADER": "{{count}} seleccionados",
     "DELETE_BULK_HEADER": "Eliminar cursos",
-    "DELETE_BULK_MSG": "¿Eliminar {{count}} cursos? Se perderán todos sus registros de asistencia."
+    "DELETE_BULK_MSG": "¿Eliminar {{count}} cursos? Se perderán todos sus registros de asistencia.",
+    "ERRORS": {
+      "NAME_REQUIRED": "Escribe el nombre del curso.",
+      "START_DATE_REQUIRED": "Selecciona la fecha de inicio.",
+      "END_DATE_REQUIRED": "Selecciona la fecha de fin.",
+      "END_BEFORE_START": "La fecha de fin debe ser igual o posterior a la de inicio.",
+      "HOURS_MIN": "Mínimo 1 hora por día.",
+      "HOURS_MAX": "Máximo 12 horas por día.",
+      "MAX_ABSENCES_MIN": "No puede ser negativo.",
+      "MAX_TARDINESS_MIN": "No puede ser negativo.",
+      "MIN_ATTENDANCE_MIN": "La asistencia mínima es 1%.",
+      "MIN_ATTENDANCE_MAX": "La asistencia máxima es 100%."
+    }
   }
 }

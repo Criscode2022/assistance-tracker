@@ -1,205 +1,477 @@
 <ion-header class="modern-header">
+
   <ion-toolbar>
+
     <ion-title>
+
       <ng-container *ngIf="showForm">{{ (editingId ? 'COURSES.TITLE_EDIT' : 'COURSES.TITLE_NEW') | translate }}</ng-container>
-      <ng-container *ngIf="!showForm && selectMode">{{ 'COURSES.TITLE_SELECT' | translate }}</ng-container>
-      <ng-container *ngIf="!showForm && !selectMode">{{ 'COURSES.TITLE' | translate }}</ng-container>
+
+      <ng-container *ngIf="!showForm && selectMode()">{{ 'COURSES.TITLE_SELECT' | translate }}</ng-container>
+
+      <ng-container *ngIf="!showForm && !selectMode()">{{ 'COURSES.TITLE' | translate }}</ng-container>
+
     </ion-title>
 
+
+
     <ion-buttons slot="end" *ngIf="showForm">
+
       <app-online-indicator></app-online-indicator>
+
       <ion-button (click)="cancelForm()">
+
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+
       </ion-button>
+
     </ion-buttons>
 
-    <ng-container *ngIf="!showForm && selectMode">
+
+
+    <ng-container *ngIf="!showForm && selectMode()">
+
       <ion-buttons slot="start">
+
         <ion-button (click)="exitSelectMode()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
+
       </ion-buttons>
+
       <ion-buttons slot="end">
+
         <app-online-indicator></app-online-indicator>
+
         <ion-button
+
           (click)="openSelectionActions()"
+
           [disabled]="selectedCount === 0">
+
           <ion-icon slot="start" name="ellipsis-horizontal"></ion-icon>
+
           {{ actionsLabel }}
+
         </ion-button>
+
       </ion-buttons>
+
     </ng-container>
 
-    <ion-buttons slot="end" *ngIf="!showForm && !selectMode">
+
+
+    <ion-buttons slot="end" *ngIf="!showForm && !selectMode()">
+
       <app-online-indicator></app-online-indicator>
+
       <ion-button (click)="enterSelectMode()">
+
         <ion-icon slot="icon-only" name="checkmark-done-outline"></ion-icon>
+
       </ion-button>
+
     </ion-buttons>
+
   </ion-toolbar>
+
 </ion-header>
 
+
+
 <input
+
   #fileInput
+
   type="file"
+
   accept=".json,application/json"
+
   style="display:none"
+
   (change)="onFileSelected($event)" />
+
+
 
 <ion-content>
 
+
+
   <div *ngIf="showForm" class="form-wrap">
 
+
+
     <div class="form-section">
+
       <div class="form-section-label">{{ 'COURSES.COURSE_INFO' | translate }}</div>
 
+
+
       <div class="form-field">
+
         <label class="field-label">{{ 'COURSES.NAME' | translate }} <span class="req">*</span></label>
-        <ion-input
-          [(ngModel)]="form.name"
-          [placeholder]="'COURSES.NAME_PLACEHOLDER' | translate"
+
+        <input
+
+          type="text"
+
           class="modern-input"
-          clearInput>
-        </ion-input>
+
+          [class.input-invalid]="shouldShowErrors('name')"
+
+          [placeholder]="'COURSES.NAME_PLACEHOLDER' | translate"
+
+          [formField]="courseForm.name" />
+
+        @if (shouldShowErrors('name')) {
+          @for (error of fieldErrors('name'); track error.kind) {
+            <p class="field-error">{{ error.message | translate }}</p>
+          }
+        }
+
       </div>
 
+
+
       <div class="form-row">
+
         <div class="form-field">
+
           <label class="field-label">{{ 'COURSES.START_DATE' | translate }} <span class="req">*</span></label>
-          <ion-input [(ngModel)]="form.startDate" type="date" class="modern-input"></ion-input>
+
+          <input
+            type="date"
+            class="modern-input"
+            [class.input-invalid]="shouldShowErrors('startDate')"
+            [formField]="courseForm.startDate" />
+
+          @if (shouldShowErrors('startDate')) {
+            @for (error of fieldErrors('startDate'); track error.kind) {
+              <p class="field-error">{{ error.message | translate }}</p>
+            }
+          }
+
         </div>
+
         <div class="form-field">
+
           <label class="field-label">{{ 'COURSES.END_DATE' | translate }} <span class="req">*</span></label>
-          <ion-input [(ngModel)]="form.endDate" type="date" [min]="form.startDate" class="modern-input"></ion-input>
+
+          <input
+            type="date"
+            class="modern-input"
+            [class.input-invalid]="shouldShowErrors('endDate')"
+            [formField]="courseForm.endDate" />
+
+          @if (shouldShowErrors('endDate')) {
+            @for (error of fieldErrors('endDate'); track error.kind) {
+              <p class="field-error">{{ error.message | translate }}</p>
+            }
+          }
+
         </div>
+
       </div>
 
+
+
       <div class="form-row">
+
         <div class="form-field">
+
           <label class="field-label">{{ 'COURSES.ENTRY_TIME' | translate }}</label>
-          <ion-input [(ngModel)]="form.startTime" type="time" class="modern-input"></ion-input>
+
+          <input type="time" class="modern-input" [formField]="courseForm.startTime" />
+
         </div>
+
         <div class="form-field">
+
           <label class="field-label">{{ 'COURSES.EXIT_TIME' | translate }}</label>
-          <ion-input [value]="calcExitTime" class="modern-input" readonly></ion-input>
+
+          <input type="time" class="modern-input" [value]="calcExitTime()" readonly />
+
         </div>
+
       </div>
+
+
 
       <div class="form-field">
+
         <label class="field-label">{{ 'COURSES.HOURS_PER_DAY' | translate }}</label>
-        <ion-input [(ngModel)]="form.hoursPerDay" type="number" min="1" max="12" class="modern-input"></ion-input>
+
+        <input
+          type="number"
+          class="modern-input"
+          [class.input-invalid]="shouldShowErrors('hoursPerDay')"
+          [formField]="courseForm.hoursPerDay" />
+
+        @if (shouldShowErrors('hoursPerDay')) {
+          @for (error of fieldErrors('hoursPerDay'); track error.kind) {
+            <p class="field-error">{{ error.message | translate }}</p>
+          }
+        }
+
       </div>
+
     </div>
+
+
 
     <div class="form-section">
+
       <div class="form-section-label">{{ 'COURSES.MONTHLY_LIMITS' | translate }}</div>
 
+
+
       <div class="form-row">
+
         <div class="form-field">
+
           <label class="field-label">{{ 'COURSES.MAX_ABSENCES' | translate }}</label>
-          <ion-input [(ngModel)]="form.maxAbsences" type="number" min="0" class="modern-input"></ion-input>
+
+          <input
+            type="number"
+            class="modern-input"
+            [class.input-invalid]="shouldShowErrors('maxAbsences')"
+            [formField]="courseForm.maxAbsences" />
+
+          @if (shouldShowErrors('maxAbsences')) {
+            @for (error of fieldErrors('maxAbsences'); track error.kind) {
+              <p class="field-error">{{ error.message | translate }}</p>
+            }
+          }
+
         </div>
+
         <div class="form-field">
+
           <label class="field-label">{{ 'COURSES.MAX_TARDINESS' | translate }}</label>
-          <ion-input [(ngModel)]="form.maxTardiness" type="number" min="0" class="modern-input"></ion-input>
+
+          <input
+            type="number"
+            class="modern-input"
+            [class.input-invalid]="shouldShowErrors('maxTardiness')"
+            [formField]="courseForm.maxTardiness" />
+
+          @if (shouldShowErrors('maxTardiness')) {
+            @for (error of fieldErrors('maxTardiness'); track error.kind) {
+              <p class="field-error">{{ error.message | translate }}</p>
+            }
+          }
+
         </div>
+
       </div>
+
+
 
       <div class="form-field">
+
         <label class="field-label">{{ 'COURSES.MIN_ATTENDANCE' | translate }}</label>
-        <ion-input [(ngModel)]="form.minAttendancePercent" type="number" min="1" max="100" class="modern-input"></ion-input>
+
+        <input
+          type="number"
+          class="modern-input"
+          [class.input-invalid]="shouldShowErrors('minAttendancePercent')"
+          [formField]="courseForm.minAttendancePercent" />
+
+        @if (shouldShowErrors('minAttendancePercent')) {
+          @for (error of fieldErrors('minAttendancePercent'); track error.kind) {
+            <p class="field-error">{{ error.message | translate }}</p>
+          }
+        }
+
       </div>
+
     </div>
+
+
 
     <div class="form-actions">
-      <ion-button expand="block" (click)="saveForm()" [disabled]="!isFormValid()" class="save-btn">
+
+      <ion-button expand="block" (click)="saveForm()" [disabled]="!isValidForm()" class="save-btn">
+
         <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+
         {{ 'COURSES.SAVE_COURSE' | translate }}
+
       </ion-button>
+
       <ion-button expand="block" fill="clear" color="medium" (click)="cancelForm()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
+
     </div>
 
+
+
   </div>
+
+
 
   <div *ngIf="!showForm">
 
+
+
     <div class="course-list-wrap">
+
       <div class="import-card" (click)="triggerImport()">
+
         <div class="import-icon-wrap">
+
           <ion-icon name="cloud-upload-outline"></ion-icon>
+
         </div>
+
         <div class="import-label">
+
           <span class="import-title">{{ 'COURSES.IMPORT_TITLE' | translate }}</span>
+
           <span class="import-sub">{{ 'COURSES.IMPORT_SUB' | translate }}</span>
+
         </div>
+
         <ion-icon name="chevron-forward-outline" class="import-chevron"></ion-icon>
+
       </div>
+
     </div>
+
+
 
     <div *ngIf="courses.length === 0" class="empty-state">
+
       <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
+
       <h3>{{ 'COURSES.NO_COURSES' | translate }}</h3>
+
       <p [innerHTML]="'COURSES.NO_COURSES_HINT' | translate"></p>
+
     </div>
 
-    <div class="course-list" *ngIf="courses.length > 0">
+
+
+    <div class="course-list" *ngIf="courses.length">
+
       <ion-item-sliding
+
         *ngFor="let course of courses"
-        [disabled]="selectMode">
+
+        [disabled]="selectMode()">
+
+
 
         <ion-item
+
           class="course-item"
-          [class.course-active]="!selectMode && svc.selectedCourseId === course.id"
-          [class.course-selected]="selectMode && isSelected(course.id)"
+
+          [class.course-active]="!selectMode() && svc.selectedCourseId === course.id"
+
+          [class.course-selected]="selectMode() && isSelected(course.id)"
+
           (click)="selectCourse(course.id)"
+
           button detail="false" lines="none">
 
+
+
           <div class="course-left" slot="start">
+
             <div
-              *ngIf="!selectMode"
+
+              *ngIf="!selectMode()"
+
               class="course-radio"
+
               [class.radio-on]="svc.selectedCourseId === course.id">
+
             </div>
-            <div *ngIf="selectMode" class="course-checkbox" [class.checkbox-on]="isSelected(course.id)">
+
+            <div *ngIf="selectMode()" class="course-checkbox" [class.checkbox-on]="isSelected(course.id)">
+
               <ion-icon *ngIf="isSelected(course.id)" name="checkmark" class="check-icon"></ion-icon>
+
             </div>
+
           </div>
 
+
+
           <ion-label class="course-label">
+
             <h2>{{ course.name }}</h2>
+
             <p class="course-range">{{ dateRangeLabel(course) }}</p>
+
             <div class="course-chips">
+
               <span class="cchip">{{ 'COURSES.HOURS_DAY' | translate:{ hours: course.hoursPerDay } }}</span>
+
               <span class="cchip">≥{{ course.minAttendancePercent }}%</span>
+
               <span class="cchip cchip-absence">{{ 'COURSES.MAX_ABSENCES_CHIP' | translate:{ max: course.maxAbsences } }}</span>
+
               <span class="cchip cchip-late">{{ 'COURSES.MAX_TARDINESS_CHIP' | translate:{ max: course.maxTardiness } }}</span>
+
             </div>
+
           </ion-label>
+
+
 
         </ion-item>
 
+
+
         <ion-item-options side="start">
+
           <ion-item-option color="tertiary" (click)="exportSingle(course)">
+
             <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+
           </ion-item-option>
+
           <ion-item-option color="primary" (click)="openEdit(course)">
+
             <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+
           </ion-item-option>
+
         </ion-item-options>
+
+
 
         <ion-item-options side="end">
+
           <ion-item-option color="danger" (click)="confirmDelete(course)">
+
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+
           </ion-item-option>
+
         </ion-item-options>
 
+
+
       </ion-item-sliding>
+
     </div>
+
+
 
   </div>
 
+
+
 </ion-content>
 
-<ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!showForm && !selectMode">
+
+
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!showForm && !selectMode()">
+
   <ion-fab-button (click)="openNew()">
+
     <ion-icon name="add"></ion-icon>
+
   </ion-fab-button>
+
 </ion-fab>
+
+
