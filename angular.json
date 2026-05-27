@@ -128,7 +128,7 @@
             "ci": {
               "progress": false,
               "watch": false,
-              "browsers": ["ChromeHeadless"]
+              "browsers": ["ChromeHeadlessCI"]
             }
           }
         },
