@@ -74,18 +74,18 @@ export class DashboardPage implements OnDestroy {
 
   get ringColor(): string {
     const colors: Record<string, string> = {
-      ok: '#ddd6fe',
-      warning: '#fef08a',
-      failed: '#ffcaca',
+      ok: '#b8ebe4',
+      warning: '#f5d9a8',
+      failed: '#f5c4c4',
     };
     return colors[this.stats?.overallStatus ?? 'ok'];
   }
 
   get heroGradient(): string {
     const g: Record<string, string> = {
-      ok:      'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-      warning: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-      failed:  'linear-gradient(135deg, #dc2626 0%, #f87171 100%)',
+      ok:      'linear-gradient(145deg, #145854 0%, #1a6b65 40%, #2d9d94 100%)',
+      warning: 'linear-gradient(145deg, #7a4a12 0%, #b45309 55%, #d4955c 100%)',
+      failed:  'linear-gradient(145deg, #8b2e2e 0%, #b83c3c 55%, #d46a6a 100%)',
     };
     return g[this.stats?.overallStatus ?? 'ok'];
   }

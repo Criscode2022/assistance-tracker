@@ -1,5 +1,5 @@
 .config-content {
-  --background: var(--ion-background-color, #f0f2f7);
+  --background: var(--ion-background-color);
 }
 
 .section-header {
@@ -24,9 +24,9 @@
 
 .settings-list {
   margin: 0 16px;
-  border-radius: 16px;
+  border-radius: var(--app-radius-md);
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--app-shadow-md);
 
   ion-item-divider {
     --background: var(--ion-background-color);
@@ -38,7 +38,7 @@
   }
 
   ion-item {
-    --background: white;
+    --background: var(--app-surface-elevated);
     --padding-start: 16px;
 
     h3 {
@@ -64,8 +64,9 @@
 .online-card,
 .language-card {
   margin: 8px 16px;
-  border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-md);
+  --background: var(--app-surface-elevated);
 }
 
 .language-card {

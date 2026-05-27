@@ -1,36 +1,42 @@
 .auth-content {
-  --background: var(--ion-background-color, #f0f2f7);
+  --background: var(--ion-background-color);
 }
 
 .auth-hero {
   text-align: center;
-  padding: 32px 24px 16px;
+  padding: 36px 24px 20px;
+  animation: appReveal 0.5s ease both;
 
   ion-icon {
-    font-size: 48px;
+    font-size: 52px;
     color: var(--ion-color-primary);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 4px 12px rgba(var(--ion-color-primary-rgb), 0.25));
   }
 
   h1 {
-    font-size: 1.4rem;
+    font-family: var(--app-font-display);
+    font-size: 1.5rem;
     font-weight: 700;
-    margin: 0 0 8px;
-    color: var(--ion-color-dark);
+    margin: 0 0 10px;
+    color: var(--ion-text-color);
   }
 
   p {
     font-size: 14px;
     color: var(--ion-color-medium);
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.55;
+    max-width: 300px;
+    margin-inline: auto;
   }
 }
 
 .offline-banner {
   margin: 0 16px 12px;
-  border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-sm);
+  --background: var(--app-surface-elevated);
 
   &.muted {
     opacity: 0.92;
@@ -43,7 +49,7 @@
   gap: 10px;
   font-size: 13px;
   line-height: 1.45;
-  color: var(--ion-color-dark);
+  color: var(--ion-text-color);
 
   ion-icon {
     font-size: 20px;
@@ -60,30 +66,37 @@
 
 .tab-btn {
   flex: 1;
-  border: none;
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px;
+  border: 1px solid var(--ion-color-light-shade);
+  background: var(--app-surface-elevated);
+  border-radius: var(--app-radius-sm);
+  padding: 13px;
   font-size: 14px;
   font-weight: 600;
   color: var(--ion-color-medium);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--app-shadow-sm);
   cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 
   &.active {
     background: var(--ion-color-primary);
     color: #fff;
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 4px 14px rgba(var(--ion-color-primary-rgb), 0.3);
+  }
+
+  &:active:not(.active) {
+    transform: scale(0.98);
   }
 }
 
 .form-list {
   margin: 0 16px;
-  border-radius: 16px;
+  border-radius: var(--app-radius-md);
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--app-shadow-md);
 
   ion-item {
-    --background: #fff;
+    --background: var(--app-surface-elevated);
     --padding-start: 16px;
     --padding-end: 16px;
   }
@@ -91,9 +104,10 @@
 
 .submit-btn {
   margin: 20px 16px 0;
-  --border-radius: 12px;
-  height: 48px;
-  font-weight: 600;
+  --border-radius: var(--app-radius-sm);
+  height: 50px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .auth-hint {

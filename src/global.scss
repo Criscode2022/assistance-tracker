@@ -25,32 +25,77 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+// ── Motion ────────────────────────────────────────────────────────────────────
+
+@keyframes appReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes appFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 // ── Global resets ─────────────────────────────────────────────────────────────
 
 * { box-sizing: border-box; }
 
-ion-content { --background: var(--ion-background-color); }
+body {
+  font-family: var(--app-font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ion-title,
+.empty-state h3,
+.auth-hero h1 {
+  font-family: var(--app-font-display);
+  font-optical-sizing: auto;
+}
+
+// Atmospheric page background (warm parchment + soft teal/amber glow)
+ion-content {
+  --background:
+    radial-gradient(ellipse 90% 50% at 100% 0%, rgba(var(--ion-color-primary-rgb), 0.09), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 0% 100%, rgba(var(--app-accent-rgb), 0.07), transparent 50%),
+    var(--ion-background-color);
+}
 
 // ── Modern header ─────────────────────────────────────────────────────────────
 
 .modern-header ion-toolbar:first-child {
-  --background: var(--ion-color-primary);
+  --background: linear-gradient(165deg, var(--ion-color-primary-shade) 0%, var(--ion-color-primary) 45%, var(--ion-color-primary-tint) 100%);
   --color: #fff;
+  --border-width: 0;
+  box-shadow: 0 4px 20px rgba(var(--ion-color-primary-rgb), 0.25);
 
   ion-title {
+    font-family: var(--app-font-display);
     font-weight: 700;
-    font-size: 1.05rem;
-    letter-spacing: 0.01em;
+    font-size: 1.1rem;
+    letter-spacing: 0.02em;
   }
 
-  ion-button { --color: rgba(255,255,255,0.85); }
+  ion-button { --color: rgba(255, 255, 255, 0.88); }
+}
+
+.modern-header ion-toolbar::part(container) {
+  padding-inline: 16px;
 }
 
 // Selectors toolbar (second toolbar inside header)
 .selectors-bar {
-  --background: #ffffff;
+  --background: var(--app-surface-elevated);
   --border-color: var(--ion-color-light-shade);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--app-shadow-sm);
+  border-bottom: 1px solid var(--ion-color-light-shade);
 
   .course-select {
     --placeholder-color: var(--ion-color-medium);
@@ -67,54 +112,157 @@ ion-content { --background: var(--ion-background-color); }
   }
 }
 
-  .modern-header ion-toolbar::part(container) {
-    padding-inline: 16px;
-  }
-
 @media (prefers-color-scheme: dark) {
   .selectors-bar {
-    --background: #1e293b;
-    --border-color: #334155;
+    --background: var(--app-surface-elevated);
+    --border-color: var(--ion-color-light-shade);
   }
 }
 
 // ── Tab bar ───────────────────────────────────────────────────────────────────
 
 ion-tab-bar {
-  --background: #ffffff;
+  --background: var(--app-surface-elevated);
   border-top: 1px solid var(--ion-color-light-shade);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 24px rgba(28, 36, 34, 0.06);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  backdrop-filter: blur(12px);
 
   ion-tab-button {
     --color: var(--ion-color-medium);
     --color-selected: var(--ion-color-primary);
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
 
-    ion-icon { font-size: 1.3rem; }
+    ion-icon {
+      font-size: 1.35rem;
+      transition: transform 0.2s ease;
+    }
+
+    &.tab-selected ion-icon {
+      transform: scale(1.08);
+    }
   }
 }
 
 @media (prefers-color-scheme: dark) {
   ion-tab-bar {
-    --background: #1e293b;
-    border-top-color: #334155;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
   }
+}
+
+// ── Shared elevated surfaces ──────────────────────────────────────────────────
+
+.metric-card,
+.hours-card,
+.month-card,
+.day-card,
+.form-section,
+.import-card,
+.course-item,
+.form-list,
+.offline-banner {
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.06);
+}
+
+// Staggered reveal for main content blocks
+.hero {
+  animation: appReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.metrics-grid .metric-card {
+  animation: appReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  &:nth-child(1) { animation-delay: 0.07s; }
+  &:nth-child(2) { animation-delay: 0.14s; }
+}
+
+.hours-card {
+  animation: appReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+.chips-row {
+  animation: appFadeIn 0.45s ease 0.28s both;
+}
+
+.day-card,
+.month-card {
+  animation: appReveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 // ── ion-progress-bar ──────────────────────────────────────────────────────────
 
-ion-progress-bar { border-radius: 100px; }
+ion-progress-bar {
+  border-radius: 100px;
+  --progress-background: rgba(var(--ion-color-primary-rgb), 0.12);
+}
 
 // ── ion-item-sliding radius ───────────────────────────────────────────────────
 
-ion-item-sliding { border-radius: 14px; overflow: hidden; }
+ion-item-sliding {
+  border-radius: var(--app-radius-md);
+  overflow: hidden;
+}
+
+// ── Empty states (shared) ─────────────────────────────────────────────────────
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--ion-color-medium);
+  animation: appReveal 0.5s ease both;
+
+  .empty-icon-wrap {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(145deg, rgba(var(--ion-color-primary-rgb), 0.12), rgba(var(--app-accent-rgb), 0.08));
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: var(--app-shadow-sm);
+    transform: rotate(-3deg);
+
+    ion-icon {
+      font-size: 2.2rem;
+      color: var(--ion-color-primary);
+      transform: rotate(3deg);
+    }
+  }
+
+  h3 {
+    font-family: var(--app-font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--ion-text-color);
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 280px;
+  }
+}
 
 // ── Alert customisation ───────────────────────────────────────────────────────
 
-.time-alert .alert-wrapper { border-radius: 18px !important; }
+.time-alert .alert-wrapper {
+  border-radius: var(--app-radius-lg) !important;
+  box-shadow: var(--app-shadow-lg) !important;
+}
 
-.alert-btn-primary { font-weight: 700 !important; color: var(--ion-color-primary) !important; }
+.alert-btn-primary {
+  font-weight: 700 !important;
+  color: var(--ion-color-primary) !important;
+}
 .alert-btn-neutral { color: var(--ion-color-medium-shade) !important; }
 .alert-btn-danger  { color: var(--ion-color-danger) !important; }

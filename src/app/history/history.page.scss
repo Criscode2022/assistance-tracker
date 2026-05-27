@@ -3,12 +3,15 @@
 }
 
 .month-card {
-  background: var(--ion-card-background, #fff);
-  border-radius: 16px;
-  padding: 16px;
+  background: var(--ion-card-background);
+  border-radius: var(--app-radius-md);
+  padding: 18px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  box-shadow: var(--app-shadow-md);
   overflow: hidden;
+  transition: transform 0.15s ease;
+
+  &:active { transform: scale(0.99); }
 }
 
 .month-card-header {
@@ -29,7 +32,8 @@
 }
 
 .month-label {
-  font-size: 1rem;
+  font-family: var(--app-font-display);
+  font-size: 1.05rem;
   font-weight: 700;
 }
 
@@ -104,27 +108,3 @@
   }
 }
 
-// Empty state
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 64px 24px;
-  text-align: center;
-  color: var(--ion-color-medium);
-
-  .empty-icon-wrap {
-    width: 72px;
-    height: 72px;
-    background: rgba(var(--ion-color-primary-rgb), 0.08);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    ion-icon { font-size: 2rem; color: var(--ion-color-primary); }
-  }
-
-  h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; color: var(--ion-text-color); }
-  p  { font-size: 0.9rem; margin: 0; }
-}
