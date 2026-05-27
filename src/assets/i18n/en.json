@@ -191,6 +191,10 @@
     "FILE_READ_ERROR": "Could not read the file.",
     "FILE_JSON_ERROR": "File is not valid JSON.",
     "FILE_FORMAT_ERROR": "File format is not supported.",
-    "EXPORT_COUNT": "Export{{count}}"
+    "ACTIONS": "Actions",
+    "ACTIONS_COUNT": "Actions ({{count}})",
+    "ACTIONS_HEADER": "{{count}} selected",
+    "DELETE_BULK_HEADER": "Delete courses",
+    "DELETE_BULK_MSG": "Delete {{count}} courses? All attendance records will be lost."
   }
 }

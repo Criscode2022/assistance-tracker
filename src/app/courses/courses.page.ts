@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { AlertController, ToastController } from '@ionic/angular';
+import { ActionSheetController, AlertController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
@@ -36,6 +36,7 @@ export class CoursesPage implements OnDestroy {
   constructor(
     public svc: AttendanceService,
     private alert: AlertController,
+    private actionSheet: ActionSheetController,
     private toast: ToastController,
     private translate: TranslateService,
     private lang: LanguageService,
@@ -167,9 +168,75 @@ export class CoursesPage implements OnDestroy {
     return this.selectedIds.size;
   }
 
-  get exportLabel(): string {
-    const countSuffix = this.selectedCount > 0 ? ` (${this.selectedCount})` : '';
-    return this.translate.instant('COURSES.EXPORT_COUNT', { count: countSuffix });
+  get actionsLabel(): string {
+    const count = this.selectedCount;
+    return count > 0
+      ? this.translate.instant('COURSES.ACTIONS_COUNT', { count })
+      : this.translate.instant('COURSES.ACTIONS');
+  }
+
+  async openSelectionActions(): Promise<void> {
+    if (this.selectedCount === 0) return;
+
+    const sheet = await this.actionSheet.create({
+      header: this.translate.instant('COURSES.ACTIONS_HEADER', { count: this.selectedCount }),
+      cssClass: 'modern-action-sheet',
+      buttons: [
+        {
+          text: this.translate.instant('COMMON.EXPORT'),
+          icon: 'download-outline',
+          handler: () => this.exportSelected(),
+        },
+        {
+          text: this.translate.instant('COMMON.DELETE'),
+          icon: 'trash-outline',
+          role: 'destructive',
+          handler: () => {
+            setTimeout(() => void this.confirmDeleteSelected(), 300);
+          },
+        },
+        {
+          text: this.translate.instant('COMMON.CANCEL'),
+          icon: 'close-outline',
+          role: 'cancel',
+        },
+      ],
+    });
+    await sheet.present();
+  }
+
+  async confirmDeleteSelected(): Promise<void> {
+    const count = this.selectedCount;
+    const names = this.courses
+      .filter((c) => this.selectedIds.has(c.id))
+      .map((c) => c.name);
+
+    const al = await this.alert.create({
+      header: this.translate.instant('COURSES.DELETE_BULK_HEADER'),
+      message:
+        count === 1
+          ? this.translate.instant('COURSES.DELETE_MSG', { name: names[0] })
+          : this.translate.instant('COURSES.DELETE_BULK_MSG', { count }),
+      cssClass: 'danger-alert',
+      buttons: [
+        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.translate.instant('COMMON.DELETE'),
+          role: 'destructive',
+          cssClass: 'alert-btn-danger',
+          handler: () => this.deleteSelected(),
+        },
+      ],
+    });
+    await al.present();
+  }
+
+  private deleteSelected(): void {
+    for (const id of [...this.selectedIds]) {
+      this.svc.deleteCourse(id);
+    }
+    this.courses = this.svc.getCourses();
+    this.exitSelectMode();
   }
 
   exportSelected(): void {

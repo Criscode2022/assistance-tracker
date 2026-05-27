@@ -191,6 +191,10 @@
     "FILE_READ_ERROR": "No se pudo leer el archivo.",
     "FILE_JSON_ERROR": "El archivo no es un JSON válido.",
     "FILE_FORMAT_ERROR": "El archivo no tiene el formato esperado.",
-    "EXPORT_COUNT": "Exportar{{count}}"
+    "ACTIONS": "Acciones",
+    "ACTIONS_COUNT": "Acciones ({{count}})",
+    "ACTIONS_HEADER": "{{count}} seleccionados",
+    "DELETE_BULK_HEADER": "Eliminar cursos",
+    "DELETE_BULK_MSG": "¿Eliminar {{count}} cursos? Se perderán todos sus registros de asistencia."
   }
 }

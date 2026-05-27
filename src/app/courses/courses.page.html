@@ -8,23 +8,22 @@
 
     <ion-buttons slot="end" *ngIf="showForm">
       <app-online-indicator></app-online-indicator>
-      <ion-button (click)="cancelForm()" color="medium">
+      <ion-button (click)="cancelForm()">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
 
     <ng-container *ngIf="!showForm && selectMode">
       <ion-buttons slot="start">
-        <ion-button (click)="exitSelectMode()" color="medium">{{ 'COMMON.CANCEL' | translate }}</ion-button>
+        <ion-button (click)="exitSelectMode()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
       </ion-buttons>
       <ion-buttons slot="end">
         <app-online-indicator></app-online-indicator>
         <ion-button
-          (click)="exportSelected()"
-          [disabled]="selectedCount === 0"
-          color="primary">
-          <ion-icon slot="start" name="download-outline"></ion-icon>
-          {{ exportLabel }}
+          (click)="openSelectionActions()"
+          [disabled]="selectedCount === 0">
+          <ion-icon slot="start" name="ellipsis-horizontal"></ion-icon>
+          {{ actionsLabel }}
         </ion-button>
       </ion-buttons>
     </ng-container>
@@ -177,13 +176,16 @@
 
         </ion-item>
 
-        <ion-item-options side="end">
+        <ion-item-options side="start">
           <ion-item-option color="tertiary" (click)="exportSingle(course)">
             <ion-icon slot="icon-only" name="download-outline"></ion-icon>
           </ion-item-option>
           <ion-item-option color="primary" (click)="openEdit(course)">
             <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
           </ion-item-option>
+        </ion-item-options>
+
+        <ion-item-options side="end">
           <ion-item-option color="danger" (click)="confirmDelete(course)">
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
           </ion-item-option>

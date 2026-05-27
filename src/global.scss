@@ -83,7 +83,36 @@ ion-content {
     letter-spacing: 0.02em;
   }
 
-  ion-button { --color: rgba(255, 255, 255, 0.88); }
+  ion-button {
+    --color: #ffffff;
+    --color-activated: #ffffff;
+    --color-focused: #ffffff;
+    --color-hover: #ffffff;
+    --ripple-color: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #ffffff;
+
+    &::part(native) {
+      color: #ffffff;
+    }
+
+    ion-icon {
+      color: #ffffff;
+    }
+
+    &.button-disabled,
+    &[disabled] {
+      --color: rgba(255, 255, 255, 0.45);
+      color: rgba(255, 255, 255, 0.45);
+      opacity: 1;
+
+      &::part(native),
+      ion-icon {
+        color: rgba(255, 255, 255, 0.45);
+      }
+    }
+  }
 }
 
 .modern-header ion-toolbar::part(container) {
