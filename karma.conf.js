@@ -1,5 +1,13 @@
 // Karma configuration — CI-friendly defaults
 module.exports = function (config) {
+  const isCi = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+  const ciChromeFlags = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+  ];
+
   config.set({
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -26,15 +34,10 @@ module.exports = function (config) {
     customLaunchers: {
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
-        flags: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-        ],
+        flags: ciChromeFlags,
       },
     },
-    browsers: process.env.CI ? ['ChromeHeadlessCI'] : ['ChromeHeadless'],
+    browsers: isCi ? ['ChromeHeadlessCI'] : ['ChromeHeadless'],
     singleRun: false,
     restartOnFileChange: true,
   });
