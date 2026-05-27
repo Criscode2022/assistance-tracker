@@ -68,5 +68,9 @@
     "tailwindcss": "^4.3.0",
     "typescript": "~5.9.0"
   },
-  "description": "Control mensual de asistencia a cursos"
+  "description": "Control mensual de asistencia a cursos",
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "4.3.0",
+    "lightningcss-linux-x64-gnu": "1.32.0"
+  }
 }
