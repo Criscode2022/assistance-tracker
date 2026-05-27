@@ -28,6 +28,11 @@
     "NO_SCHEDULE": "No schedule recorded",
     "USER": "User"
   },
+  "THEME": {
+    "TITLE": "Appearance",
+    "DARK_MODE": "Dark theme",
+    "DARK_MODE_DESC": "Dark background and reduced glare"
+  },
   "LANGUAGE": {
     "TITLE": "Language",
     "SPANISH": "Español",

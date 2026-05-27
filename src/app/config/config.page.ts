@@ -7,6 +7,7 @@ import { AttendanceService } from '../services/attendance.service';
 import { AppModeService } from '../services/app-mode.service';
 import { NeonService, AuthUser } from '../services/neon.service';
 import { AppLanguage, LanguageService } from '../services/language.service';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-config',
@@ -22,6 +23,7 @@ export class ConfigPage {
   onlineUser: AuthUser | null = null;
   switchingMode = false;
   currentLang: AppLanguage = 'es';
+  darkMode = false;
 
   constructor(
     private nav: NavController,
@@ -34,6 +36,7 @@ export class ConfigPage {
     private toast: ToastController,
     private translate: TranslateService,
     private lang: LanguageService,
+    private theme: ThemeService,
   ) {
     this.settings = this.notifSvc.getSettings();
     this.permissionStatus = this.notifSvc.getPermission();
@@ -45,7 +48,13 @@ export class ConfigPage {
     this.testSent = false;
     this.onlineMode = this.appMode.isOnline() || this.appMode.hasOnlineIntent();
     this.currentLang = this.lang.current;
+    this.darkMode = this.theme.isDark;
     void this.loadOnlineUser();
+  }
+
+  onDarkModeChange(event: CustomEvent): void {
+    this.theme.onToggleChange(!!event.detail.checked);
+    this.darkMode = this.theme.isDark;
   }
 
   private async loadOnlineUser(): Promise<void> {

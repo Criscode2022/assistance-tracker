@@ -36,7 +36,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/tailwind.css", "src/global.scss", "src/theme/variables.scss"],
             "scripts": []
           },
           "configurations": {
@@ -121,7 +121,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/tailwind.css", "src/global.scss", "src/theme/variables.scss"],
             "scripts": []
           },
           "configurations": {

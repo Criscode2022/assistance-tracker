@@ -8,6 +8,13 @@
   <base href="/" />
 
   <meta name="color-scheme" content="light dark" />
+  <script>
+    try {
+      if (localStorage.getItem('app_theme_v1') === 'dark') {
+        document.documentElement.classList.add('dark', 'ion-palette-dark');
+      }
+    } catch (e) {}
+  </script>
   <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no" />

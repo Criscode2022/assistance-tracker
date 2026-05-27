@@ -28,6 +28,11 @@
     "NO_SCHEDULE": "Sin horario registrado",
     "USER": "Usuario"
   },
+  "THEME": {
+    "TITLE": "Apariencia",
+    "DARK_MODE": "Tema oscuro",
+    "DARK_MODE_DESC": "Interfaz con fondo oscuro y menos brillo"
+  },
   "LANGUAGE": {
     "TITLE": "Idioma",
     "SPANISH": "Español",

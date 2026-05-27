@@ -85,6 +85,29 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- ── Appearance (Tailwind) ────────────────────────────────────────────── -->
+  <div class="section-header">
+    <ion-icon name="moon-outline"></ion-icon>
+    <span>{{ 'THEME.TITLE' | translate }}</span>
+  </div>
+
+  <ion-card class="theme-card">
+    <ion-card-content>
+      <ion-item lines="none" class="theme-toggle-item">
+        <ion-label>
+          <h3>{{ 'THEME.DARK_MODE' | translate }}</h3>
+          <p>{{ 'THEME.DARK_MODE_DESC' | translate }}</p>
+        </ion-label>
+        <ion-toggle
+          slot="end"
+          [ngModel]="darkMode"
+          (ionChange)="onDarkModeChange($event)"
+          [attr.aria-label]="'THEME.DARK_MODE' | translate">
+        </ion-toggle>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
   <!-- ── Language ─────────────────────────────────────────────────────────── -->
   <div class="section-header">
     <ion-icon name="language-outline"></ion-icon>

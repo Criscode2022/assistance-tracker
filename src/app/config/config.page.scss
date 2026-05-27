@@ -44,11 +44,12 @@
     h3 {
       font-size: 15px;
       font-weight: 500;
+      color: var(--ion-text-color);
     }
 
     p {
       font-size: 12px;
-      color: var(--ion-color-medium);
+      color: var(--ion-color-medium-shade);
     }
   }
 }
@@ -62,11 +63,30 @@
 .permission-card,
 .danger-card,
 .online-card,
-.language-card {
+.language-card,
+.theme-card {
   margin: 8px 16px;
   border-radius: var(--app-radius-md);
   box-shadow: var(--app-shadow-md);
   --background: var(--app-surface-elevated);
+}
+
+.theme-toggle-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+
+  p {
+    font-size: 12px;
+    color: var(--ion-color-medium-shade);
+    margin-top: 2px;
+  }
 }
 
 .language-card {
@@ -95,12 +115,12 @@
     font-size: 15px;
     font-weight: 600;
     margin: 0 0 4px;
-    color: var(--ion-color-dark);
+    color: var(--ion-text-color);
   }
 
   p {
     font-size: 12px;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-medium-shade);
     margin: 0;
     line-height: 1.4;
   }
@@ -114,11 +134,12 @@
   h3 {
     font-size: 15px;
     font-weight: 600;
+    color: var(--ion-text-color);
   }
 
   p {
     font-size: 12px;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-medium-shade);
   }
 }
 
@@ -143,7 +164,7 @@
 
   p {
     font-size: 12px;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-medium-shade);
     margin: 2px 0 0;
   }
 
@@ -210,7 +231,7 @@
 
 .permission-label {
   font-size: 12px;
-  color: var(--ion-color-medium);
+  color: var(--ion-color-medium-shade);
   margin: 2px 0 0;
 }
 
@@ -250,7 +271,7 @@
 
 .danger-desc {
   font-size: 13px;
-  color: var(--ion-color-medium);
+  color: var(--ion-color-medium-shade);
   margin: 0 0 14px;
   line-height: 1.5;
 }

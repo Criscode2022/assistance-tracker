@@ -10,6 +10,7 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { LanguageService } from './services/language.service';
+import { ThemeService } from './services/theme.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -30,5 +31,5 @@ import { LanguageService } from './services/language.service';
   bootstrap: [AppComponent],
 })
 export class AppModule {
-  constructor(_lang: LanguageService) {}
+  constructor(_lang: LanguageService, _theme: ThemeService) {}
 }

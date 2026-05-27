@@ -141,11 +141,10 @@ ion-content {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .selectors-bar {
-    --background: var(--app-surface-elevated);
-    --border-color: var(--ion-color-light-shade);
-  }
+.dark .selectors-bar,
+.ion-palette-dark .selectors-bar {
+  --background: var(--app-surface-elevated);
+  --border-color: var(--ion-color-light-shade);
 }
 
 // ── Tab bar ───────────────────────────────────────────────────────────────────
@@ -177,10 +176,9 @@ ion-tab-bar {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  ion-tab-bar {
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
-  }
+.dark ion-tab-bar,
+.ion-palette-dark ion-tab-bar {
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
 }
 
 // ── Shared elevated surfaces ──────────────────────────────────────────────────
@@ -295,3 +293,42 @@ ion-item-sliding {
 }
 .alert-btn-neutral { color: var(--ion-color-medium-shade) !important; }
 .alert-btn-danger  { color: var(--ion-color-danger) !important; }
+
+// ── Dark mode: text & surface contrast ────────────────────────────────────────
+
+.dark,
+.ion-palette-dark {
+  ion-content {
+    --background:
+      radial-gradient(ellipse 90% 50% at 100% 0%, rgba(var(--ion-color-primary-rgb), 0.12), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 0% 100%, rgba(var(--app-accent-rgb), 0.09), transparent 50%),
+      var(--ion-background-color);
+  }
+
+  .section-header {
+    color: var(--ion-color-primary-tint);
+  }
+
+  ion-tab-bar ion-tab-button {
+    --color: var(--ion-color-medium);
+    --color-selected: var(--ion-color-primary-tint);
+  }
+
+  .selectors-bar {
+    .month-select {
+      color: var(--ion-color-medium-shade);
+    }
+  }
+
+  .empty-state {
+    color: var(--ion-color-medium);
+
+    p {
+      color: var(--ion-color-medium-shade);
+    }
+  }
+
+  .alert-btn-neutral {
+    color: var(--ion-color-medium-shade) !important;
+  }
+}

@@ -165,7 +165,7 @@
 .metric-title {
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--ion-color-medium-shade);
+  color: var(--ion-color-medium);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -223,12 +223,12 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: var(--ion-color-medium-shade);
+  color: var(--ion-color-medium);
 }
 
 .hours-sub {
   font-size: 0.68rem;
-  color: var(--ion-color-medium);
+  color: var(--ion-color-medium-shade);
   margin-top: 3px;
 }
 
@@ -242,7 +242,7 @@
     font-family: var(--app-font-body);
     font-size: 0.85rem;
     font-weight: 400;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-medium-shade);
   }
 }
 

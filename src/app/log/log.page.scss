@@ -7,7 +7,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ion-color-medium);
+  color: var(--ion-color-medium-shade);
   padding: 8px 4px 12px;
 }
 
@@ -57,7 +57,7 @@
     font-size: 0.6rem;
     font-weight: 600;
     letter-spacing: 0.05em;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-medium-shade);
     margin-top: 2px;
   }
 
@@ -95,7 +95,7 @@
 
 .day-time-label {
   font-size: 0.75rem;
-  color: var(--ion-color-medium-shade);
+  color: var(--ion-color-medium);
 
   &.muted { font-style: italic; }
 }

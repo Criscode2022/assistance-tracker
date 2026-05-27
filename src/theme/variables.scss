@@ -74,31 +74,54 @@
   --ion-font-family: var(--app-font-body);
 }
 
-// ── Dark mode ─────────────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
-  :root {
-    --app-surface-elevated: #1e2a27;
-    --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-    --app-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.28);
-    --app-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.35);
+// ── Dark mode (class toggle via ThemeService + Tailwind `.dark`) ──────────────
+.ion-palette-dark,
+.dark {
+  --app-surface-elevated: #1f2b28;
+  --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.28);
+  --app-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.36);
+  --app-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
 
-    --ion-background-color: #111917;
-    --ion-background-color-rgb: 17, 25, 23;
-    --ion-text-color: #e8eeec;
-    --ion-text-color-rgb: 232, 238, 236;
+  --ion-background-color: #0e1413;
+  --ion-background-color-rgb: 14, 20, 19;
+  --ion-text-color: #f3f7f6;
+  --ion-text-color-rgb: 243, 247, 246;
 
-    --ion-item-background: var(--app-surface-elevated);
-    --ion-card-background: var(--app-surface-elevated);
-    --ion-color-light: #2a3834;
-    --ion-color-light-rgb: 42, 56, 52;
-    --ion-color-light-contrast: #e8eeec;
-    --ion-color-light-shade: #1e2a27;
-    --ion-color-light-tint: #3a4a46;
+  --ion-item-background: var(--app-surface-elevated);
+  --ion-card-background: var(--app-surface-elevated);
 
-    --ion-color-medium: #6b7d78;
-    --ion-color-medium-shade: #8a9a95;
-    --ion-color-medium-tint: #4a5a56;
+  --ion-color-dark: #f3f7f6;
+  --ion-color-dark-rgb: 243, 247, 246;
+  --ion-color-dark-contrast: #0e1413;
 
-    --ion-color-primary-tint: #2a9d94;
-  }
+  --ion-color-light: #2d3b37;
+  --ion-color-light-rgb: 45, 59, 55;
+  --ion-color-light-contrast: #f3f7f6;
+  --ion-color-light-shade: #1f2b28;
+  --ion-color-light-tint: #455650;
+
+  // Muted text: lighter steps for readable contrast on dark surfaces
+  --ion-color-medium: #b3c2bd;
+  --ion-color-medium-rgb: 179, 194, 189;
+  --ion-color-medium-shade: #d0dbd7;
+  --ion-color-medium-tint: #5f706b;
+
+  // Brighter accents for labels, chips, and status text
+  --ion-color-primary: #5ec9bf;
+  --ion-color-primary-rgb: 94, 201, 191;
+  --ion-color-primary-shade: #4db5ac;
+  --ion-color-primary-tint: #7dd9d1;
+
+  --ion-color-secondary-tint: #e0ad6a;
+
+  --ion-color-success-shade: #72dba0;
+  --ion-color-success-tint: #3d9262;
+
+  --ion-color-warning-shade: #f5c06a;
+  --ion-color-warning-tint: #d97706;
+
+  --ion-color-danger: #ef6b6b;
+  --ion-color-danger-rgb: 239, 107, 107;
+  --ion-color-danger-shade: #fca5a5;
+  --ion-color-danger-tint: #e85555;
 }

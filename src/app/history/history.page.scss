@@ -39,7 +39,7 @@
 
 .month-days {
   font-size: 0.72rem;
-  color: var(--ion-color-medium);
+  color: var(--ion-color-medium-shade);
 }
 
 .month-status-icon {
@@ -58,7 +58,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--ion-color-medium-shade);
+  color: var(--ion-color-medium);
 }
 
 .att-value {
@@ -97,7 +97,7 @@
   .chip-label {
     font-size: 0.68rem;
     font-weight: 400;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-medium-shade);
   }
 
   &.chip-over {
