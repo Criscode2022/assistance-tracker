@@ -44,7 +44,7 @@
       <div class="month-section-label">{{ monthLabel }}</div>
 
       <div
-        *ngFor="let day of days"
+        *ngFor="let day of days; trackBy: trackByDate"
         class="day-card"
         [class.day-today]="day.isToday"
         [class.day-future]="day.isFuture"

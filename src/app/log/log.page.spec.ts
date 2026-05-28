@@ -68,6 +68,18 @@ describe('LogPage', () => {
     expect(component.statusLabelKey({ status: 'unlogged' } as never)).toBe('COMMON.UNLOGGED');
   });
 
+  it('should refresh day list when attendance record changes', () => {
+    const course = createMockCourse();
+    svc.saveCourse(course);
+    svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
+    component.ionViewWillEnter();
+    expect(component.days.find((d) => d.date === '2026-05-05')?.status).toBe('present');
+
+    svc.setDayRecord('2026-05-05', { status: 'absent' }, course.id);
+    component.loadDays();
+    expect(component.days.find((d) => d.date === '2026-05-05')?.status).toBe('absent');
+  });
+
   it('should reload days after course change', () => {
     const a = createMockCourse({ id: 'a' });
     const b = createMockCourse({ id: 'b', name: 'B' });
