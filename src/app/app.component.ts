@@ -23,7 +23,9 @@ export class AppComponent implements OnInit {
     if (!this.appMode.isOnline()) return;
 
     const session = await this.neon.getSession();
-    if (!session && this.router.url !== '/auth') {
+    const url = this.router.url;
+    const onAuthFlowPage = url === '/auth' || url.startsWith('/config');
+    if (!session && !onAuthFlowPage) {
       await this.router.navigateByUrl('/auth');
     }
   }

@@ -5,6 +5,7 @@ import { AttendanceService } from '../services/attendance.service';
 import { AppModeService } from '../services/app-mode.service';
 import { CloudSyncService } from '../services/cloud-sync.service';
 import { NeonService } from '../services/neon.service';
+import { AuthFlowNavigationService } from '../services/auth-flow-navigation.service';
 
 type AuthTab = 'signin' | 'signup';
 
@@ -30,6 +31,7 @@ export class AuthPage implements OnInit {
     private cloudSync: CloudSyncService,
     private attendance: AttendanceService,
     private translate: TranslateService,
+    private authFlowNav: AuthFlowNavigationService,
   ) {}
 
   ngOnInit(): void {
@@ -40,8 +42,7 @@ export class AuthPage implements OnInit {
   }
 
   goBack(): void {
-    this.appMode.clearOnlineIntent();
-    this.nav.navigateBack('/config');
+    void this.authFlowNav.exitToDashboard();
   }
 
   setTab(tab: AuthTab): void {

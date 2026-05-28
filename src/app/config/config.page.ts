@@ -8,6 +8,7 @@ import { AppModeService } from '../services/app-mode.service';
 import { NeonService, AuthUser } from '../services/neon.service';
 import { AppLanguage, LanguageService } from '../services/language.service';
 import { ThemeService } from '../services/theme.service';
+import { AuthFlowNavigationService } from '../services/auth-flow-navigation.service';
 
 @Component({
   selector: 'app-config',
@@ -37,6 +38,7 @@ export class ConfigPage {
     private translate: TranslateService,
     private lang: LanguageService,
     private theme: ThemeService,
+    private authFlowNav: AuthFlowNavigationService,
   ) {
     this.settings = this.notifSvc.getSettings();
     this.permissionStatus = this.notifSvc.getPermission();
@@ -149,11 +151,8 @@ export class ConfigPage {
     await t.present();
   }
 
-  async goBack(): Promise<void> {
-    await this.nav.pop();
-    if (this.router.url.startsWith('/config')) {
-      await this.router.navigateByUrl('/dashboard');
-    }
+  goBack(): void {
+    void this.authFlowNav.exitToDashboard();
   }
 
   get notifSupported(): boolean {

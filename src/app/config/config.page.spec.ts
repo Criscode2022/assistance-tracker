@@ -11,6 +11,7 @@ import { AppModeService } from '../services/app-mode.service';
 import { ThemeService } from '../services/theme.service';
 import { LanguageService } from '../services/language.service';
 import { NeonService } from '../services/neon.service';
+import { AuthFlowNavigationService } from '../services/auth-flow-navigation.service';
 import { clearBrowserStorage } from '../../testing/fixtures';
 import { createMockLanguageService, createMockNeonService } from '../../testing/mocks';
 
@@ -18,6 +19,7 @@ describe('ConfigPage', () => {
   let component: ConfigPage;
   let fixture: ComponentFixture<ConfigPage>;
   let theme: ThemeService;
+  let authFlowNav: jasmine.SpyObj<AuthFlowNavigationService>;
 
   beforeEach(async () => {
     clearBrowserStorage();
@@ -34,7 +36,11 @@ describe('ConfigPage', () => {
         ThemeService,
         { provide: LanguageService, useValue: createMockLanguageService() },
         { provide: NeonService, useValue: createMockNeonService() },
-        { provide: NavController, useValue: jasmine.createSpyObj('NavController', ['pop']) },
+        { provide: NavController, useValue: jasmine.createSpyObj('NavController', ['navigateRoot']) },
+        {
+          provide: AuthFlowNavigationService,
+          useValue: jasmine.createSpyObj('AuthFlowNavigationService', ['exitToDashboard']),
+        },
         { provide: Router, useValue: { url: '/config', navigate: jasmine.createSpy('navigate'), navigateByUrl: jasmine.createSpy('navigateByUrl') } },
         { provide: AlertController, useValue: jasmine.createSpyObj('AlertController', ['create']) },
         { provide: ToastController, useValue: jasmine.createSpyObj('ToastController', ['create']) },
@@ -44,6 +50,7 @@ describe('ConfigPage', () => {
     fixture = TestBed.createComponent(ConfigPage);
     component = fixture.componentInstance;
     theme = TestBed.inject(ThemeService);
+    authFlowNav = TestBed.inject(AuthFlowNavigationService) as jasmine.SpyObj<AuthFlowNavigationService>;
     fixture.detectChanges();
   });
 
@@ -79,5 +86,10 @@ describe('ConfigPage', () => {
   it('should expose notification permission helpers', () => {
     expect(typeof component.notifSupported).toBe('boolean');
     expect(typeof component.permissionGranted).toBe('boolean');
+  });
+
+  it('should exit auth flow to dashboard on back', () => {
+    component.goBack();
+    expect(authFlowNav.exitToDashboard).toHaveBeenCalled();
   });
 });

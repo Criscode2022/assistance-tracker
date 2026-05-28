@@ -58,6 +58,17 @@ describe('AppComponent', () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith('/auth');
   });
 
+  it('should not redirect from config while online without session', async () => {
+    TestBed.inject(AppModeService).enableOnlineMode();
+    neon.getSession.and.returnValue(Promise.resolve(null));
+    router.url = '/config';
+
+    const fixture = TestBed.createComponent(AppComponent);
+    await fixture.componentInstance.ngOnInit();
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
   it('should stay on page when online with session', async () => {
     TestBed.inject(AppModeService).enableOnlineMode();
     neon.getSession.and.returnValue(Promise.resolve({ user: { id: '1' } }));
