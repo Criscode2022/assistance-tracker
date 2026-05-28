@@ -113,8 +113,13 @@ export class CoursesPage implements OnDestroy {
 
   protected selectMode = signal(false);
   protected selectedIds = new Set<string>();
+  readonly tabletLayout = signal(false);
 
   private langSub?: Subscription;
+  private tabletMql?: MediaQueryList;
+  private readonly onTabletLayoutChange = (e: MediaQueryListEvent) => {
+    this.tabletLayout.set(e.matches);
+  };
 
   get selectedCount(): number {
     return this.selectedIds.size;
@@ -138,11 +143,16 @@ export class CoursesPage implements OnDestroy {
     this.langSub = this.lang.onLangChange().subscribe(() => {
       this.courses = this.svc.getCourses();
     });
+
+    this.tabletMql = window.matchMedia('(min-width: 768px)');
+    this.tabletLayout.set(this.tabletMql.matches);
+    this.tabletMql.addEventListener('change', this.onTabletLayoutChange);
   }
 
   ionViewWillEnter(): void {
     this.courses = this.svc.getCourses();
     this.exitSelectMode();
+    this.tabletLayout.set(this.tabletMql?.matches ?? false);
   }
 
   private blankForm(): CourseFormModel {
@@ -289,7 +299,7 @@ export class CoursesPage implements OnDestroy {
       buttons: [
         {
           text: this.translate.instant('COMMON.EXPORT'),
-          icon: 'download-outline',
+          icon: 'share-outline',
           handler: () => this.exportSelected(),
         },
         {
@@ -463,5 +473,6 @@ export class CoursesPage implements OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.tabletMql?.removeEventListener('change', this.onTabletLayoutChange);
   }
 }

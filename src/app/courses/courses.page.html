@@ -6,8 +6,6 @@
 
       <ng-container *ngIf="showForm">{{ (editingId ? 'COURSES.TITLE_EDIT' : 'COURSES.TITLE_NEW') | translate }}</ng-container>
 
-      <ng-container *ngIf="!showForm && selectMode()">{{ 'COURSES.TITLE_SELECT' | translate }}</ng-container>
-
       <ng-container *ngIf="!showForm && !selectMode()">{{ 'COURSES.TITLE' | translate }}</ng-container>
 
     </ion-title>
@@ -45,8 +43,6 @@
           (click)="openSelectionActions()"
 
           [disabled]="selectedCount === 0">
-
-          <ion-icon slot="start" name="ellipsis-horizontal"></ion-icon>
 
           {{ actionsLabel }}
 
@@ -316,7 +312,7 @@
 
         <div class="import-icon-wrap">
 
-          <ion-icon name="cloud-upload-outline"></ion-icon>
+          <ion-icon name="folder-open-outline"></ion-icon>
 
         </div>
 
@@ -327,8 +323,6 @@
           <span class="import-sub">{{ 'COURSES.IMPORT_SUB' | translate }}</span>
 
         </div>
-
-        <ion-icon name="chevron-forward-outline" class="import-chevron"></ion-icon>
 
       </div>
 
@@ -354,7 +348,9 @@
 
         *ngFor="let course of courses"
 
-        [disabled]="selectMode()">
+        class="course-sliding"
+
+        [disabled]="selectMode() || tabletLayout()">
 
 
 
@@ -416,15 +412,45 @@
 
 
 
+          <div class="course-actions" slot="end" *ngIf="!selectMode() && tabletLayout()">
+
+            <ion-button
+              fill="clear"
+              color="tertiary"
+              [attr.aria-label]="'COMMON.EXPORT' | translate"
+              (click)="$event.stopPropagation(); exportSingle(course)">
+              <ion-icon slot="icon-only" name="share-outline"></ion-icon>
+            </ion-button>
+
+            <ion-button
+              fill="clear"
+              color="primary"
+              [attr.aria-label]="'COURSES.TITLE_EDIT' | translate"
+              (click)="$event.stopPropagation(); openEdit(course)">
+              <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+            </ion-button>
+
+            <ion-button
+              fill="clear"
+              color="danger"
+              [attr.aria-label]="'COMMON.DELETE' | translate"
+              (click)="$event.stopPropagation(); confirmDelete(course)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+
+          </div>
+
+
+
         </ion-item>
 
 
 
-        <ion-item-options side="start">
+        <ion-item-options side="start" class="course-slide-options">
 
           <ion-item-option color="tertiary" (click)="exportSingle(course)">
 
-            <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+            <ion-icon slot="icon-only" name="share-outline"></ion-icon>
 
           </ion-item-option>
 
@@ -438,18 +464,16 @@
 
 
 
-        <ion-item-options side="end">
+        <ion-item-options side="end" class="course-slide-options">
 
           <ion-item-option color="danger" (click)="confirmDelete(course)">
 
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
 
           </ion-item-option>
-
+      
         </ion-item-options>
-
-
-
+      
       </ion-item-sliding>
 
     </div>
