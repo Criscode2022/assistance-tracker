@@ -36,7 +36,8 @@
   &.day-present { border-left-color: var(--ion-color-success); }
   &.day-absent  { border-left-color: var(--ion-color-danger); }
   &.day-late    { border-left-color: var(--ion-color-warning); }
-  &.day-future  { opacity: 0.45; cursor: default; }
+  &.day-cancelled { border-left-color: #94a3b8; opacity: 0.7; }
+  &.day-future    { opacity: 0.45; cursor: default; }
 }
 
 .day-date-col {
@@ -90,7 +91,8 @@
   &[data-status="present"] { color: var(--ion-color-success-shade); }
   &[data-status="absent"]  { color: var(--ion-color-danger-shade); }
   &[data-status="late"]    { color: var(--ion-color-warning-shade); }
-  &[data-status="unlogged"]{ color: var(--ion-color-medium); }
+  &[data-status="cancelled"]{ color: #64748b; }
+  &[data-status="unlogged"]  { color: var(--ion-color-medium); }
 }
 
 .day-time-label {

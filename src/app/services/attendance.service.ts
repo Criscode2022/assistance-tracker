@@ -181,7 +181,7 @@ export class AttendanceService {
   }
 
   private hoursFromRecord(record: DayRecord, hoursPerDay: number): number {
-    if (record.status === 'absent') return 0;
+    if (record.status === 'absent' || record.status === 'cancelled') return 0;
     if (record.status !== 'late' || !record.entryTime || !record.exitTime)
       return hoursPerDay;
     return Math.max(
@@ -275,7 +275,7 @@ export class AttendanceService {
     const totalWorkingDays = workingDays.length;
     const elapsedWorkingDays = workingDays.filter((d) => d <= today).length;
 
-    let presentDays = 0, absentDays = 0, lateDays = 0, unloggedDays = 0;
+    let presentDays = 0, absentDays = 0, lateDays = 0, unloggedDays = 0, cancelledDays = 0;
     let totalHoursAttended = 0, totalLostMinutes = 0;
 
     for (const day of workingDays) {
@@ -294,13 +294,18 @@ export class AttendanceService {
           totalHoursAttended += this.hoursFromRecord(record, hoursPerDay);
           totalLostMinutes += this.lostMinsFromRecord(record, course?.startTime);
           break;
+        case 'cancelled':
+          // Cancelled days are excluded from the working-day denominator
+          cancelledDays++;
+          break;
         default:
           unloggedDays++;
-          // Unlogged days are not counted as attended
       }
     }
 
-    const expectedHoursToDate = elapsedWorkingDays * hoursPerDay;
+    // Cancelled days don't count toward expected hours — remove them from the denominator
+    const effectiveElapsedDays = elapsedWorkingDays - cancelledDays;
+    const expectedHoursToDate = effectiveElapsedDays * hoursPerDay;
     // Future months (no elapsed days) show 0%, not 100%
     const attendancePercent =
       expectedHoursToDate > 0
@@ -310,15 +315,15 @@ export class AttendanceService {
     const absencesRemaining = Math.max(0, maxAbsences - absentDays);
     const latenessRemaining = Math.max(0, maxTardiness - lateDays);
 
-    // Only flag failed/warning when there are actual elapsed days to evaluate
+    // Only flag failed/warning when there are actual effective elapsed days to evaluate
     const failed =
-      elapsedWorkingDays > 0 &&
+      effectiveElapsedDays > 0 &&
       (absentDays > maxAbsences ||
         lateDays > maxTardiness ||
         attendancePercent < minAttendancePercent);
 
     const warning =
-      elapsedWorkingDays > 0 &&
+      effectiveElapsedDays > 0 &&
       !failed &&
       (absencesRemaining <= 1 ||
         latenessRemaining <= 2 ||
@@ -330,11 +335,12 @@ export class AttendanceService {
       month,
       monthLabel,
       totalWorkingDays,
-      elapsedWorkingDays,
+      elapsedWorkingDays: effectiveElapsedDays,
       presentDays,
       absentDays,
       lateDays,
       unloggedDays,
+      cancelledDays,
       attendancePercent,
       totalHoursAttended: Math.round(totalHoursAttended * 10) / 10,
       expectedHoursToDate,
