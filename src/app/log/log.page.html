@@ -51,6 +51,7 @@
         [class.day-present]="day.status === 'present'"
         [class.day-absent]="day.status === 'absent'"
         [class.day-late]="day.status === 'late'"
+        [class.day-cancelled]="day.status === 'cancelled'"
         (click)="openStatusPicker(day)">
 
         <div class="day-date-col">

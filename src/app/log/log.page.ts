@@ -132,6 +132,14 @@ export class LogPage implements OnDestroy {
           },
         },
         {
+          text: this.translate.instant('LOG.CANCELLED_OPTION'),
+          icon: 'ban-outline',
+          handler: () => {
+            this.saveDayRecord(day.date, { status: 'cancelled' });
+            refreshAfterSheet = true;
+          },
+        },
+        {
           text: this.translate.instant('COMMON.UNLOGGED'),
           icon: 'remove-circle-outline',
           handler: () => {
@@ -223,28 +231,31 @@ export class LogPage implements OnDestroy {
 
   statusIcon(day: DayEntry): string {
     switch (day.status) {
-      case 'present': return 'checkmark-circle';
-      case 'absent':  return 'close-circle';
-      case 'late':    return 'time';
-      default:        return 'ellipse-outline';
+      case 'present':   return 'checkmark-circle';
+      case 'absent':    return 'close-circle';
+      case 'late':      return 'time';
+      case 'cancelled': return 'ban';
+      default:          return 'ellipse-outline';
     }
   }
 
   statusColor(day: DayEntry): string {
     switch (day.status) {
-      case 'present': return 'success';
-      case 'absent':  return 'danger';
-      case 'late':    return 'warning';
-      default:        return 'medium';
+      case 'present':   return 'success';
+      case 'absent':    return 'danger';
+      case 'late':      return 'warning';
+      case 'cancelled': return 'medium';
+      default:          return 'medium';
     }
   }
 
   statusLabelKey(day: DayEntry): string {
     switch (day.status) {
-      case 'present': return 'COMMON.PRESENT';
-      case 'absent':  return 'COMMON.ABSENT';
-      case 'late':    return 'COMMON.LATE';
-      default:        return 'COMMON.UNLOGGED';
+      case 'present':   return 'COMMON.PRESENT';
+      case 'absent':    return 'COMMON.ABSENT';
+      case 'late':      return 'COMMON.LATE';
+      case 'cancelled': return 'COMMON.CANCELLED';
+      default:          return 'COMMON.UNLOGGED';
     }
   }
 }

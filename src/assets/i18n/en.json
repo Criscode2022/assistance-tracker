@@ -26,7 +26,8 @@
     "LOST": "lost",
     "SELECT_COURSE": "Select a course",
     "NO_SCHEDULE": "No schedule recorded",
-    "USER": "User"
+    "USER": "User",
+    "CANCELLED": "Class cancelled"
   },
   "THEME": {
     "TITLE": "Appearance",
@@ -151,7 +152,8 @@
     "DAY_SCHEDULE": "Day schedule",
     "ENTRY_TIME": "Entry time",
     "EXIT_TIME": "Exit time",
-    "NO_SCHEDULE_BTN": "No schedule"
+    "NO_SCHEDULE_BTN": "No schedule",
+    "CANCELLED_OPTION": "Class cancelled (not counted)"
   },
   "HISTORY": {
     "TITLE": "History",

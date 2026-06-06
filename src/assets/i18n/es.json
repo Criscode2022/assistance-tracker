@@ -26,7 +26,8 @@
     "LOST": "perdidos",
     "SELECT_COURSE": "Selecciona un curso",
     "NO_SCHEDULE": "Sin horario registrado",
-    "USER": "Usuario"
+    "USER": "Usuario",
+    "CANCELLED": "Clase cancelada"
   },
   "THEME": {
     "TITLE": "Apariencia",
@@ -151,7 +152,8 @@
     "DAY_SCHEDULE": "Horario del día",
     "ENTRY_TIME": "Hora de entrada",
     "EXIT_TIME": "Hora de salida",
-    "NO_SCHEDULE_BTN": "Sin horario"
+    "NO_SCHEDULE_BTN": "Sin horario",
+    "CANCELLED_OPTION": "Clase cancelada (no computa)"
   },
   "HISTORY": {
     "TITLE": "Historial",

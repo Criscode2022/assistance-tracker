@@ -1,4 +1,4 @@
-export type AttendanceStatus = 'present' | 'absent' | 'late' | 'unlogged';
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'unlogged' | 'cancelled';
 
 export interface DayRecord {
   status: AttendanceStatus;
@@ -28,6 +28,7 @@ export interface MonthStats {
   absentDays: number;
   lateDays: number;
   unloggedDays: number;
+  cancelledDays: number;
   attendancePercent: number;      // hours attended / expected hours to date
   totalHoursAttended: number;
   expectedHoursToDate: number;
