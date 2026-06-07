@@ -65,6 +65,17 @@ describe('CloudSyncService', () => {
     expect(neon.client.from).toHaveBeenCalledWith('attendance_records');
   });
 
+  it('should upload cancelled attendance records', async () => {
+    const course = createMockCourse({ id: 'up-2' });
+    attendance.saveCourse(course);
+    attendance.setDayRecord('2026-05-06', { status: 'cancelled' }, course.id);
+    attendance.setDayRecord('2026-05-07', { status: 'unlogged' }, course.id);
+
+    const result = await sync.uploadLocalData();
+
+    expect(result.records).toBe(1);
+  });
+
   it('should download cloud data into attendance storage', async () => {
     const downloadNeon = createMockNeonService(
       null,
