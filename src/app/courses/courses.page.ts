@@ -6,7 +6,7 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { ActionSheetController, AlertController, ToastController } from '@ionic/angular';
+import { ActionSheetButton, ActionSheetController, AlertController, ToastController } from '@ionic/angular';
 import {
   form,
   max,
@@ -293,29 +293,47 @@ export class CoursesPage implements OnDestroy {
   protected async openSelectionActions(): Promise<void> {
     if (this.selectedCount === 0) return;
 
+    const buttons: ActionSheetButton[] = [];
+
+    if (this.selectedCount === 1) {
+      const course = this.courses.find((c) => this.selectedIds.has(c.id))!;
+      buttons.push({
+        text: this.translate.instant('COMMON.EDIT'),
+        icon: 'pencil-outline',
+        handler: () => {
+          setTimeout(() => {
+            this.exitSelectMode();
+            this.openEdit(course);
+          }, 300);
+        },
+      });
+    }
+
+    buttons.push(
+      {
+        text: this.translate.instant('COMMON.EXPORT'),
+        icon: 'share-outline',
+        handler: () => this.exportSelected(),
+      },
+      {
+        text: this.translate.instant('COMMON.DELETE'),
+        icon: 'trash-outline',
+        role: 'destructive',
+        handler: () => {
+          setTimeout(() => void this.confirmDeleteSelected(), 300);
+        },
+      },
+      {
+        text: this.translate.instant('COMMON.CANCEL'),
+        icon: 'close-outline',
+        role: 'cancel',
+      },
+    );
+
     const sheet = await this.actionSheet.create({
       header: this.translate.instant('COURSES.ACTIONS_HEADER', { count: this.selectedCount }),
       cssClass: 'modern-action-sheet',
-      buttons: [
-        {
-          text: this.translate.instant('COMMON.EXPORT'),
-          icon: 'share-outline',
-          handler: () => this.exportSelected(),
-        },
-        {
-          text: this.translate.instant('COMMON.DELETE'),
-          icon: 'trash-outline',
-          role: 'destructive',
-          handler: () => {
-            setTimeout(() => void this.confirmDeleteSelected(), 300);
-          },
-        },
-        {
-          text: this.translate.instant('COMMON.CANCEL'),
-          icon: 'close-outline',
-          role: 'cancel',
-        },
-      ],
+      buttons,
     });
     await sheet.present();
   }
