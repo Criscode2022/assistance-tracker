@@ -103,6 +103,7 @@ export class DashboardPage implements OnDestroy {
   }
 
   get attendanceBarColor(): string {
+    if (this.stats.elapsedWorkingDays === 0) return 'medium';
     if (this.stats.attendancePercent < this.stats.minAttendancePercent) return 'danger';
     if (this.stats.attendancePercent < this.stats.minAttendancePercent + 5) return 'warning';
     return 'success';
@@ -149,7 +150,7 @@ export class DashboardPage implements OnDestroy {
   get hoursBarValue(): number {
     return this.stats.expectedHoursToDate > 0
       ? Math.min(1, this.stats.totalHoursAttended / this.stats.expectedHoursToDate)
-      : 1;
+      : 0;
   }
 
   openConfig(): void {
