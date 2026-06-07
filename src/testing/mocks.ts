@@ -60,7 +60,7 @@ export function createMockNeonClient(
       chain.then = (onFulfilled) => resolve().then(onFulfilled);
       return chain;
     };
-    for (const method of ['select', 'upsert', 'delete', 'eq', 'order', 'maybeSingle']) {
+    for (const method of ['select', 'insert', 'upsert', 'delete', 'eq', 'order', 'maybeSingle']) {
       chain[method] = jasmine.createSpy(method).and.callFake(() =>
         terminal.has(method) ? resolve() : thenable(),
       );
@@ -81,7 +81,21 @@ export function createMockNeonService(
     { client },
   );
   mock.getSession.and.returnValue(Promise.resolve(session));
-  mock.getUser.and.returnValue(Promise.resolve(null));
+  const sessionUser =
+    session && typeof session === 'object' && 'user' in session
+      ? (session as { user: { id: string; email?: string; name?: string } }).user
+      : null;
+  mock.getUser.and.returnValue(
+    Promise.resolve(
+      sessionUser
+        ? {
+            id: sessionUser.id,
+            email: sessionUser.email ?? 'test@example.com',
+            name: sessionUser.name,
+          }
+        : null,
+    ),
+  );
   mock.signOut.and.returnValue(Promise.resolve({ error: null }));
   mock.getAuthErrorMessage.and.returnValue('Error');
   return mock;

@@ -6,6 +6,7 @@ import { Course, DayRecord } from '../models/attendance.model';
 
 interface DbCourse {
   id: string;
+  user_id: string;
   name: string;
   start_date: string;
   end_date: string;
@@ -17,6 +18,7 @@ interface DbCourse {
 }
 
 interface DbRecord {
+  user_id: string;
   course_id: string;
   record_date: string;
   status: string;
@@ -42,15 +44,14 @@ export class CloudSyncService {
   }
 
   /** Upload all local courses and records — used only on account creation. */
-  async uploadLocalData(): Promise<{ courses: number; records: number }> {
+  async uploadLocalData(userId?: string): Promise<{ courses: number; records: number }> {
+    const resolvedUserId = await this.requireUserId(userId);
     const courses = this.attendance.getCourses();
     let recordCount = 0;
 
     if (courses.length) {
-      const dbCourses = courses.map((c) => this.toDbCourse(c));
-      const { error: courseErr } = await this.neon.client
-        .from('courses')
-        .upsert(dbCourses, { onConflict: 'id' });
+      const dbCourses = courses.map((c) => this.toDbCourse(c, resolvedUserId));
+      const { error: courseErr } = await this.neon.client.from('courses').insert(dbCourses);
       if (courseErr) throw new Error(courseErr.message);
     }
 
@@ -60,23 +61,21 @@ export class CloudSyncService {
         .filter(([, r]) => r.status !== 'unlogged')
         .map(([date, record]) => {
           recordCount++;
-          return this.toDbRecord(course.id, date, record);
+          return this.toDbRecord(course.id, date, record, resolvedUserId);
         });
 
       if (rows.length) {
-        const { error } = await this.neon.client
-          .from('attendance_records')
-          .upsert(rows, { onConflict: 'course_id,record_date' });
+        const { error } = await this.neon.client.from('attendance_records').insert(rows);
         if (error) throw new Error(error.message);
       }
     }
 
     const selectedId = this.attendance.selectedCourseId;
     if (selectedId) {
-      const { error } = await this.neon.client.from('user_preferences').upsert(
-        { selected_course_id: selectedId },
-        { onConflict: 'user_id' },
-      );
+      const { error } = await this.neon.client.from('user_preferences').insert({
+        user_id: resolvedUserId,
+        selected_course_id: selectedId,
+      });
       if (error) throw new Error(error.message);
     }
 
@@ -131,8 +130,8 @@ export class CloudSyncService {
 
   private async pushChanges(): Promise<void> {
     if (!this.appMode.isOnline() || this.syncing) return;
-    const session = await this.neon.getSession();
-    if (!session) return;
+    const user = await this.neon.getUser();
+    if (!user) return;
 
     this.syncing = true;
     try {
@@ -147,10 +146,12 @@ export class CloudSyncService {
         }
       }
 
+      const userId = user.id;
+
       if (courses.length) {
         await this.neon.client
           .from('courses')
-          .upsert(courses.map((c) => this.toDbCourse(c)), { onConflict: 'id' });
+          .upsert(courses.map((c) => this.toDbCourse(c, userId)));
       }
 
       for (const course of courses) {
@@ -179,21 +180,19 @@ export class CloudSyncService {
 
         const rows = Object.entries(records)
           .filter(([, r]) => r.status !== 'unlogged')
-          .map(([date, record]) => this.toDbRecord(course.id, date, record));
+          .map(([date, record]) => this.toDbRecord(course.id, date, record, userId));
 
         if (rows.length) {
-          await this.neon.client
-            .from('attendance_records')
-            .upsert(rows, { onConflict: 'course_id,record_date' });
+          await this.neon.client.from('attendance_records').upsert(rows);
         }
       }
 
       const selectedId = this.attendance.selectedCourseId;
       if (selectedId) {
-        await this.neon.client.from('user_preferences').upsert(
-          { selected_course_id: selectedId },
-          { onConflict: 'user_id' },
-        );
+        await this.neon.client.from('user_preferences').upsert({
+          user_id: userId,
+          selected_course_id: selectedId,
+        });
       }
     } catch {
       // Silent fail — local data remains authoritative
@@ -202,9 +201,18 @@ export class CloudSyncService {
     }
   }
 
-  private toDbCourse(c: Course): DbCourse {
+  private async requireUserId(explicitUserId?: string): Promise<string> {
+    if (explicitUserId) return explicitUserId;
+
+    const user = await this.neon.getUser();
+    if (!user?.id) throw new Error('Not authenticated');
+    return user.id;
+  }
+
+  private toDbCourse(c: Course, userId: string): DbCourse {
     return {
       id: c.id,
+      user_id: userId,
       name: c.name,
       start_date: c.startDate,
       end_date: c.endDate,
@@ -230,8 +238,9 @@ export class CloudSyncService {
     };
   }
 
-  private toDbRecord(courseId: string, date: string, record: DayRecord): DbRecord {
+  private toDbRecord(courseId: string, date: string, record: DayRecord, userId: string): DbRecord {
     return {
+      user_id: userId,
       course_id: courseId,
       record_date: date,
       status: record.status,

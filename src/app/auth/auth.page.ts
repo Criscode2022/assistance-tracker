@@ -82,7 +82,8 @@ export class AuthPage implements OnInit {
 
     if (this.hasOfflineData) {
       try {
-        const stats = await this.cloudSync.uploadLocalData();
+        const userId = result.data?.user?.id;
+        const stats = await this.cloudSync.uploadLocalData(userId);
         await this.showToast(
           this.translate.instant('AUTH.ACCOUNT_CREATED_UPLOAD', {
             courses: stats.courses,

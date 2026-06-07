@@ -52,7 +52,13 @@ export class NeonService {
 
   async signUp(email: string, password: string, name: string) {
     try {
-      return await this.client.auth.signUp.email({ email, password, name });
+      const result = await this.client.auth.signUp.email({ email, password, name });
+      if (result.error) return { data: null, error: result.error };
+
+      // Warm the session cache — same as sign-in; needed before Data API calls.
+      await this.client.auth.getSession();
+
+      return { data: result.data, error: null };
     } catch (error) {
       return { data: null, error };
     }
