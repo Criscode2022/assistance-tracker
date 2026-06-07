@@ -85,6 +85,9 @@ export class CloudSyncService {
 
   /** Fetch cloud data and replace local store — used on login. */
   async downloadFromCloud(): Promise<void> {
+    const session = await this.neon.getSession();
+    if (!session) throw new Error('No active session');
+
     const { data: courses, error: courseErr } = await this.neon.client
       .from('courses')
       .select('*')
