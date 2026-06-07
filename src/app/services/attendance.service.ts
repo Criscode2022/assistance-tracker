@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import {
   AttendanceStatus,
   Course,
@@ -16,6 +17,8 @@ export class AttendanceService {
   private _selectedCourseId: string | null = null;
   private syncCallback: (() => void) | null = null;
   private suppressSync = false;
+  private readonly dataChangedSubject = new Subject<void>();
+  readonly dataChanged$ = this.dataChangedSubject.asObservable();
 
   constructor(private lang: LanguageService) {
     this.load();
@@ -26,6 +29,7 @@ export class AttendanceService {
   }
 
   private notifyChange(): void {
+    this.dataChangedSubject.next();
     if (!this.suppressSync) this.syncCallback?.();
   }
 
@@ -373,6 +377,7 @@ export class AttendanceService {
     localStorage.setItem('attendance_v3', JSON.stringify(this.records));
     localStorage.setItem('selected_course_id', this._selectedCourseId ?? '');
     this.suppressSync = false;
+    this.dataChangedSubject.next();
   }
 
   hasLocalData(): boolean {

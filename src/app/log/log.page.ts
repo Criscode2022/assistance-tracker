@@ -20,6 +20,7 @@ export class LogPage implements OnDestroy {
   availableMonths: string[] = [];
 
   private langSub?: Subscription;
+  private dataSub?: Subscription;
 
   constructor(
     private svc: AttendanceService,
@@ -30,18 +31,25 @@ export class LogPage implements OnDestroy {
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
   ) {
-    this.langSub = this.lang.onLangChange().subscribe(() => this.loadDays());
+    this.langSub = this.lang.onLangChange().subscribe(() => this.refreshView());
+    this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshView());
   }
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.dataSub?.unsubscribe();
   }
 
   ionViewWillEnter(): void {
+    this.refreshView();
+  }
+
+  private refreshView(): void {
     this.courses = this.svc.getCourses();
     this.selectedCourseId = this.svc.selectedCourseId;
     this.refreshMonths();
     this.loadDays();
+    this.cdr.detectChanges();
   }
 
   private refreshMonths(): void {

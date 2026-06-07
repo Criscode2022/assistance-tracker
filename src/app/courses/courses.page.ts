@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ViewChild,
   ElementRef,
@@ -116,6 +117,7 @@ export class CoursesPage implements OnDestroy {
   readonly tabletLayout = signal(false);
 
   private langSub?: Subscription;
+  private dataSub?: Subscription;
   private tabletMql?: MediaQueryList;
   private readonly onTabletLayoutChange = (e: MediaQueryListEvent) => {
     this.tabletLayout.set(e.matches);
@@ -139,10 +141,10 @@ export class CoursesPage implements OnDestroy {
     private toast: ToastController,
     private translate: TranslateService,
     private lang: LanguageService,
+    private cdr: ChangeDetectorRef,
   ) {
-    this.langSub = this.lang.onLangChange().subscribe(() => {
-      this.courses = this.svc.getCourses();
-    });
+    this.langSub = this.lang.onLangChange().subscribe(() => this.refreshCourses());
+    this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshCourses());
 
     this.tabletMql = window.matchMedia('(min-width: 768px)');
     this.tabletLayout.set(this.tabletMql.matches);
@@ -150,9 +152,14 @@ export class CoursesPage implements OnDestroy {
   }
 
   ionViewWillEnter(): void {
-    this.courses = this.svc.getCourses();
+    this.refreshCourses();
     this.exitSelectMode();
     this.tabletLayout.set(this.tabletMql?.matches ?? false);
+  }
+
+  private refreshCourses(): void {
+    this.courses = this.svc.getCourses();
+    requestAnimationFrame(() => this.cdr.detectChanges());
   }
 
   private blankForm(): CourseFormModel {
@@ -266,9 +273,11 @@ export class CoursesPage implements OnDestroy {
       ],
     });
     await al.present();
+    await al.onDidDismiss();
+    this.refreshCourses();
   }
 
- protected enterSelectMode(): void {
+  protected enterSelectMode(): void {
   this.selectMode.set(true);
   this.selectedIds.clear();
   }
@@ -362,6 +371,8 @@ export class CoursesPage implements OnDestroy {
       ],
     });
     await al.present();
+    await al.onDidDismiss();
+    this.refreshCourses();
   }
 
   private deleteSelected(): void {
@@ -467,6 +478,8 @@ export class CoursesPage implements OnDestroy {
       ],
     });
     await al.present();
+    await al.onDidDismiss();
+    this.refreshCourses();
   }
 
   private isValidExport(data: unknown): boolean {
@@ -491,6 +504,7 @@ export class CoursesPage implements OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.dataSub?.unsubscribe();
     this.tabletMql?.removeEventListener('change', this.onTabletLayoutChange);
   }
 }

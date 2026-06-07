@@ -62,6 +62,7 @@ export class ConfigPage {
 
   private async loadOnlineUser(): Promise<void> {
     this.onlineUser = this.appMode.isOnline() ? await this.neon.getUser() : null;
+    this.cdr.detectChanges();
   }
 
   get onlineActive(): boolean {
@@ -94,6 +95,7 @@ export class ConfigPage {
         this.appMode.enableOnlineMode();
         this.onlineMode = true;
         this.onlineUser = await this.neon.getUser();
+        this.cdr.detectChanges();
         await this.showToast(this.translate.instant('ONLINE.ENABLED'), 'success');
       } else {
         this.goToAuth();

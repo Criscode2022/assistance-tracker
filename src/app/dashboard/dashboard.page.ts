@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
@@ -21,24 +21,33 @@ export class DashboardPage implements OnDestroy {
   readonly CIRC = 251.33;
 
   private langSub?: Subscription;
+  private dataSub?: Subscription;
 
   constructor(
     public svc: AttendanceService,
     private nav: NavController,
     private lang: LanguageService,
+    private cdr: ChangeDetectorRef,
   ) {
-    this.langSub = this.lang.onLangChange().subscribe(() => this.loadStats());
+    this.langSub = this.lang.onLangChange().subscribe(() => this.refreshView());
+    this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshView());
   }
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.dataSub?.unsubscribe();
   }
 
   ionViewWillEnter(): void {
+    this.refreshView();
+  }
+
+  private refreshView(): void {
     this.courses = this.svc.getCourses();
     this.selectedCourseId = this.svc.selectedCourseId;
     this.refreshMonths();
     this.loadStats();
+    this.cdr.detectChanges();
   }
 
   private refreshMonths(): void {
