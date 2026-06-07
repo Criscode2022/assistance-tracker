@@ -16,9 +16,22 @@ export class NeonService {
 
   constructor(private translate: TranslateService) {
     this.client = createClient({
-      auth: { url: environment.neonAuthUrl },
-      dataApi: { url: environment.neonDataApiUrl },
+      auth: { url: this.resolveUrl(environment.neonAuthUrl) },
+      dataApi: { url: this.resolveUrl(environment.neonDataApiUrl) },
     });
+  }
+
+  /**
+   * Same-origin proxy paths (e.g. "/__neon-auth") are resolved to an absolute
+   * URL against the current origin so the auth/data clients hit this domain,
+   * which Netlify reverse-proxies to Neon. Absolute URLs (used in dev) pass
+   * through unchanged.
+   */
+  private resolveUrl(url: string): string {
+    if (url.startsWith('/') && typeof window !== 'undefined') {
+      return window.location.origin + url;
+    }
+    return url;
   }
 
   async getSession() {

@@ -2,6 +2,23 @@
   publish = "www"
   command = "npm run build -- --configuration production"
 
+# Reverse-proxy the Neon auth + data endpoints through this same origin.
+# This makes the Better Auth session cookie a first-party cookie on the app's
+# domain, so iOS Safari / installed PWAs (which block cross-site cookies via
+# ITP) keep the session and cloud sync works. Must be declared BEFORE the SPA
+# catch-all so they take precedence.
+[[redirects]]
+  from = "/__neon-auth/*"
+  to = "https://ep-dry-moon-ajlezs4h.neonauth.c-3.us-east-2.aws.neon.tech/neondb/auth/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/__neon-data/*"
+  to = "https://ep-dry-moon-ajlezs4h.apirest.c-3.us-east-2.aws.neon.tech/neondb/rest/v1/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
