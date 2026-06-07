@@ -21,7 +21,7 @@
     "LATE": "Impuntual",
     "UNLOGGED": "Sin registrar",
     "PRESENT_PLURAL": "presentes",
-    "LATE_PLURAL": "tardanzas",
+    "LATE_PLURAL": "impuntualidades",
     "ABSENT_PLURAL": "faltas",
     "LOST": "perdidos",
     "SELECT_COURSE": "Selecciona un curso",
@@ -140,7 +140,7 @@
     "TARDINESS": "Impunt.",
     "HOURS_TITLE": "Horas asistidas",
     "HOURS_SUB": "hasta hoy",
-    "LOST_MINS": "−{{mins}} min perdidos por tardanzas"
+    "LOST_MINS": "−{{mins}} min perdidos por impuntualidades"
   },
   "LOG": {
     "TITLE": "Registro",
@@ -148,7 +148,7 @@
     "NO_COURSES_HINT": "Crea un curso en la pestaña <strong>Cursos</strong> para empezar.",
     "NO_WORKING_DAYS": "Sin días hábiles",
     "NO_WORKING_DAYS_HINT": "No hay días en este mes dentro del rango del curso.",
-    "LATE_OPTION": "Impuntual (tardanza)",
+    "LATE_OPTION": "Impuntual (impuntualidad)",
     "DAY_SCHEDULE": "Horario del día",
     "ENTRY_TIME": "Hora de entrada",
     "EXIT_TIME": "Hora de salida",
@@ -187,7 +187,7 @@
     "NO_COURSES_HINT": "Pulsa <strong>+</strong> para crear tu primer curso.",
     "HOURS_DAY": "{{hours}}h/día",
     "MAX_ABSENCES_CHIP": "≤{{max}} faltas",
-    "MAX_TARDINESS_CHIP": "≤{{max}} tardanzas",
+    "MAX_TARDINESS_CHIP": "≤{{max}} impuntualidades",
     "DELETE_HEADER": "Eliminar curso",
     "DELETE_MSG": "¿Eliminar \"<strong>{{name}}</strong>\"? Se perderán todos sus registros de asistencia.",
     "IMPORT_HEADER": "Importar cursos",
