@@ -50,19 +50,12 @@ export class NeonService {
       const result = await this.client.auth.signIn.email({ email, password });
       if (result.error) return { data: null, error: result.error };
 
-      // Explicitly fetch the session after sign-in so the auth client's
-      // in-memory cache is populated with a valid JWT before any data API
-      // calls are made. Without this, getJWTToken() can return null and
-      // throw AuthRequiredError even though sign-in succeeded.
-      const sessionResult = await this.client.auth.getSession();
-      if (!sessionResult.data?.session) {
-        return {
-          data: null,
-          error: { code: 'EMAIL_NOT_VERIFIED', message: 'Session not established' },
-        };
-      }
+      // Warm the session cache without blocking on null — in iOS PWA standalone
+      // mode the session cookie may not be readable immediately after sign-in,
+      // so we must not treat a null session here as a login failure.
+      await this.client.auth.getSession();
 
-      return { data: sessionResult.data, error: null };
+      return { data: result.data, error: null };
     } catch (error) {
       return { data: null, error };
     }
