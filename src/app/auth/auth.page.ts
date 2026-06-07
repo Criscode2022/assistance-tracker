@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NavController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AttendanceService } from '../services/attendance.service';
@@ -32,6 +32,7 @@ export class AuthPage implements OnInit {
     private attendance: AttendanceService,
     private translate: TranslateService,
     private authFlowNav: AuthFlowNavigationService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +64,7 @@ export class AuthPage implements OnInit {
       await this.showToast(this.neon.getAuthErrorMessage(err), 'danger');
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 
