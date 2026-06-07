@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavController, AlertController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -39,6 +39,7 @@ export class ConfigPage {
     private lang: LanguageService,
     private theme: ThemeService,
     private authFlowNav: AuthFlowNavigationService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.settings = this.notifSvc.getSettings();
     this.permissionStatus = this.notifSvc.getPermission();
@@ -125,9 +126,11 @@ export class ConfigPage {
       this.appMode.disableOnlineMode();
       this.onlineMode = false;
       this.onlineUser = null;
+      this.cdr.detectChanges();
       await this.showToast(this.translate.instant('ONLINE.DISABLED'), 'medium');
     } finally {
       this.switchingMode = false;
+      this.cdr.detectChanges();
     }
   }
 
