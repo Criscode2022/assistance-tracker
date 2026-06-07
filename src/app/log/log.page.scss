@@ -1,5 +1,22 @@
 .day-list {
-  padding: 12px 16px 24px;
+  padding: 12px 0 24px;
+}
+
+.days-sliding-list {
+  --background: transparent;
+  background: transparent;
+  contain: none;
+  padding: 0;
+}
+
+.day-item-wrap {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-start: 0;
+  --inner-padding-end: 0;
+  --border-width: 0;
+  --min-height: 0;
 }
 
 .month-section-label {
@@ -18,7 +35,8 @@
   background: var(--ion-card-background);
   border-radius: var(--app-radius-md);
   padding: 13px 15px;
-  margin-bottom: 8px;
+  margin: 0 16px 8px;
+  width: calc(100% - 32px);
   box-shadow: var(--app-shadow-sm);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;

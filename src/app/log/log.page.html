@@ -43,45 +43,66 @@
     <div class="day-list" *ngIf="days.length > 0">
       <div class="month-section-label">{{ monthLabel }}</div>
 
-      <div
-        *ngFor="let day of days; trackBy: trackByDate"
-        class="day-card"
-        [class.day-today]="day.isToday"
-        [class.day-future]="day.isFuture"
-        [class.day-present]="day.status === 'present'"
-        [class.day-absent]="day.status === 'absent'"
-        [class.day-late]="day.status === 'late'"
-        [class.day-cancelled]="day.status === 'cancelled'"
-        (click)="openStatusPicker(day)">
+      <ion-list lines="none" class="days-sliding-list">
+        <ion-item-sliding
+          *ngFor="let day of days; trackBy: trackByDate"
+          [disabled]="day.isFuture">
 
-        <div class="day-date-col">
-          <span class="day-num">{{ day.date | slice:8:10 }}</span>
-          <span class="day-name">{{ day.dayLabel | slice:0:3 | uppercase }}</span>
-          <ion-badge *ngIf="day.isToday" color="primary" class="today-pip">{{ 'COMMON.TODAY' | translate }}</ion-badge>
-        </div>
+          <!-- Swipe right: toggle present ↔ absent -->
+          <ion-item-options side="start" (ionSwipe)="quickToggle(day)">
+            <ion-item-option
+              expandable
+              [color]="day.status === 'present' ? 'danger' : 'success'"
+              (click)="quickToggle(day)">
+              <ion-icon
+                slot="icon-only"
+                [name]="day.status === 'present' ? 'close-circle-outline' : 'checkmark-circle-outline'">
+              </ion-icon>
+            </ion-item-option>
+          </ion-item-options>
 
-        <div class="day-icon-col">
-          <ion-icon [name]="statusIcon(day)" [color]="statusColor(day)"></ion-icon>
-        </div>
+          <ion-item lines="none" class="day-item-wrap" (click)="openStatusPicker(day)">
+            <div
+              class="day-card"
+              [class.day-today]="day.isToday"
+              [class.day-future]="day.isFuture"
+              [class.day-present]="day.status === 'present'"
+              [class.day-absent]="day.status === 'absent'"
+              [class.day-late]="day.status === 'late'"
+              [class.day-cancelled]="day.status === 'cancelled'">
 
-        <div class="day-info-col">
-          <span class="day-status-label" [attr.data-status]="day.status">
-            {{ statusLabelKey(day) | translate }}
-          </span>
-          <span class="day-time-label"
-            *ngIf="day.status === 'late' && day.entryTime && day.exitTime">
-            {{ day.entryTime }} → {{ day.exitTime }}
-            &nbsp;•&nbsp;{{ formatHours(day.hoursAttended) }}
-            <span class="lost-tag" *ngIf="day.lostMinutes > 0">−{{ day.lostMinutes }}min</span>
-          </span>
-          <span class="day-time-label muted"
-            *ngIf="day.status === 'late' && (!day.entryTime || !day.exitTime)">
-            {{ 'COMMON.NO_SCHEDULE' | translate }}
-          </span>
-        </div>
+              <div class="day-date-col">
+                <span class="day-num">{{ day.date | slice:8:10 }}</span>
+                <span class="day-name">{{ day.dayLabel | slice:0:3 | uppercase }}</span>
+                <ion-badge *ngIf="day.isToday" color="primary" class="today-pip">{{ 'COMMON.TODAY' | translate }}</ion-badge>
+              </div>
 
-        <ion-icon name="chevron-forward-outline" class="day-chevron" *ngIf="!day.isFuture" color="medium"></ion-icon>
-      </div>
+              <div class="day-icon-col">
+                <ion-icon [name]="statusIcon(day)" [color]="statusColor(day)"></ion-icon>
+              </div>
+
+              <div class="day-info-col">
+                <span class="day-status-label" [attr.data-status]="day.status">
+                  {{ statusLabelKey(day) | translate }}
+                </span>
+                <span class="day-time-label"
+                  *ngIf="day.status === 'late' && day.entryTime && day.exitTime">
+                  {{ day.entryTime }} → {{ day.exitTime }}
+                  &nbsp;•&nbsp;{{ formatHours(day.hoursAttended) }}
+                  <span class="lost-tag" *ngIf="day.lostMinutes > 0">−{{ day.lostMinutes }}min</span>
+                </span>
+                <span class="day-time-label muted"
+                  *ngIf="day.status === 'late' && (!day.entryTime || !day.exitTime)">
+                  {{ 'COMMON.NO_SCHEDULE' | translate }}
+                </span>
+              </div>
+
+              <ion-icon name="chevron-forward-outline" class="day-chevron" color="medium"></ion-icon>
+            </div>
+          </ion-item>
+
+        </ion-item-sliding>
+      </ion-list>
     </div>
   </ng-container>
 

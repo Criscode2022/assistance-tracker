@@ -97,6 +97,13 @@ export class LogPage implements OnDestroy {
     this.svc.setDayRecord(date, record, this.selectedCourseId ?? undefined);
   }
 
+  quickToggle(day: DayEntry): void {
+    if (day.isFuture) return;
+    const newStatus = day.status === 'present' ? 'absent' : 'present';
+    this.saveDayRecord(day.date, { status: newStatus });
+    this.refreshAfterEdit();
+  }
+
   async openStatusPicker(day: DayEntry): Promise<void> {
     if (day.isFuture) return;
 
