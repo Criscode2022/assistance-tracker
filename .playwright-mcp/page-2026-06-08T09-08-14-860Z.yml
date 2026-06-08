@@ -1,0 +1,55 @@
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e14]:
+        - generic: Historial
+    - main [ref=e15]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - generic [ref=e22]: Junio de 2026
+            - generic [ref=e23]: 22 días hábiles
+          - img [ref=e25]
+        - generic [ref=e27]:
+          - generic [ref=e28]: Asistencia
+          - generic [ref=e29]: 17%
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: "1"
+            - generic [ref=e35]: presentes
+          - generic [ref=e36]:
+            - img [ref=e37]:
+              - img [ref=e39]
+            - generic [ref=e42]: 0/7
+            - generic [ref=e43]: impuntualidades
+          - generic [ref=e44]:
+            - img [ref=e45]
+            - generic [ref=e47]: 0/3
+            - generic [ref=e48]: faltas
+  - tablist [ref=e49]:
+    - generic:
+      - tab "Resumen" [ref=e51] [cursor=pointer]:
+        - generic [ref=e52]:
+          - generic:
+            - img [ref=e53]:
+              - img [ref=e55]
+            - generic [ref=e60]: Resumen
+      - tab "Registro" [ref=e62] [cursor=pointer]:
+        - generic [ref=e63]:
+          - generic:
+            - img [ref=e64]:
+              - img [ref=e66]
+            - generic [ref=e78]: Registro
+      - tab "Historial" [ref=e80] [cursor=pointer]:
+        - generic [ref=e81]:
+          - generic:
+            - img [ref=e82]:
+              - img [ref=e84]
+            - generic [ref=e87]: Historial
+      - tab "Cursos" [ref=e89] [cursor=pointer]:
+        - generic [ref=e90]:
+          - generic:
+            - img [ref=e91]:
+              - img [ref=e93]
+            - generic [ref=e95]: Cursos

@@ -1,0 +1,40 @@
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e14]:
+        - generic: Registro
+    - main [ref=e15]:
+      - generic [ref=e18]:
+        - img [ref=e20]:
+          - img [ref=e22]
+        - heading "Sin cursos" [level=3] [ref=e24]
+        - paragraph [ref=e25]:
+          - text: Crea un curso en la pestaña
+          - strong [ref=e26]: Cursos
+          - text: para empezar.
+  - tablist [ref=e27]:
+    - generic:
+      - tab "Resumen" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]:
+          - generic:
+            - img [ref=e31]:
+              - img [ref=e33]
+            - generic [ref=e38]: Resumen
+      - tab "Registro" [selected] [ref=e40] [cursor=pointer]:
+        - generic [ref=e41]:
+          - generic:
+            - img [ref=e42]:
+              - img [ref=e44]
+            - generic [ref=e56]: Registro
+      - tab "Historial" [ref=e58] [cursor=pointer]:
+        - generic [ref=e59]:
+          - generic:
+            - img [ref=e60]:
+              - img [ref=e62]
+            - generic [ref=e65]: Historial
+      - tab "Cursos" [ref=e67] [cursor=pointer]:
+        - generic [ref=e68]:
+          - generic:
+            - img [ref=e69]:
+              - img [ref=e71]
+            - generic [ref=e73]: Cursos

@@ -1,0 +1,37 @@
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e14]:
+        - generic: Historial
+    - main [ref=e15]:
+      - generic [ref=e18]:
+        - img [ref=e20]:
+          - img [ref=e22]
+        - heading "Sin cursos" [level=3] [ref=e24]
+        - paragraph [ref=e25]: Crea un curso para ver el historial.
+  - tablist [ref=e26]:
+    - generic:
+      - tab "Resumen" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]:
+          - generic:
+            - img [ref=e30]:
+              - img [ref=e32]
+            - generic [ref=e37]: Resumen
+      - tab "Registro" [ref=e39] [cursor=pointer]:
+        - generic [ref=e40]:
+          - generic:
+            - img [ref=e41]:
+              - img [ref=e43]
+            - generic [ref=e55]: Registro
+      - tab "Historial" [ref=e57] [cursor=pointer]:
+        - generic [ref=e58]:
+          - generic:
+            - img [ref=e59]:
+              - img [ref=e61]
+            - generic [ref=e64]: Historial
+      - tab "Cursos" [ref=e66] [cursor=pointer]:
+        - generic [ref=e67]:
+          - generic:
+            - img [ref=e68]:
+              - img [ref=e70]
+            - generic [ref=e72]: Cursos

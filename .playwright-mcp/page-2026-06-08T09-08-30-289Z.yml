@@ -1,0 +1,82 @@
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]:
+        - generic [ref=e14]:
+          - generic: Overview
+        - button [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]:
+            - generic:
+              - img:
+                - generic:
+                  - img
+    - main [ref=e19]:
+      - generic [ref=e21]:
+        - generic:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - img [ref=e24]
+              - generic [ref=e27]:
+                - generic [ref=e28]: 17%
+                - generic [ref=e29]: attendance
+            - generic [ref=e30]:
+              - generic [ref=e31]: MCP Workflow Test
+              - generic [ref=e32]:
+                - img [ref=e33]
+                - text: At risk
+              - generic [ref=e35]: Min. 75% · 6 of 22 working days
+          - generic [ref=e36]:
+            - generic [ref=e37]:
+              - generic [ref=e38]:
+                - img [ref=e40]
+                - generic [ref=e42]: Absences
+              - generic [ref=e43]: 0/3
+              - generic [ref=e44]: 3 available
+            - generic [ref=e45]:
+              - generic [ref=e46]:
+                - img [ref=e48]:
+                  - img [ref=e50]
+                - generic [ref=e53]: Late
+              - generic [ref=e54]: 0/7
+              - generic [ref=e55]: 7 available
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: Hours attended
+              - generic [ref=e60]: to date
+            - generic [ref=e61]: 5h / 30h
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - img [ref=e64]
+              - text: 1 present
+            - generic [ref=e66]:
+              - img [ref=e67]
+              - text: 0 late
+            - generic [ref=e69]:
+              - img [ref=e70]
+              - text: 0 absences
+  - tablist [ref=e72]:
+    - generic:
+      - tab "Overview" [ref=e74] [cursor=pointer]:
+        - generic [ref=e75]:
+          - generic:
+            - img [ref=e76]:
+              - img [ref=e78]
+            - generic [ref=e83]: Overview
+      - tab "Log" [ref=e85] [cursor=pointer]:
+        - generic [ref=e86]:
+          - generic:
+            - img [ref=e87]:
+              - img [ref=e89]
+            - generic [ref=e101]: Log
+      - tab "History" [ref=e103] [cursor=pointer]:
+        - generic [ref=e104]:
+          - generic:
+            - img [ref=e105]:
+              - img [ref=e107]
+            - generic [ref=e110]: History
+      - tab "Courses" [ref=e112] [cursor=pointer]:
+        - generic [ref=e113]:
+          - generic:
+            - img [ref=e114]:
+              - img [ref=e116]
+            - generic [ref=e118]: Courses

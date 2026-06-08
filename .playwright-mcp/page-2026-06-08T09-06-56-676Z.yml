@@ -1,0 +1,86 @@
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]:
+        - generic [ref=e14]:
+          - generic: Nuevo Curso
+        - button [ref=e75] [cursor=pointer]:
+          - generic [ref=e76]:
+            - generic:
+              - img:
+                - generic:
+                  - img
+    - main [ref=e19]:
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: Información del curso
+          - generic [ref=e80]:
+            - generic [ref=e81]: Nombre del curso *
+            - textbox "Ej. Matemáticas I" [ref=e82]
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - generic [ref=e85]: Fecha de inicio *
+              - textbox [ref=e86]
+            - generic [ref=e87]:
+              - generic [ref=e88]: Fecha de fin *
+              - textbox [ref=e89]
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - generic [ref=e92]: Hora de entrada
+              - textbox [ref=e93]: 09:00
+            - generic [ref=e94]:
+              - generic [ref=e95]: Hora de salida
+              - textbox [ref=e96]: 14:00
+          - generic [ref=e97]:
+            - generic [ref=e98]: Horas por día
+            - spinbutton [ref=e99]: "5"
+        - generic [ref=e100]:
+          - generic [ref=e101]: Límites mensuales
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - generic [ref=e104]: Máx. faltas
+              - spinbutton [ref=e105]: "3"
+            - generic [ref=e106]:
+              - generic [ref=e107]: Máx. impuntualidades
+              - spinbutton [ref=e108]: "7"
+          - generic [ref=e109]:
+            - generic [ref=e110]: "% asistencia mínima"
+            - spinbutton [ref=e111]: "75"
+        - generic [ref=e112]:
+          - generic:
+            - button "Guardar curso" [disabled]:
+              - generic:
+                - generic:
+                  - img:
+                    - generic:
+                      - img
+                - generic: Guardar curso
+          - button "Cancelar" [ref=e114] [cursor=pointer]:
+            - generic [ref=e115]:
+              - generic: Cancelar
+  - tablist [ref=e48]:
+    - generic:
+      - tab "Resumen" [ref=e50] [cursor=pointer]:
+        - generic [ref=e51]:
+          - generic:
+            - img [ref=e52]:
+              - img [ref=e116]
+            - generic [ref=e54]: Resumen
+      - tab "Registro" [ref=e56] [cursor=pointer]:
+        - generic [ref=e57]:
+          - generic:
+            - img [ref=e58]:
+              - img [ref=e121]
+            - generic [ref=e60]: Registro
+      - tab "Historial" [ref=e62] [cursor=pointer]:
+        - generic [ref=e63]:
+          - generic:
+            - img [ref=e64]:
+              - img [ref=e133]
+            - generic [ref=e66]: Historial
+      - tab "Cursos" [selected] [ref=e68] [cursor=pointer]:
+        - generic [ref=e69]:
+          - generic:
+            - img [ref=e70]:
+              - img [ref=e136]
+            - generic [ref=e72]: Cursos

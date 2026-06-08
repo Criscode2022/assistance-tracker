@@ -1,0 +1,59 @@
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]:
+        - generic [ref=e14]:
+          - generic: Mis Cursos
+        - button [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]:
+            - generic:
+              - img:
+                - generic:
+                  - img
+    - main [ref=e19]:
+      - generic [ref=e22]:
+        - generic [ref=e24] [cursor=pointer]:
+          - img [ref=e26]:
+            - img [ref=e28]
+          - generic [ref=e31]:
+            - generic [ref=e32]: Importar curso
+            - generic [ref=e33]: Desde archivo JSON
+        - generic [ref=e34]:
+          - img [ref=e36]:
+            - img [ref=e38]
+          - heading "Sin cursos" [level=3] [ref=e40]
+          - paragraph [ref=e41]:
+            - text: Pulsa
+            - strong [ref=e42]: +
+            - text: para crear tu primer curso.
+    - button [ref=e45] [cursor=pointer]:
+      - img [ref=e46]:
+        - img [ref=e48]
+      - img [ref=e51]:
+        - img [ref=e53]
+  - tablist [ref=e55]:
+    - generic:
+      - tab "Resumen" [ref=e57] [cursor=pointer]:
+        - generic [ref=e58]:
+          - generic:
+            - img [ref=e59]:
+              - img [ref=e61]
+            - generic [ref=e66]: Resumen
+      - tab "Registro" [ref=e68] [cursor=pointer]:
+        - generic [ref=e69]:
+          - generic:
+            - img [ref=e70]:
+              - img [ref=e72]
+            - generic [ref=e84]: Registro
+      - tab "Historial" [ref=e86] [cursor=pointer]:
+        - generic [ref=e87]:
+          - generic:
+            - img [ref=e88]:
+              - img [ref=e90]
+            - generic [ref=e93]: Historial
+      - tab "Cursos" [ref=e95] [cursor=pointer]:
+        - generic [ref=e96]:
+          - generic:
+            - img [ref=e97]:
+              - img [ref=e99]
+            - generic [ref=e101]: Cursos

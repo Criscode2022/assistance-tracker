@@ -1,0 +1,80 @@
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - generic [ref=e11]:
+        - generic [ref=e14]:
+          - generic: My Courses
+        - button [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]:
+            - generic:
+              - img:
+                - generic:
+                  - img
+    - main [ref=e19]:
+      - generic [ref=e22]:
+        - generic [ref=e24] [cursor=pointer]:
+          - img [ref=e26]:
+            - img [ref=e28]
+          - generic [ref=e31]:
+            - generic [ref=e32]: Import course
+            - generic [ref=e33]: From JSON file
+        - button "MCP Workflow Test Jun 1, 2026 → Jun 30, 2026 5h/day ≥75% ≤3 absences ≤7 late Export Edit Course Delete" [ref=e37] [cursor=pointer]:
+          - generic [ref=e40]:
+            - generic [ref=e42]:
+              - heading "MCP Workflow Test" [level=2] [ref=e43]
+              - paragraph [ref=e44]: Jun 1, 2026 → Jun 30, 2026
+              - generic [ref=e45]:
+                - generic [ref=e46]: 5h/day
+                - generic [ref=e47]: ≥75%
+                - generic [ref=e48]: ≤3 absences
+                - generic [ref=e49]: ≤7 late
+            - generic [ref=e50]:
+              - button "Export" [ref=e52]:
+                - generic [ref=e53]:
+                  - generic:
+                    - img:
+                      - generic:
+                        - img
+              - button "Edit Course" [ref=e55]:
+                - generic [ref=e56]:
+                  - generic:
+                    - img:
+                      - generic:
+                        - img
+              - button "Delete" [ref=e58]:
+                - generic [ref=e59]:
+                  - generic:
+                    - img:
+                      - generic:
+                        - img
+    - button [ref=e62] [cursor=pointer]:
+      - img [ref=e63]:
+        - img [ref=e65]
+      - img [ref=e68]:
+        - img [ref=e70]
+  - tablist [ref=e72]:
+    - generic:
+      - tab "Overview" [ref=e74] [cursor=pointer]:
+        - generic [ref=e75]:
+          - generic:
+            - img [ref=e76]:
+              - img [ref=e78]
+            - generic [ref=e83]: Overview
+      - tab "Log" [ref=e85] [cursor=pointer]:
+        - generic [ref=e86]:
+          - generic:
+            - img [ref=e87]:
+              - img [ref=e89]
+            - generic [ref=e101]: Log
+      - tab "History" [ref=e103] [cursor=pointer]:
+        - generic [ref=e104]:
+          - generic:
+            - img [ref=e105]:
+              - img [ref=e107]
+            - generic [ref=e110]: History
+      - tab "Courses" [selected] [ref=e112] [cursor=pointer]:
+        - generic [ref=e113]:
+          - generic:
+            - img [ref=e114]:
+              - img [ref=e116]
+            - generic [ref=e118]: Courses

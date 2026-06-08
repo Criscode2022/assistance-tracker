@@ -1,0 +1,77 @@
+- generic [ref=e2]:
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - banner [ref=e9]:
+        - button [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]:
+            - img:
+              - generic:
+                - img
+      - main [ref=e19]:
+        - generic [ref=e22]:
+          - generic [ref=e24] [cursor=pointer]:
+            - img [ref=e26]:
+              - img [ref=e28]
+            - generic [ref=e31]:
+              - generic [ref=e32]: Import course
+              - generic [ref=e33]: From JSON file
+          - button [ref=e119] [cursor=pointer]:
+            - generic [ref=e40]:
+              - generic [ref=e42]:
+                - heading [level=2] [ref=e120]: MCP Workflow Test
+                - paragraph [ref=e44]: Jun 1, 2026 → Jun 30, 2026
+                - generic [ref=e45]:
+                  - generic [ref=e46]: 5h/day
+                  - generic [ref=e47]: ≥75%
+                  - generic [ref=e48]: ≤3 absences
+                  - generic [ref=e49]: ≤7 late
+              - generic [ref=e50]:
+                - button [ref=e121]:
+                  - generic [ref=e53]:
+                    - img:
+                      - generic:
+                        - img
+                - button [ref=e122]:
+                  - generic [ref=e56]:
+                    - img:
+                      - generic:
+                        - img
+                - button [ref=e123]:
+                  - generic [ref=e59]:
+                    - img:
+                      - generic:
+                        - img
+      - button [ref=e62] [cursor=pointer]:
+        - img [ref=e63]:
+          - img [ref=e65]
+        - img [ref=e68]:
+          - img [ref=e70]
+    - tablist [ref=e72]:
+      - tab [ref=e124] [cursor=pointer]:
+        - generic [ref=e75]:
+          - img [ref=e76]:
+            - img [ref=e78]
+          - generic [ref=e83]: Overview
+      - tab [ref=e125] [cursor=pointer]:
+        - generic [ref=e86]:
+          - img [ref=e87]:
+            - img [ref=e89]
+          - generic [ref=e101]: Log
+      - tab [ref=e126] [cursor=pointer]:
+        - generic [ref=e104]:
+          - img [ref=e105]:
+            - img [ref=e107]
+          - generic [ref=e110]: History
+      - tab [selected] [ref=e127] [cursor=pointer]:
+        - generic [ref=e113]:
+          - img [ref=e114]:
+            - img [ref=e116]
+          - generic [ref=e118]: Courses
+  - alertdialog "Delete course" [active] [ref=e130]:
+    - heading "Delete course" [level=2] [ref=e132]
+    - generic [ref=e133]: Delete "<strong>MCP Workflow Test</strong>"? All attendance records will be lost.
+    - generic [ref=e134]:
+      - button "Cancel" [ref=e135] [cursor=pointer]:
+        - generic [ref=e136]: Cancel
+      - button "Delete" [ref=e137] [cursor=pointer]:
+        - generic [ref=e138]: Delete

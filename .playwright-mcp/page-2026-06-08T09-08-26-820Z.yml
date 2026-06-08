@@ -1,0 +1,122 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - button [ref=e10] [cursor=pointer]:
+        - generic [ref=e11]:
+          - generic:
+            - img:
+              - generic:
+                - img
+      - generic [ref=e14]:
+        - generic: Settings
+  - main [ref=e15]:
+    - generic [ref=e17]:
+      - generic:
+        - generic [ref=e18]:
+          - img [ref=e19]:
+            - img [ref=e21]
+          - generic [ref=e23]: Cloud sync
+        - generic [ref=e28] [cursor=pointer]:
+          - generic [ref=e30]:
+            - heading "Online mode" [level=3] [ref=e159]
+            - paragraph [ref=e32]: Sync courses and attendance with your account
+          - switch [ref=e33]
+        - generic [ref=e39]:
+          - img [ref=e40]:
+            - img [ref=e42]
+          - generic [ref=e44]: Appearance
+        - generic [ref=e49] [cursor=pointer]:
+          - generic [ref=e51]:
+            - heading "Dark theme" [level=3] [ref=e160]
+            - paragraph [ref=e53]: Dark background and reduced glare
+          - switch "Dark theme" [ref=e161]
+        - generic [ref=e60]:
+          - img [ref=e61]:
+            - img [ref=e63]
+          - generic [ref=e66]: Language
+        - tablist [ref=e69]:
+          - generic:
+            - generic [ref=e70] [cursor=pointer]:
+              - tab "Español":
+                - generic:
+                  - generic:
+                    - generic: Español
+            - generic [ref=e71] [cursor=pointer]:
+              - tab "English" [selected]:
+                - generic:
+                  - generic:
+                    - generic: English
+        - generic [ref=e72]:
+          - img [ref=e73]:
+            - img [ref=e75]
+          - generic [ref=e77]: Notifications
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - img [ref=e82]:
+              - img [ref=e84]
+            - generic [ref=e88]:
+              - strong [ref=e89]: Notification permission
+              - paragraph [ref=e90]: Not requested
+          - button "Enable" [ref=e162] [cursor=pointer]:
+            - generic [ref=e93]:
+              - generic: Enable
+        - list [ref=e94]:
+          - group [ref=e95]:
+            - generic [ref=e99]: Reminders
+            - listitem [ref=e100] [cursor=pointer]:
+              - generic [ref=e102]:
+                - generic [ref=e104]:
+                  - heading "Daily reminder" [level=3] [ref=e163]
+                  - paragraph [ref=e106]: Reminder to log attendance (Mon–Fri)
+                - generic:
+                  - switch [disabled]
+            - listitem [ref=e107] [cursor=pointer]:
+              - generic [ref=e109]:
+                - generic [ref=e111]:
+                  - heading "Weekly summary" [level=3] [ref=e164]
+                  - paragraph [ref=e113]: Notification on Fridays at 5:00 PM
+                - generic:
+                  - switch [disabled]
+          - group [ref=e114]:
+            - generic [ref=e118]: Automatic alerts
+            - listitem [ref=e119] [cursor=pointer]:
+              - generic [ref=e121]:
+                - generic [ref=e123]:
+                  - heading "Absence limit" [level=3] [ref=e165]
+                  - paragraph [ref=e125]: Alert when approaching max absences
+                - generic:
+                  - switch [checked] [disabled]
+            - listitem [ref=e126] [cursor=pointer]:
+              - generic [ref=e128]:
+                - generic [ref=e130]:
+                  - heading "Tardiness limit" [level=3] [ref=e166]
+                  - paragraph [ref=e132]: Alert when approaching max tardiness
+                - generic:
+                  - switch [checked] [disabled]
+            - listitem [ref=e133] [cursor=pointer]:
+              - generic [ref=e135]:
+                - generic [ref=e137]:
+                  - heading "Low attendance" [level=3] [ref=e167]
+                  - paragraph [ref=e139]: Alert when attendance drops below minimum
+                - generic:
+                  - switch [checked] [disabled]
+        - button "Send test notification" [ref=e168] [cursor=pointer]:
+          - generic [ref=e143]:
+            - generic:
+              - img:
+                - generic:
+                  - img
+            - generic: Send test notification
+        - generic [ref=e144]:
+          - img [ref=e145]:
+            - img [ref=e147]
+          - generic [ref=e151]: Danger zone
+        - generic [ref=e153]:
+          - paragraph [ref=e154]: Permanently deletes all courses, attendance records, and app settings. You cannot recover the data.
+          - button "Delete all data" [ref=e169] [cursor=pointer]:
+            - generic [ref=e157]:
+              - generic:
+                - img:
+                  - generic:
+                    - img
+              - generic: Delete all data

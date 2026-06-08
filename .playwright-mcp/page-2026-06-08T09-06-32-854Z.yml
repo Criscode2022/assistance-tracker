@@ -1,0 +1,122 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - button [ref=e10] [cursor=pointer]:
+        - generic [ref=e11]:
+          - generic:
+            - img:
+              - generic:
+                - img
+      - generic [ref=e14]:
+        - generic: Configuración
+  - main [ref=e15]:
+    - generic [ref=e17]:
+      - generic:
+        - generic [ref=e18]:
+          - img [ref=e19]:
+            - img [ref=e21]
+          - generic [ref=e23]: Sincronización en la nube
+        - generic [ref=e28] [cursor=pointer]:
+          - generic [ref=e30]:
+            - heading "Modo en línea" [level=3] [ref=e31]
+            - paragraph [ref=e32]: Sincroniza cursos y asistencia con tu cuenta
+          - switch [ref=e33]
+        - generic [ref=e39]:
+          - img [ref=e40]:
+            - img [ref=e42]
+          - generic [ref=e44]: Apariencia
+        - generic [ref=e49] [cursor=pointer]:
+          - generic [ref=e51]:
+            - heading "Tema oscuro" [level=3] [ref=e52]
+            - paragraph [ref=e53]: Interfaz con fondo oscuro y menos brillo
+          - switch "Tema oscuro" [ref=e54]
+        - generic [ref=e60]:
+          - img [ref=e61]:
+            - img [ref=e63]
+          - generic [ref=e66]: Idioma
+        - tablist [ref=e69]:
+          - generic:
+            - generic [ref=e70] [cursor=pointer]:
+              - tab "Español" [selected]:
+                - generic:
+                  - generic:
+                    - generic: Español
+            - generic [ref=e71] [cursor=pointer]:
+              - tab "English":
+                - generic:
+                  - generic:
+                    - generic: English
+        - generic [ref=e72]:
+          - img [ref=e73]:
+            - img [ref=e75]
+          - generic [ref=e77]: Notificaciones
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - img [ref=e82]:
+              - img [ref=e84]
+            - generic [ref=e88]:
+              - strong [ref=e89]: Permiso de notificaciones
+              - paragraph [ref=e90]: No solicitado
+          - button "Activar" [ref=e92] [cursor=pointer]:
+            - generic [ref=e93]:
+              - generic: Activar
+        - list [ref=e94]:
+          - group [ref=e95]:
+            - generic [ref=e99]: Recordatorios
+            - listitem [ref=e100] [cursor=pointer]:
+              - generic [ref=e102]:
+                - generic [ref=e104]:
+                  - heading "Recordatorio diario" [level=3] [ref=e105]
+                  - paragraph [ref=e106]: Aviso para registrar asistencia (lunes–viernes)
+                - generic:
+                  - switch [disabled]
+            - listitem [ref=e107] [cursor=pointer]:
+              - generic [ref=e109]:
+                - generic [ref=e111]:
+                  - heading "Resumen semanal" [level=3] [ref=e112]
+                  - paragraph [ref=e113]: Notificación los viernes a las 17:00
+                - generic:
+                  - switch [disabled]
+          - group [ref=e114]:
+            - generic [ref=e118]: Alertas automáticas
+            - listitem [ref=e119] [cursor=pointer]:
+              - generic [ref=e121]:
+                - generic [ref=e123]:
+                  - heading "Límite de faltas" [level=3] [ref=e124]
+                  - paragraph [ref=e125]: Aviso al acercarte al máximo de faltas
+                - generic:
+                  - switch [checked] [disabled]
+            - listitem [ref=e126] [cursor=pointer]:
+              - generic [ref=e128]:
+                - generic [ref=e130]:
+                  - heading "Límite de impuntualidades" [level=3] [ref=e131]
+                  - paragraph [ref=e132]: Aviso al acercarte al máximo de impuntualidades
+                - generic:
+                  - switch [checked] [disabled]
+            - listitem [ref=e133] [cursor=pointer]:
+              - generic [ref=e135]:
+                - generic [ref=e137]:
+                  - heading "Asistencia baja" [level=3] [ref=e138]
+                  - paragraph [ref=e139]: Aviso cuando la asistencia baja del mínimo
+                - generic:
+                  - switch [checked] [disabled]
+        - button "Enviar notificación de prueba" [ref=e142] [cursor=pointer]:
+          - generic [ref=e143]:
+            - generic:
+              - img:
+                - generic:
+                  - img
+            - generic: Enviar notificación de prueba
+        - generic [ref=e144]:
+          - img [ref=e145]:
+            - img [ref=e147]
+          - generic [ref=e151]: Zona de peligro
+        - generic [ref=e153]:
+          - paragraph [ref=e154]: Elimina permanentemente todos los cursos, registros de asistencia y ajustes de la app. No podrás recuperar los datos.
+          - button "Borrar todos los datos" [ref=e156] [cursor=pointer]:
+            - generic [ref=e157]:
+              - generic:
+                - img:
+                  - generic:
+                    - img
+              - generic: Borrar todos los datos
