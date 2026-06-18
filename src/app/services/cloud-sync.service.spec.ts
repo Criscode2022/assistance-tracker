@@ -78,7 +78,7 @@ describe('CloudSyncService', () => {
 
   it('should download cloud data into attendance storage', async () => {
     const downloadNeon = createMockNeonService(
-      null,
+      { user: { id: 'user-1' } },
       createMockNeonClient({
         courses: () =>
           Promise.resolve({

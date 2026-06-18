@@ -492,6 +492,38 @@ describe('CoursesPage', () => {
 
   });
 
+
+
+  describe('tablet layout', () => {
+
+    it('should reflect wide viewport in tabletLayout signal', () => {
+
+      const mql = {
+
+        matches: true,
+
+        addEventListener: jasmine.createSpy('addEventListener'),
+
+        removeEventListener: jasmine.createSpy('removeEventListener'),
+
+      };
+
+      spyOn(window, 'matchMedia').and.returnValue(mql as unknown as MediaQueryList);
+
+
+
+      const tabletFixture = TestBed.createComponent(CoursesPage);
+
+      const tabletPage = tabletFixture.componentInstance;
+
+
+
+      expect(tabletPage.tabletLayout()).toBeTrue();
+
+    });
+
+  });
+
 });
 
 

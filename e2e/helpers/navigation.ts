@@ -78,19 +78,41 @@ export async function createCourse(
 }
 
 export function logDayRows(page: Page) {
-  return page.locator('app-log ion-item-sliding, ion-item-sliding:not(.course-sliding)');
+  return page.locator('app-log .days-sliding-list ion-item-sliding:not([disabled])');
 }
 
 export async function markFirstPastDayPresent(page: Page): Promise<void> {
   const pastDay = logDayRows(page).first();
-  await pastDay.locator('ion-item').click();
+  await pastDay.locator('.day-card, ion-item').first().click();
   await page.getByRole('button', { name: /presente|present/i }).click();
-  await expect(pastDay.getByText(/presente|present/i)).toBeVisible();
+  await expect(pastDay.locator('.day-status-label[data-status="present"]')).toBeVisible();
+}
+
+export async function markFirstPastDayAbsent(page: Page): Promise<void> {
+  const pastDay = logDayRows(page).first();
+  await pastDay.locator('.day-card, ion-item').first().click();
+  await page.getByRole('button', { name: /falta|absent/i }).click();
+  await expect(pastDay.locator('.day-status-label[data-status="absent"]')).toBeVisible();
 }
 
 export async function switchLanguage(page: Page, lang: 'es' | 'en'): Promise<void> {
   await page.locator(`ion-segment-button[value="${lang}"]`).click();
   await expect.poll(async () => page.evaluate(() => localStorage.getItem('app_lang_v1'))).toBe(lang);
+}
+
+export async function enterCourseSelectMode(page: Page): Promise<void> {
+  await page
+    .locator('ion-button')
+    .filter({ has: page.locator('ion-icon[name="checkmark-done-outline"]') })
+    .click();
+}
+
+export async function goBackFromHeader(page: Page): Promise<void> {
+  await page
+    .locator('ion-button')
+    .filter({ has: page.locator('ion-icon[name="arrow-back-outline"]') })
+    .first()
+    .click();
 }
 
 export async function deleteCourseByName(page: Page, name: string): Promise<void> {

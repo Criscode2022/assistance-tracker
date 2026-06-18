@@ -1,6 +1,6 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { ActionSheetController, AlertController } from '@ionic/angular';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActionSheetController, AlertController, IonicModule } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LogPage } from './log.page';
 import { AttendanceService } from '../services/attendance.service';
@@ -10,16 +10,17 @@ import { createMockLanguageService, createMockTranslateService } from '../../tes
 
 describe('LogPage', () => {
   let component: LogPage;
+  let fixture: ComponentFixture<LogPage>;
   let svc: AttendanceService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     clearBrowserStorage();
     jasmine.clock().install();
     jasmine.clock().mockDate(new Date('2026-05-15T12:00:00'));
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [LogPage],
-      imports: [TranslateModule.forRoot()],
+      imports: [IonicModule.forRoot(), TranslateModule.forRoot()],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         AttendanceService,
@@ -28,20 +29,23 @@ describe('LogPage', () => {
         { provide: ActionSheetController, useValue: jasmine.createSpyObj('ActionSheetController', ['create']) },
         { provide: AlertController, useValue: jasmine.createSpyObj('AlertController', ['create']) },
       ],
-    });
+    }).compileComponents();
 
-    component = TestBed.createComponent(LogPage).componentInstance;
+    fixture = TestBed.createComponent(LogPage);
+    component = fixture.componentInstance;
     svc = TestBed.inject(AttendanceService);
+    spyOn((component as unknown as { cdr: ChangeDetectorRef }).cdr, 'detectChanges');
   });
 
   afterEach(() => {
+    fixture.destroy();
     jasmine.clock().uninstall();
     svc.clearAllData();
     clearBrowserStorage();
   });
 
   it('should load day entries for the current month', () => {
-    const course = createMockCourse();
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-05-31' });
     svc.saveCourse(course);
     svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
     component.ionViewWillEnter();
@@ -53,7 +57,10 @@ describe('LogPage', () => {
 
   it('should not open status picker for future days', async () => {
     const actionSheet = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-05-31' });
+    svc.saveCourse(course);
     component.ionViewWillEnter();
+
     const future = component.days.find((d) => d.isFuture);
     expect(future).toBeTruthy();
 
@@ -66,10 +73,11 @@ describe('LogPage', () => {
     expect(component.statusIcon({ status: 'absent' } as never)).toBe('close-circle');
     expect(component.statusColor({ status: 'late' } as never)).toBe('warning');
     expect(component.statusLabelKey({ status: 'unlogged' } as never)).toBe('COMMON.UNLOGGED');
+    expect(component.statusIcon({ status: 'cancelled' } as never)).toBe('ban');
   });
 
   it('should refresh day list when attendance record changes', () => {
-    const course = createMockCourse();
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-05-31' });
     svc.saveCourse(course);
     svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
     component.ionViewWillEnter();
@@ -81,8 +89,8 @@ describe('LogPage', () => {
   });
 
   it('should reload days after course change', () => {
-    const a = createMockCourse({ id: 'a' });
-    const b = createMockCourse({ id: 'b', name: 'B' });
+    const a = createMockCourse({ id: 'a', startDate: '2026-05-01', endDate: '2026-05-31' });
+    const b = createMockCourse({ id: 'b', name: 'B', startDate: '2026-05-01', endDate: '2026-05-31' });
     svc.saveCourse(a);
     svc.saveCourse(b);
     svc.setDayRecord('2026-05-05', { status: 'absent' }, 'a');
@@ -99,5 +107,51 @@ describe('LogPage', () => {
   it('should format fractional hours', () => {
     expect(component.formatHours(1)).toBe('1h');
     expect(component.formatHours(1.25)).toBe('1h 15min');
+  });
+
+  it('should refresh day status after action sheet dismisses', async () => {
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-05-31' });
+    svc.saveCourse(course);
+    component.ionViewWillEnter();
+
+    const target = component.days.find((d) => d.date === '2026-05-05');
+    expect(target?.status).toBe('unlogged');
+
+    spyOn(window, 'requestAnimationFrame').and.callFake((fn: FrameRequestCallback) => {
+      fn(0);
+      return 1;
+    });
+
+    const actionSheet = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
+    actionSheet.create.and.callFake(async (opts: { buttons: { icon?: string; handler?: () => void }[] }) => {
+      const presentBtn = opts.buttons.find((b) => b.icon === 'checkmark-circle-outline');
+      return {
+        present: async () => {
+          presentBtn?.handler?.();
+        },
+        onDidDismiss: async () => ({}),
+      } as unknown as HTMLIonActionSheetElement;
+    });
+
+    await component.openStatusPicker(target!);
+    expect(component.days.find((d) => d.date === '2026-05-05')?.status).toBe('present');
+  });
+
+  it('should quick toggle between present and absent', () => {
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-05-31' });
+    svc.saveCourse(course);
+    component.ionViewWillEnter();
+
+    spyOn(window, 'requestAnimationFrame').and.callFake((fn: FrameRequestCallback) => {
+      fn(0);
+      return 1;
+    });
+
+    const date = '2026-05-05';
+    component.quickToggle(component.days.find((d) => d.date === date)!);
+    expect(component.days.find((d) => d.date === date)?.status).toBe('present');
+
+    component.quickToggle(component.days.find((d) => d.date === date)!);
+    expect(component.days.find((d) => d.date === date)?.status).toBe('absent');
   });
 });

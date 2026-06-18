@@ -7,6 +7,7 @@ export interface SeedData {
   lang?: 'es' | 'en';
   theme?: 'light' | 'dark';
   appMode?: 'online' | 'offline';
+  onlineIntent?: boolean;
 }
 
 export async function seedLocalStorage(page: import('@playwright/test').Page, data: SeedData): Promise<void> {
@@ -22,7 +23,8 @@ export async function seedLocalStorage(page: import('@playwright/test').Page, da
     }
     if (payload.lang) localStorage.setItem('app_lang_v1', payload.lang);
     if (payload.theme) localStorage.setItem('theme', payload.theme);
-    if (payload.appMode) localStorage.setItem('app_mode', payload.appMode);
+    if (payload.appMode) localStorage.setItem('app_mode_v1', payload.appMode);
+    if (payload.onlineIntent) localStorage.setItem('online_mode_intent_v1', 'true');
   }, data);
 }
 

@@ -4,8 +4,8 @@ import { seedLocalStorage, makeCourse } from './helpers/storage';
 
 const course = makeCourse({
   name: 'MCP Workflow Test',
-  startDate: '2026-06-01',
-  endDate: '2026-06-30',
+  startDate: '2026-05-01',
+  endDate: '2026-05-31',
 });
 
 test.describe('Attendance Log', () => {
@@ -25,7 +25,7 @@ test.describe('Attendance Log', () => {
   });
 
   test('L-004: future days are not tappable', async ({ page }) => {
-    const futureDays = page.locator('ion-item-sliding[disabled]');
+    const futureDays = page.locator('app-log .days-sliding-list ion-item-sliding[disabled]');
     const count = await futureDays.count();
     if (count > 0) {
       await futureDays.first().locator('ion-item').click({ force: true });

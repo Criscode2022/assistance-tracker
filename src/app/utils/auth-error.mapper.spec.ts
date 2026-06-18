@@ -46,4 +46,9 @@ describe('auth-error.mapper', () => {
     err.code = 'user_not_found';
     expect(getAuthErrorKey(err)).toBe('AUTH.ERRORS.USER_NOT_FOUND');
   });
+
+  it('should map session errors by code', () => {
+    expect(getAuthErrorKey({ code: 'session_expired' })).toBe('AUTH.ERRORS.SESSION_EXPIRED');
+    expect(getAuthErrorKey({ code: 'session_not_found' })).toBe('AUTH.ERRORS.SESSION_NOT_FOUND');
+  });
 });
