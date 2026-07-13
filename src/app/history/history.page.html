@@ -19,13 +19,14 @@
 
 <ion-content>
 
-  <div *ngIf="courses.length === 0" class="empty-state">
+  <div *ngIf="courses.length === 0" class="page-shell empty-state">
     <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
     <h3>{{ 'HISTORY.NO_COURSES' | translate }}</h3>
     <p>{{ 'HISTORY.NO_COURSES_HINT' | translate }}</p>
   </div>
 
   <ng-container *ngIf="courses.length > 0">
+    <div class="page-shell history-page">
     <div *ngIf="monthStatsList.length === 0" class="empty-state">
       <div class="empty-icon-wrap"><ion-icon name="calendar-outline"></ion-icon></div>
       <h3>{{ 'HISTORY.NO_HISTORY' | translate }}</h3>
@@ -81,6 +82,7 @@
         </div>
 
       </div>
+    </div>
     </div>
   </ng-container>
 

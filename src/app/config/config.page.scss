@@ -2,6 +2,34 @@
   --background: var(--ion-background-color);
 }
 
+.config-page {
+  padding-bottom: 24px;
+}
+
+.config-prefs-row {
+  @media (min-width: 768px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+}
+
+.config-prefs-col {
+  .section-header {
+    @media (min-width: 768px) {
+      padding-top: 16px;
+    }
+  }
+
+  ion-card {
+    @media (min-width: 768px) {
+      margin-top: 0;
+      height: calc(100% - 2.5rem);
+    }
+  }
+}
+
 .section-header {
   display: flex;
   align-items: center;
@@ -12,6 +40,10 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--ion-color-primary);
+
+  @media (min-width: 768px) {
+    padding-inline: 0;
+  }
 
   ion-icon {
     font-size: 18px;
@@ -27,6 +59,10 @@
   border-radius: var(--app-radius-md);
   overflow: hidden;
   box-shadow: var(--app-shadow-md);
+
+  @media (min-width: 768px) {
+    margin-inline: 0;
+  }
 
   ion-item-divider {
     --background: var(--ion-background-color);
@@ -69,6 +105,10 @@
   border-radius: var(--app-radius-md);
   box-shadow: var(--app-shadow-md);
   --background: var(--app-surface-elevated);
+
+  @media (min-width: 768px) {
+    margin-inline: 0;
+  }
 }
 
 .theme-toggle-item {
@@ -260,6 +300,10 @@
 
 .action-row {
   padding: 12px 16px 4px;
+
+  @media (min-width: 768px) {
+    padding-inline: 0;
+  }
 }
 
 .test-btn {

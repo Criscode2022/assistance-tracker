@@ -1,0 +1,49 @@
+// ── Responsive layout tokens ───────────────────────────────────────────────────
+
+:root {
+  --app-bp-tablet: 768px;
+  --app-bp-desktop: 1024px;
+  --app-bp-wide: 1280px;
+
+  --app-shell-tablet: 720px;
+  --app-shell-desktop: 900px;
+  --app-shell-wide: 1040px;
+  --app-shell-narrow: 600px;
+  --app-shell-form: 960px;
+}
+
+// ── Shared page container ──────────────────────────────────────────────────────
+
+.page-shell {
+  width: 100%;
+  margin-inline: auto;
+  box-sizing: border-box;
+  padding-inline: 16px;
+
+  @media (min-width: 768px) {
+    max-width: var(--app-shell-tablet);
+    padding-inline: 20px;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: var(--app-shell-desktop);
+    padding-inline: 24px;
+  }
+
+  @media (min-width: 1280px) {
+    max-width: var(--app-shell-wide);
+    padding-inline: 28px;
+  }
+}
+
+.page-shell--narrow {
+  @media (min-width: 768px) {
+    max-width: var(--app-shell-narrow);
+  }
+}
+
+.page-shell--form {
+  @media (min-width: 1024px) {
+    max-width: var(--app-shell-form);
+  }
+}

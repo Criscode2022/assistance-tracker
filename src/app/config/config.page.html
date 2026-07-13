@@ -14,6 +14,7 @@
 
 <ion-content class="config-content">
 
+  <div class="page-shell page-shell--narrow config-page">
   <!-- ── Online mode ──────────────────────────────────────────────────────── -->
   <div class="section-header">
     <ion-icon name="cloud-outline"></ion-icon>
@@ -85,7 +86,9 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- ── Appearance (Tailwind) ────────────────────────────────────────────── -->
+  <!-- ── Appearance + Language (side by side on tablet+) ─────────────────── -->
+  <div class="config-prefs-row">
+  <div class="config-prefs-col">
   <div class="section-header">
     <ion-icon name="moon-outline"></ion-icon>
     <span>{{ 'THEME.TITLE' | translate }}</span>
@@ -107,8 +110,9 @@
       </ion-item>
     </ion-card-content>
   </ion-card>
+  </div>
 
-  <!-- ── Language ─────────────────────────────────────────────────────────── -->
+  <div class="config-prefs-col">
   <div class="section-header">
     <ion-icon name="language-outline"></ion-icon>
     <span>{{ 'LANGUAGE.TITLE' | translate }}</span>
@@ -126,6 +130,8 @@
       </ion-segment>
     </ion-card-content>
   </ion-card>
+  </div>
+  </div>
 
   <!-- ── Notifications ────────────────────────────────────────────────────── -->
   <div class="section-header">
@@ -306,5 +312,7 @@
   </ion-card>
 
   <div class="bottom-spacer"></div>
+
+  </div>
 
 </ion-content>

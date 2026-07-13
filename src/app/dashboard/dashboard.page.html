@@ -30,13 +30,14 @@
 
 <ion-content>
 
-  <div *ngIf="courses.length === 0" class="empty-state">
+  <div *ngIf="courses.length === 0" class="page-shell empty-state">
     <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
     <h3>{{ 'DASHBOARD.NO_COURSES' | translate }}</h3>
     <p [innerHTML]="'DASHBOARD.NO_COURSES_HINT' | translate"></p>
   </div>
 
   <ng-container *ngIf="stats && courses.length > 0">
+    <div class="page-shell dashboard-page">
 
     <div class="hero" [style.background]="heroGradient">
 
@@ -111,24 +112,21 @@
         </div>
       </div>
 
-    </div>
+      <div class="hours-card metric-card">
+        <div class="metric-head">
+          <span class="metric-title">{{ 'DASHBOARD.HOURS_TITLE' | translate }}</span>
+        </div>
+        <div class="metric-num">
+          {{ formatHours(stats.totalHoursAttended) }}<span class="metric-denom"> / {{ stats.expectedHoursToDate }}h</span>
+        </div>
+        <ion-progress-bar [value]="hoursBarValue" [color]="attendanceBarColor" class="metric-bar"></ion-progress-bar>
+        <div class="metric-foot metric-foot-ok">{{ 'DASHBOARD.HOURS_SUB' | translate }}</div>
+        <div class="lost-row" *ngIf="stats.totalLostMinutes > 0">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          {{ 'DASHBOARD.LOST_MINS' | translate:{ mins: stats.totalLostMinutes } }}
+        </div>
+      </div>
 
-    <div class="hours-card">
-      <div class="hours-header">
-        <div>
-          <div class="hours-title">{{ 'DASHBOARD.HOURS_TITLE' | translate }}</div>
-          <div class="hours-sub">{{ 'DASHBOARD.HOURS_SUB' | translate }}</div>
-        </div>
-        <div class="hours-value">
-          {{ formatHours(stats.totalHoursAttended) }}
-          <span class="hours-total"> / {{ stats.expectedHoursToDate }}h</span>
-        </div>
-      </div>
-      <ion-progress-bar [value]="hoursBarValue" [color]="attendanceBarColor" class="hours-bar"></ion-progress-bar>
-      <div class="lost-row" *ngIf="stats.totalLostMinutes > 0">
-        <ion-icon name="alert-circle-outline"></ion-icon>
-        {{ 'DASHBOARD.LOST_MINS' | translate:{ mins: stats.totalLostMinutes } }}
-      </div>
     </div>
 
     <div class="chips-row">
@@ -146,5 +144,6 @@
       </div>
     </div>
 
+    </div>
   </ng-container>
 </ion-content>

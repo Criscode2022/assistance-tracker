@@ -1,7 +1,20 @@
 // ── Form ─────────────────────────────────────────────────────────────────────
 
 .form-wrap {
-  padding: 16px 16px 80px;
+  padding: 16px 0 80px;
+
+  @media (min-width: 768px) {
+    padding-top: 20px;
+    padding-bottom: 88px;
+  }
+
+  @media (min-width: 1024px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+    padding-bottom: 96px;
+  }
 }
 
 .form-section {
@@ -10,6 +23,24 @@
   padding: 18px;
   margin-bottom: 12px;
   box-shadow: var(--app-shadow-md);
+
+  @media (min-width: 1024px) {
+    margin-bottom: 0;
+  }
+
+  &:nth-child(1) {
+    @media (min-width: 1024px) {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+  }
+
+  &:nth-child(2),
+  &:nth-child(3) {
+    @media (min-width: 1024px) {
+      grid-column: 2;
+    }
+  }
 }
 
 .form-section-label {
@@ -89,6 +120,21 @@ ion-segment {
 
 .modules-wrap {
   margin-top: 4px;
+
+  @media (min-width: 1024px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+
+    .module-row {
+      margin-bottom: 0;
+    }
+
+    .add-module-btn,
+    .field-error {
+      grid-column: 1 / -1;
+    }
+  }
 }
 
 .module-row {
@@ -123,6 +169,23 @@ ion-segment {
   flex-direction: column;
   gap: 6px;
 
+  @media (min-width: 1024px) {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 0;
+
+    ion-button {
+      flex: 0 1 auto;
+      min-width: 10rem;
+    }
+
+    .save-btn {
+      order: 2;
+    }
+  }
+
   .save-btn {
     --border-radius: 12px;
     font-weight: 700;
@@ -133,7 +196,7 @@ ion-segment {
 // ── Import card ───────────────────────────────────────────────────────────────
 
 .course-list-wrap {
-  padding: 12px 16px 0;
+  padding: 12px 0 0;
 }
 
 .import-card {
@@ -212,7 +275,19 @@ $course-tablet-min: 768px;
 }
 
 .course-list {
-  padding: 10px 16px 80px;
+  padding: 10px 0 80px;
+
+  @media (min-width: 768px) {
+    padding-bottom: 88px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    gap: 14px;
+  }
 
   ion-item-sliding {
     display: block;
@@ -221,6 +296,10 @@ $course-tablet-min: 768px;
     margin: 0 0 10px;
     border-radius: var(--app-radius-md);
     overflow: hidden;
+
+    @media (min-width: 768px) {
+      margin: 0;
+    }
 
     ion-item-options {
       z-index: 1;
@@ -265,6 +344,14 @@ $course-tablet-min: 768px;
 
     .course-label {
       min-width: 0;
+    }
+  }
+
+  .course-list {
+    @media (min-width: 768px) {
+      ion-item-sliding:hover .course-item {
+        --background: rgba(var(--ion-color-primary-rgb), 0.03);
+      }
     }
   }
 }

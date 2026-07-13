@@ -1,5 +1,21 @@
 .history-list {
-  padding: 16px 16px 24px;
+  padding: 16px 0 24px;
+
+  @media (min-width: 768px) {
+    padding: 20px 0 32px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+.history-page {
+  padding-top: 4px;
 }
 
 .month-card {
@@ -10,6 +26,18 @@
   box-shadow: var(--app-shadow-md);
   overflow: hidden;
   transition: transform 0.15s ease;
+
+  @media (min-width: 768px) {
+    margin-bottom: 0;
+    height: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--app-shadow-lg);
+    }
+  }
 
   &:active { transform: scale(0.99); }
 }

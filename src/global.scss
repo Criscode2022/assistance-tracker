@@ -25,6 +25,8 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+@import "./theme/responsive.scss";
+
 // ── Motion ────────────────────────────────────────────────────────────────────
 
 @keyframes appReveal {
@@ -51,6 +53,7 @@ body {
   font-family: var(--app-font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--app-page-atmosphere);
 }
 
 ion-title,
@@ -62,10 +65,12 @@ ion-title,
 
 // Atmospheric page background (warm parchment + soft teal/amber glow)
 ion-content {
-  --background:
-    radial-gradient(ellipse 90% 50% at 100% 0%, rgba(var(--ion-color-primary-rgb), 0.09), transparent 55%),
-    radial-gradient(ellipse 70% 45% at 0% 100%, rgba(var(--app-accent-rgb), 0.07), transparent 50%),
-    var(--ion-background-color);
+  --background: var(--app-page-atmosphere);
+}
+
+// Match tab footer gutters to the page so the floating bar has no color band beside it
+ion-tabs {
+  background: var(--app-page-atmosphere);
 }
 
 // ── Modern header ─────────────────────────────────────────────────────────────
@@ -134,6 +139,18 @@ ion-content {
     max-width: 58%;
   }
 
+  @media (min-width: 768px) {
+    .course-select {
+      max-width: none;
+      flex: 1;
+    }
+
+    .month-select {
+      flex-shrink: 0;
+      min-width: 9rem;
+    }
+  }
+
   .month-select {
     font-size: 0.8rem;
     font-weight: 600;
@@ -179,6 +196,19 @@ ion-tab-bar {
 .dark ion-tab-bar,
 .ion-palette-dark ion-tab-bar {
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 1024px) {
+  ion-tab-bar {
+    width: calc(100% - 48px);
+    max-width: var(--app-shell-wide);
+    margin-inline: auto;
+    border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
+    border: 1px solid var(--ion-color-light-shade);
+    border-bottom: none;
+    border-top: none;
+    padding-inline: 12px;
+  }
 }
 
 // ── Shared elevated surfaces ──────────────────────────────────────────────────
@@ -299,10 +329,11 @@ ion-item-sliding {
 .dark,
 .ion-palette-dark {
   ion-content {
-    --background:
-      radial-gradient(ellipse 90% 50% at 100% 0%, rgba(var(--ion-color-primary-rgb), 0.12), transparent 55%),
-      radial-gradient(ellipse 70% 45% at 0% 100%, rgba(var(--app-accent-rgb), 0.09), transparent 50%),
-      var(--ion-background-color);
+    --background: var(--app-page-atmosphere);
+  }
+
+  ion-tabs {
+    background: var(--app-page-atmosphere);
   }
 
   .section-header {

@@ -1,5 +1,9 @@
 .day-list {
   padding: 12px 0 24px;
+
+  @media (min-width: 768px) {
+    padding: 16px 0 32px;
+  }
 }
 
 .days-sliding-list {
@@ -41,6 +45,19 @@
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   border-left: 4px solid transparent;
+
+  @media (min-width: 768px) {
+    margin: 0 0 8px;
+    width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 15px 18px;
+
+    &:hover:not(.day-future) {
+      box-shadow: var(--app-shadow-md);
+    }
+  }
 
   &:active {
     transform: scale(0.98);

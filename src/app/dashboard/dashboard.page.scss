@@ -1,5 +1,10 @@
 // ── Hero ─────────────────────────────────────────────────────────────────────
 
+.dashboard-page {
+  padding-top: 12px;
+  padding-bottom: 28px;
+}
+
 .hero {
   position: relative;
   padding: 28px 20px 32px;
@@ -9,6 +14,17 @@
   border-radius: 0 0 var(--app-radius-lg) var(--app-radius-lg);
   overflow: hidden;
   box-shadow: var(--app-shadow-md);
+
+  @media (min-width: 768px) {
+    border-radius: var(--app-radius-lg);
+    margin-top: 4px;
+    padding: 32px 28px 36px;
+    gap: 28px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 36px 40px;
+  }
 
   &::before {
     content: '';
@@ -114,7 +130,17 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 18px 16px 0;
+  padding: 18px 0 0;
+
+  @media (min-width: 768px) {
+    gap: 14px;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
 }
 
 .metric-card {
@@ -204,66 +230,26 @@
 // ── Hours card ────────────────────────────────────────────────────────────────
 
 .hours-card {
-  background: var(--ion-card-background);
-  border-radius: var(--app-radius-md);
-  padding: 18px;
-  margin: 14px 16px 0;
-  box-shadow: var(--app-shadow-md);
-}
+  margin: 0;
 
-.hours-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.hours-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--ion-color-medium);
-}
-
-.hours-sub {
-  font-size: 0.68rem;
-  color: var(--ion-color-medium-shade);
-  margin-top: 3px;
-}
-
-.hours-value {
-  font-family: var(--app-font-display);
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--ion-text-color);
-
-  .hours-total {
-    font-family: var(--app-font-body);
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--ion-color-medium-shade);
+  @media (max-width: 1023px) {
+    grid-column: 1 / -1;
   }
-}
 
-.hours-bar {
-  height: 8px;
-  border-radius: 100px;
-  margin-bottom: 10px;
-}
+  .lost-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 8px;
+    font-size: 0.68rem;
+    color: var(--ion-color-warning-shade);
+    font-weight: 600;
+    background: rgba(var(--ion-color-warning-rgb), 0.1);
+    border-radius: var(--app-radius-sm);
 
-.lost-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.78rem;
-  color: var(--ion-color-warning-shade);
-  font-weight: 600;
-  padding: 8px 10px;
-  background: rgba(var(--ion-color-warning-rgb), 0.1);
-  border-radius: var(--app-radius-sm);
-
-  ion-icon { font-size: 1rem; }
+    ion-icon { font-size: 0.95rem; }
+  }
 }
 
 // ── Summary chips ─────────────────────────────────────────────────────────────
@@ -271,9 +257,14 @@
 .chips-row {
   display: flex;
   gap: 8px;
-  padding: 14px 16px 28px;
+  padding: 14px 0 8px;
   justify-content: center;
   flex-wrap: wrap;
+
+  @media (min-width: 768px) {
+    padding-top: 18px;
+    justify-content: flex-start;
+  }
 }
 
 .summary-chip {
