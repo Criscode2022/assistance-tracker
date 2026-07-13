@@ -19,6 +19,8 @@ export function createCourseFormModel(
     maxAbsences: 3,
     maxTardiness: 7,
     minAttendancePercent: 75,
+    periodMode: 'month',
+    modules: [],
     ...overrides,
   };
 }
@@ -34,6 +36,8 @@ export function createMockCourse(overrides: Partial<Course> = {}): Course {
     maxAbsences: 3,
     maxTardiness: 7,
     minAttendancePercent: 75,
+    periodMode: 'month',
+    modules: [],
     ...overrides,
   };
 }

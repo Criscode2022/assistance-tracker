@@ -76,6 +76,47 @@
   line-height: 1.35;
 }
 
+.field-hint {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  color: var(--ion-color-medium);
+  line-height: 1.4;
+}
+
+ion-segment {
+  margin-bottom: 14px;
+}
+
+.modules-wrap {
+  margin-top: 4px;
+}
+
+.module-row {
+  background: var(--ion-color-light);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.module-index {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ion-color-primary);
+}
+
+.add-module-btn {
+  margin-top: 4px;
+}
+
 .form-actions {
   margin-top: 4px;
   display: flex;

@@ -310,6 +310,62 @@ describe('CoursesPage', () => {
 
     });
 
+
+
+    it('should show inline errors when module dates fall outside course range', () => {
+
+      const modId = 'mod-test';
+
+      component.courseModel.set(
+
+        createCourseFormModel({
+
+          startDate: '2026-05-01',
+
+          endDate: '2026-05-31',
+
+          periodMode: 'module',
+
+          modules: [
+
+            {
+
+              id: modId,
+
+              name: 'Module A',
+
+              startDate: '2026-04-01',
+
+              endDate: '2026-06-15',
+
+            },
+
+          ],
+
+        }),
+
+      );
+
+      component.formSubmitted.set(true);
+
+
+
+      const startErrors = component.moduleFieldErrors(modId, 'startDate');
+
+      const endErrors = component.moduleFieldErrors(modId, 'endDate');
+
+
+
+      expect(startErrors.some((e) => e.kind === 'beforeCourse')).toBeTrue();
+
+      expect(endErrors.some((e) => e.kind === 'afterCourse')).toBeTrue();
+
+      expect(component.shouldShowModuleFieldErrors(modId, 'startDate')).toBeTrue();
+
+      expect(component.shouldShowModuleFieldErrors(modId, 'endDate')).toBeTrue();
+
+    });
+
   });
 
 

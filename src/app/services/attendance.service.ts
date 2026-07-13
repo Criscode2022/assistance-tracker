@@ -3,9 +3,12 @@ import { Subject } from 'rxjs';
 import {
   AttendanceStatus,
   Course,
+  CourseModule,
+  CoursePeriod,
   DayEntry,
   DayRecord,
   MonthStats,
+  PeriodMode,
 } from '../models/attendance.model';
 import { LanguageService } from './language.service';
 
@@ -95,12 +98,13 @@ export class AttendanceService {
   }
 
   saveCourse(course: Course): void {
-    const idx = this.courses.findIndex((c) => c.id === course.id);
+    const normalized = this.normalizeCourse(course);
+    const idx = this.courses.findIndex((c) => c.id === normalized.id);
     if (idx >= 0) {
-      this.courses[idx] = course;
+      this.courses[idx] = normalized;
     } else {
-      this.courses.push(course);
-      if (!this._selectedCourseId) this.selectedCourseId = course.id;
+      this.courses.push(normalized);
+      if (!this._selectedCourseId) this.selectedCourseId = normalized.id;
     }
     this.saveCourses();
   }
@@ -218,7 +222,17 @@ export class AttendanceService {
   }
 
   getWorkingDaysInMonth(month: string, startDate?: string, endDate?: string): string[] {
-    const [year, m] = month.split('-').map(Number);
+    return this.getWorkingDaysInRange(startDate, endDate, month);
+  }
+
+  getWorkingDaysInRange(
+    startDate?: string,
+    endDate?: string,
+    month?: string,
+  ): string[] {
+    const [year, m] = (month ?? startDate?.substring(0, 7) ?? this.getCurrentMonth())
+      .split('-')
+      .map(Number);
     const days: string[] = [];
     const cursor = new Date(year, m - 1, 1);
     while (cursor.getMonth() === m - 1) {
@@ -233,15 +247,125 @@ export class AttendanceService {
     return days;
   }
 
-  getDayEntriesForMonth(month: string, courseId?: string): DayEntry[] {
+  normalizeCourse(course: Course): Course {
+    const periodMode: PeriodMode = course.periodMode ?? 'month';
+    return {
+      ...course,
+      periodMode,
+      modules: periodMode === 'module' ? (course.modules ?? []) : [],
+    };
+  }
+
+  getPeriodMode(courseId?: string): PeriodMode {
+    const course = this.resolveCourse(courseId);
+    return course?.periodMode ?? 'month';
+  }
+
+  getPeriodsForCourse(courseId?: string): CoursePeriod[] {
+    const course = this.resolveCourse(courseId);
+    if (!course) {
+      const cur = this.getCurrentMonth();
+      return [{
+        key: cur,
+        label: this.lang.formatMonthYear(cur),
+        startDate: `${cur}-01`,
+        endDate: `${cur}-31`,
+      }];
+    }
+
+    if (course.periodMode === 'module' && course.modules?.length) {
+      return [...course.modules]
+        .sort((a, b) => a.startDate.localeCompare(b.startDate))
+        .map((mod) => ({
+          key: mod.id,
+          label: mod.name,
+          startDate: mod.startDate,
+          endDate: mod.endDate,
+        }))
+        .reverse();
+    }
+
+    return this.getCalendarMonthsForCourse(course).map((month) => ({
+      key: month,
+      label: this.lang.formatMonthYear(month),
+      startDate: `${month}-01`,
+      endDate: this.lastDayOfMonth(month),
+    }));
+  }
+
+  getCurrentPeriodKey(courseId?: string): string {
+    const periods = this.getPeriodsForCourse(courseId);
+    const today = this.getTodayString();
+    const current = periods.find(
+      (p) => today >= p.startDate && today <= p.endDate,
+    );
+    return current?.key ?? periods[0]?.key ?? this.getCurrentMonth();
+  }
+
+  getPeriodLabel(periodKey: string, courseId?: string): string {
+    const period = this.getPeriodsForCourse(courseId).find((p) => p.key === periodKey);
+    if (period) return period.label;
+    return periodKey.includes('-') ? this.lang.formatMonthYear(periodKey) : periodKey;
+  }
+
+  private resolveCourse(courseId?: string): Course | null {
     const cid = courseId ?? this._selectedCourseId ?? null;
     const course = cid ? this.getCourse(cid) : null;
-    const today = this.getTodayString();
-    const workingDays = this.getWorkingDaysInMonth(
+    return course ? this.normalizeCourse(course) : null;
+  }
+
+  private getCalendarMonthsForCourse(course: Course): string[] {
+    const [sy, sm] = course.startDate.substring(0, 7).split('-').map(Number);
+    const [ey, em] = course.endDate.substring(0, 7).split('-').map(Number);
+    const months: string[] = [];
+    let y = sy, mo = sm;
+    while (y < ey || (y === ey && mo <= em)) {
+      months.push(`${y}-${String(mo).padStart(2, '0')}`);
+      mo++;
+      if (mo > 12) { mo = 1; y++; }
+    }
+    return months.reverse();
+  }
+
+  private lastDayOfMonth(month: string): string {
+    const [year, m] = month.split('-').map(Number);
+    const last = new Date(year, m, 0).getDate();
+    return `${month}-${String(last).padStart(2, '0')}`;
+  }
+
+  private resolvePeriodBounds(
+    periodKey: string,
+    course: Course | null,
+  ): { startDate?: string; endDate?: string; month?: string } {
+    if (!course) return { month: periodKey };
+
+    if (course.periodMode === 'module') {
+      const mod = course.modules?.find((m) => m.id === periodKey);
+      if (mod) {
+        return { startDate: mod.startDate, endDate: mod.endDate };
+      }
+    }
+
+    const month = periodKey.includes('-') ? periodKey : this.getCurrentMonth();
+    return {
       month,
-      course?.startDate,
-      course?.endDate
-    );
+      startDate: course.startDate,
+      endDate: course.endDate,
+    };
+  }
+
+  getDayEntriesForMonth(month: string, courseId?: string): DayEntry[] {
+    return this.getDayEntriesForPeriod(month, courseId);
+  }
+
+  getDayEntriesForPeriod(periodKey: string, courseId?: string): DayEntry[] {
+    const cid = courseId ?? this._selectedCourseId ?? null;
+    const course = this.resolveCourse(cid ?? undefined);
+    const today = this.getTodayString();
+    const bounds = this.resolvePeriodBounds(periodKey, course);
+    const workingDays = bounds.month
+      ? this.getWorkingDaysInMonth(bounds.month, bounds.startDate, bounds.endDate)
+      : this.getWorkingDaysInRange(bounds.startDate, bounds.endDate);
     return workingDays.map((date) => {
       const d = new Date(date + 'T12:00:00');
       const locale = this.lang.localeId;
@@ -262,8 +386,12 @@ export class AttendanceService {
   }
 
   getMonthStats(month: string, courseId?: string): MonthStats {
+    return this.getPeriodStats(month, courseId);
+  }
+
+  getPeriodStats(periodKey: string, courseId?: string): MonthStats {
     const cid = courseId ?? this._selectedCourseId ?? null;
-    const course = cid ? this.getCourse(cid) : null;
+    const course = this.resolveCourse(cid ?? undefined);
 
     const maxAbsences = course?.maxAbsences ?? 3;
     const maxTardiness = course?.maxTardiness ?? 7;
@@ -271,11 +399,10 @@ export class AttendanceService {
     const hoursPerDay = course?.hoursPerDay ?? 5;
 
     const today = this.getTodayString();
-    const workingDays = this.getWorkingDaysInMonth(
-      month,
-      course?.startDate,
-      course?.endDate
-    );
+    const bounds = this.resolvePeriodBounds(periodKey, course);
+    const workingDays = bounds.month
+      ? this.getWorkingDaysInMonth(bounds.month, bounds.startDate, bounds.endDate)
+      : this.getWorkingDaysInRange(bounds.startDate, bounds.endDate);
     const totalWorkingDays = workingDays.length;
     const elapsedWorkingDays = workingDays.filter((d) => d <= today).length;
 
@@ -333,10 +460,10 @@ export class AttendanceService {
         latenessRemaining <= 2 ||
         attendancePercent < minAttendancePercent + 5);
 
-    const monthLabel = this.lang.formatMonthYear(month);
+    const monthLabel = this.getPeriodLabel(periodKey, cid ?? undefined);
 
     return {
-      month,
+      month: periodKey,
       monthLabel,
       totalWorkingDays,
       elapsedWorkingDays: effectiveElapsedDays,
@@ -398,19 +525,6 @@ export class AttendanceService {
   }
 
   getMonthsForCourse(courseId?: string): string[] {
-    const cid = courseId ?? this._selectedCourseId ?? null;
-    const course = cid ? this.getCourse(cid) : null;
-    if (!course) return [this.getCurrentMonth()];
-
-    const [sy, sm] = course.startDate.substring(0, 7).split('-').map(Number);
-    const [ey, em] = course.endDate.substring(0, 7).split('-').map(Number);
-    const months: string[] = [];
-    let y = sy, mo = sm;
-    while (y < ey || (y === ey && mo <= em)) {
-      months.push(`${y}-${String(mo).padStart(2, '0')}`);
-      mo++;
-      if (mo > 12) { mo = 1; y++; }
-    }
-    return months.reverse();
+    return this.getPeriodsForCourse(courseId).map((p) => p.key);
   }
 }

@@ -214,7 +214,104 @@
 
     <div class="form-section">
 
-      <div class="form-section-label">{{ 'COURSES.MONTHLY_LIMITS' | translate }}</div>
+      <div class="form-section-label">{{ 'COURSES.PERIOD_CONFIG' | translate }}</div>
+
+      <p class="field-hint">{{ 'COURSES.PERIOD_CONFIG_HINT' | translate }}</p>
+
+      <ion-segment [value]="courseModel().periodMode" (ionChange)="setPeriodMode($any($event.detail.value))">
+        <ion-segment-button value="month">
+          <ion-label>{{ 'COURSES.PERIOD_MODE_MONTH' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="module">
+          <ion-label>{{ 'COURSES.PERIOD_MODE_MODULE' | translate }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <div *ngIf="showModules()" class="modules-wrap">
+
+        <div class="module-row" *ngFor="let mod of courseModel().modules; trackBy: trackModuleById; let i = index">
+
+          <div class="module-head">
+            <span class="module-index">{{ 'COURSES.MODULE_LABEL' | translate:{ n: i + 1 } }}</span>
+            <ion-button
+              fill="clear"
+              color="danger"
+              size="small"
+              [disabled]="courseModel().modules.length <= 1"
+              (click)="removeModule(mod.id)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">{{ 'COURSES.MODULE_NAME' | translate }}</label>
+            <input
+              type="text"
+              class="modern-input"
+              [class.input-invalid]="shouldShowModuleFieldErrors(mod.id, 'name')"
+              [placeholder]="'COURSES.MODULE_NAME_PLACEHOLDER' | translate"
+              [value]="mod.name"
+              (input)="updateModule(mod.id, { name: $any($event.target).value })" />
+            @if (shouldShowModuleFieldErrors(mod.id, 'name')) {
+              @for (error of moduleFieldErrors(mod.id, 'name'); track error.kind) {
+                <p class="field-error">{{ error.message | translate }}</p>
+              }
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">{{ 'COURSES.MODULE_START' | translate }}</label>
+              <input
+                type="date"
+                class="modern-input"
+                [class.input-invalid]="shouldShowModuleFieldErrors(mod.id, 'startDate')"
+                [value]="mod.startDate"
+                (input)="updateModule(mod.id, { startDate: $any($event.target).value })" />
+              @if (shouldShowModuleFieldErrors(mod.id, 'startDate')) {
+                @for (error of moduleFieldErrors(mod.id, 'startDate'); track error.kind) {
+                  <p class="field-error">{{ error.message | translate:error.params }}</p>
+                }
+              }
+            </div>
+            <div class="form-field">
+              <label class="field-label">{{ 'COURSES.MODULE_END' | translate }}</label>
+              <input
+                type="date"
+                class="modern-input"
+                [class.input-invalid]="shouldShowModuleFieldErrors(mod.id, 'endDate')"
+                [value]="mod.endDate"
+                (input)="updateModule(mod.id, { endDate: $any($event.target).value })" />
+              @if (shouldShowModuleFieldErrors(mod.id, 'endDate')) {
+                @for (error of moduleFieldErrors(mod.id, 'endDate'); track error.kind) {
+                  <p class="field-error">{{ error.message | translate:error.params }}</p>
+                }
+              }
+            </div>
+          </div>
+
+        </div>
+
+        <ion-button expand="block" fill="outline" size="small" (click)="addModule()" class="add-module-btn">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          {{ 'COURSES.ADD_MODULE' | translate }}
+        </ion-button>
+
+        @if (formSubmitted() && periodModeSectionErrors().length) {
+          @for (error of periodModeSectionErrors(); track error.kind) {
+            <p class="field-error">{{ error.message | translate }}</p>
+          }
+        }
+
+      </div>
+
+    </div>
+
+
+
+    <div class="form-section">
+
+      <div class="form-section-label">{{ limitsSectionKey() | translate }}</div>
 
 
 
@@ -397,6 +494,8 @@
             <p class="course-range">{{ dateRangeLabel(course) }}</p>
 
             <div class="course-chips">
+
+              <span class="cchip">{{ periodModeLabel(course) }}</span>
 
               <span class="cchip">{{ 'COURSES.HOURS_DAY' | translate:{ hours: course.hoursPerDay } }}</span>
 

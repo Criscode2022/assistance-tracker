@@ -184,6 +184,52 @@ describe('AttendanceService', () => {
     expect(months).toEqual(['2026-06', '2026-05', '2026-04']);
   });
 
+  it('should list custom modules as periods', () => {
+    const course = createMockCourse({
+      periodMode: 'module',
+      modules: [
+        { id: 'mod-1', name: 'Module A', startDate: '2026-05-01', endDate: '2026-05-15' },
+        { id: 'mod-2', name: 'Module B', startDate: '2026-05-16', endDate: '2026-05-31' },
+      ],
+    });
+    svc.saveCourse(course);
+
+    const periods = svc.getPeriodsForCourse(course.id);
+    expect(periods.map((p) => p.key)).toEqual(['mod-2', 'mod-1']);
+    expect(periods[0].label).toBe('Module B');
+  });
+
+  it('should compute stats within a module date range', () => {
+    const course = createMockCourse({
+      periodMode: 'module',
+      maxAbsences: 1,
+      modules: [
+        { id: 'mod-1', name: 'Module A', startDate: '2026-05-01', endDate: '2026-05-15' },
+        { id: 'mod-2', name: 'Module B', startDate: '2026-05-16', endDate: '2026-05-31' },
+      ],
+    });
+    svc.saveCourse(course);
+    svc.setDayRecord('2026-05-05', { status: 'absent' }, course.id);
+    svc.setDayRecord('2026-05-06', { status: 'absent' }, course.id);
+
+    const mod1 = svc.getPeriodStats('mod-1', course.id);
+    expect(mod1.absentDays).toBe(2);
+    expect(mod1.overallStatus).toBe('failed');
+
+    jasmine.clock().mockDate(new Date('2026-05-25T12:00:00'));
+    svc.setDayRecord('2026-05-20', { status: 'absent' }, course.id);
+    const mod2 = svc.getPeriodStats('mod-2', course.id);
+    expect(mod2.absentDays).toBe(1);
+    expect(mod2.absencesRemaining).toBe(0);
+  });
+
+  it('should default imported courses to month period mode', () => {
+    const course = createMockCourse({ periodMode: undefined, modules: undefined });
+    const normalized = svc.normalizeCourse(course);
+    expect(normalized.periodMode).toBe('month');
+    expect(normalized.modules).toEqual([]);
+  });
+
   it('should calc default exit time from course schedule', () => {
     const course = createMockCourse({ startTime: '08:00', hoursPerDay: 4 });
     expect(svc.calcDefaultExitTime(course)).toBe('12:00');

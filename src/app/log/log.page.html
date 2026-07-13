@@ -16,11 +16,11 @@
     </ion-select>
     <ion-select
       slot="end"
-      [(ngModel)]="selectedMonth"
-      (ionChange)="onMonthChange()"
+      [(ngModel)]="selectedPeriod"
+      (ionChange)="onPeriodChange()"
       interface="popover"
       class="month-select">
-      <ion-select-option *ngFor="let m of availableMonths" [value]="m">{{ monthLabelFor(m) }}</ion-select-option>
+      <ion-select-option *ngFor="let p of availablePeriods" [value]="p.key">{{ periodLabelFor(p) }}</ion-select-option>
     </ion-select>
   </ion-toolbar>
 </ion-header>
@@ -41,7 +41,7 @@
     </div>
 
     <div class="day-list" *ngIf="days.length > 0">
-      <div class="month-section-label">{{ monthLabel }}</div>
+      <div class="month-section-label">{{ periodLabel }}</div>
 
       <ion-list lines="none" class="days-sliding-list">
         <ion-item-sliding

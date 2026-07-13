@@ -20,10 +20,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
-import { Course, DayRecord } from '../models/attendance.model';
+import { Course, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
 
 export interface CourseExport {
-  version: 1;
+  version: 1 | 2;
   exported: string;
   courses: Course[];
   records: Record<string, Record<string, DayRecord>>;
@@ -39,6 +39,16 @@ export interface CourseFormModel {
   maxAbsences: number;
   maxTardiness: number;
   minAttendancePercent: number;
+  periodMode: PeriodMode;
+  modules: CourseModule[];
+}
+
+type ModuleField = 'name' | 'startDate' | 'endDate';
+
+interface ModuleFieldError {
+  kind: string;
+  message: string;
+  params?: Record<string, string>;
 }
 
 type CourseFormField = keyof CourseFormModel;
@@ -52,6 +62,7 @@ const VALIDATED_COURSE_FIELDS = [
   'maxAbsences',
   'maxTardiness',
   'minAttendancePercent',
+  'periodMode',
 ] as const satisfies readonly CourseFormField[];
 
 const courseFormSchema = (schemaPath: SchemaPathTree<CourseFormModel>) => {
@@ -79,6 +90,36 @@ const courseFormSchema = (schemaPath: SchemaPathTree<CourseFormModel>) => {
   min(schemaPath.maxTardiness, 0, { message: 'COURSES.ERRORS.MAX_TARDINESS_MIN' });
   min(schemaPath.minAttendancePercent, 1, { message: 'COURSES.ERRORS.MIN_ATTENDANCE_MIN' });
   max(schemaPath.minAttendancePercent, 100, { message: 'COURSES.ERRORS.MIN_ATTENDANCE_MAX' });
+
+  validate(schemaPath.periodMode, (ctx) => {
+    if (ctx.value() === 'module') {
+      const modules = ctx.valueOf(schemaPath.modules);
+      if (!modules.length) {
+        return { kind: 'modulesRequired', message: 'COURSES.ERRORS.MODULES_REQUIRED' };
+      }
+      for (const mod of modules) {
+        if (!mod.name.trim()) {
+          return { kind: 'moduleName', message: 'COURSES.ERRORS.MODULE_NAME_REQUIRED' };
+        }
+        if (!mod.startDate || !mod.endDate) {
+          return { kind: 'moduleDates', message: 'COURSES.ERRORS.MODULE_DATES_REQUIRED' };
+        }
+        if (mod.endDate < mod.startDate) {
+          return { kind: 'moduleRange', message: 'COURSES.ERRORS.MODULE_END_BEFORE_START' };
+        }
+      }
+      const start = ctx.valueOf(schemaPath.startDate);
+      const end = ctx.valueOf(schemaPath.endDate);
+      if (start && end) {
+        for (const mod of modules) {
+          if (mod.startDate < start || mod.endDate > end) {
+            return { kind: 'moduleBounds', message: 'COURSES.ERRORS.MODULE_OUT_OF_RANGE' };
+          }
+        }
+      }
+    }
+    return null;
+  });
 };
 
 @Component({
@@ -110,7 +151,17 @@ export class CoursesPage implements OnDestroy {
     return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
   });
 
+  readonly limitsSectionKey = computed(() =>
+    this.courseModel().periodMode === 'module'
+      ? 'COURSES.PERIOD_LIMITS'
+      : 'COURSES.MONTHLY_LIMITS',
+  );
+
+  readonly showModules = computed(() => this.courseModel().periodMode === 'module');
+
   readonly formSubmitted = signal(false);
+
+  private readonly moduleFieldTouched = new Set<string>();
 
   protected selectMode = signal(false);
   protected selectedIds = new Set<string>();
@@ -172,12 +223,150 @@ export class CoursesPage implements OnDestroy {
       maxAbsences: 3,
       maxTardiness: 7,
       minAttendancePercent: 75,
+      periodMode: 'month',
+      modules: [],
+    };
+  }
+
+  protected setPeriodMode(mode: PeriodMode): void {
+    const current = this.courseModel();
+    if (current.periodMode === mode) return;
+    const modules =
+      mode === 'module' && !current.modules.length
+        ? [this.defaultModule(current.startDate, current.endDate)]
+        : current.modules;
+    this.courseModel.set({ ...current, periodMode: mode, modules });
+  }
+
+  protected addModule(): void {
+    const current = this.courseModel();
+    this.courseModel.set({
+      ...current,
+      modules: [...current.modules, this.defaultModule(current.startDate, current.endDate)],
+    });
+  }
+
+  protected removeModule(id: string): void {
+    const current = this.courseModel();
+    this.courseModel.set({
+      ...current,
+      modules: current.modules.filter((m) => m.id !== id),
+    });
+  }
+
+  protected updateModule(id: string, patch: Partial<CourseModule>): void {
+    const current = this.courseModel();
+    const mod = current.modules.find((m) => m.id === id);
+    if (!mod) return;
+
+    for (const key of Object.keys(patch) as ModuleField[]) {
+      this.moduleFieldTouched.add(`${id}:${key}`);
+      Object.assign(mod, { [key]: patch[key as keyof CourseModule] });
+    }
+
+    // Shallow copy so the signal updates without replacing module row objects.
+    this.courseModel.set({ ...current, modules: current.modules });
+  }
+
+  trackModuleById(_index: number, mod: CourseModule): string {
+    return mod.id;
+  }
+
+  shouldShowModuleFieldErrors(moduleId: string, field: ModuleField): boolean {
+    return (
+      (this.moduleFieldTouched.has(`${moduleId}:${field}`) || this.formSubmitted()) &&
+      this.moduleFieldErrors(moduleId, field).length > 0
+    );
+  }
+
+  moduleFieldErrors(moduleId: string, field: ModuleField): ModuleFieldError[] {
+    const data = this.courseModel();
+    if (data.periodMode !== 'module') return [];
+
+    const mod = data.modules.find((m) => m.id === moduleId);
+    if (!mod) return [];
+
+    const errors: ModuleFieldError[] = [];
+    const courseStart = data.startDate;
+    const courseEnd = data.endDate;
+
+    if (field === 'name' && !mod.name.trim()) {
+      errors.push({ kind: 'required', message: 'COURSES.ERRORS.MODULE_NAME_REQUIRED' });
+    }
+
+    if (field === 'startDate') {
+      if (!mod.startDate) {
+        errors.push({ kind: 'required', message: 'COURSES.ERRORS.MODULE_START_REQUIRED' });
+      } else {
+        if (courseStart && mod.startDate < courseStart) {
+          errors.push({
+            kind: 'beforeCourse',
+            message: 'COURSES.ERRORS.MODULE_DATE_BEFORE_COURSE',
+            params: { date: this.lang.formatShortDate(courseStart) },
+          });
+        }
+        if (courseEnd && mod.startDate > courseEnd) {
+          errors.push({
+            kind: 'afterCourse',
+            message: 'COURSES.ERRORS.MODULE_DATE_AFTER_COURSE',
+            params: { date: this.lang.formatShortDate(courseEnd) },
+          });
+        }
+        if (mod.endDate && mod.startDate > mod.endDate) {
+          errors.push({ kind: 'range', message: 'COURSES.ERRORS.MODULE_END_BEFORE_START' });
+        }
+      }
+    }
+
+    if (field === 'endDate') {
+      if (!mod.endDate) {
+        errors.push({ kind: 'required', message: 'COURSES.ERRORS.MODULE_END_REQUIRED' });
+      } else {
+        if (courseStart && mod.endDate < courseStart) {
+          errors.push({
+            kind: 'beforeCourse',
+            message: 'COURSES.ERRORS.MODULE_DATE_BEFORE_COURSE',
+            params: { date: this.lang.formatShortDate(courseStart) },
+          });
+        }
+        if (courseEnd && mod.endDate > courseEnd) {
+          errors.push({
+            kind: 'afterCourse',
+            message: 'COURSES.ERRORS.MODULE_DATE_AFTER_COURSE',
+            params: { date: this.lang.formatShortDate(courseEnd) },
+          });
+        }
+        if (mod.startDate && mod.endDate < mod.startDate) {
+          errors.push({ kind: 'range', message: 'COURSES.ERRORS.MODULE_END_BEFORE_START' });
+        }
+      }
+    }
+
+    return errors;
+  }
+
+  periodModeSectionErrors(): ModuleFieldError[] {
+    return this.fieldErrors('periodMode')
+      .filter((e) => e.kind === 'modulesRequired')
+      .map((e) => ({
+        kind: e.kind,
+        message: e.message ?? 'COURSES.ERRORS.MODULES_REQUIRED',
+      }));
+  }
+
+  private defaultModule(startDate = '', endDate = ''): CourseModule {
+    return {
+      id: this.svc.generateId(),
+      name: '',
+      startDate,
+      endDate,
     };
   }
 
   private resetCourseModel(): void {
     this.courseModel.set(this.blankForm());
     this.formSubmitted.set(false);
+    this.moduleFieldTouched.clear();
   }
 
   private fieldState(field: CourseFormField) {
@@ -204,17 +393,21 @@ export class CoursesPage implements OnDestroy {
 
  protected openEdit(course: Course): void {
     this.editingId = course.id;
+    const normalized = this.svc.normalizeCourse(course);
     this.courseModel.set({
-      name: course.name,
-      startDate: course.startDate,
-      endDate: course.endDate,
-      startTime: course.startTime ?? '09:00',
-      hoursPerDay: course.hoursPerDay,
-      maxAbsences: course.maxAbsences,
-      maxTardiness: course.maxTardiness,
-      minAttendancePercent: course.minAttendancePercent,
+      name: normalized.name,
+      startDate: normalized.startDate,
+      endDate: normalized.endDate,
+      startTime: normalized.startTime ?? '09:00',
+      hoursPerDay: normalized.hoursPerDay,
+      maxAbsences: normalized.maxAbsences,
+      maxTardiness: normalized.maxTardiness,
+      minAttendancePercent: normalized.minAttendancePercent,
+      periodMode: normalized.periodMode ?? 'month',
+      modules: normalized.modules ?? [],
     });
     this.formSubmitted.set(false);
+    this.moduleFieldTouched.clear();
     this.showForm = true;
   }
 
@@ -222,6 +415,7 @@ export class CoursesPage implements OnDestroy {
     this.showForm = false;
     this.editingId = null;
     this.formSubmitted.set(false);
+    this.moduleFieldTouched.clear();
   }
 
   protected saveForm(): void {
@@ -239,6 +433,8 @@ export class CoursesPage implements OnDestroy {
       maxAbsences: Number(data.maxAbsences),
       maxTardiness: Number(data.maxTardiness),
       minAttendancePercent: Number(data.minAttendancePercent),
+      periodMode: data.periodMode,
+      modules: data.periodMode === 'module' ? data.modules : [],
     };
     this.svc.saveCourse(course);
     this.courses = this.svc.getCourses();
@@ -400,7 +596,7 @@ export class CoursesPage implements OnDestroy {
       records[id] = this.svc.getRecordsForCourse(id);
     }
     const data: CourseExport = {
-      version: 1,
+      version: 2,
       exported: new Date().toISOString(),
       courses,
       records,
@@ -464,7 +660,7 @@ export class CoursesPage implements OnDestroy {
           handler: () => {
             for (const course of exportData.courses) {
               const recs = exportData.records[course.id] ?? {};
-              this.svc.importCourseData(course, recs);
+              this.svc.importCourseData(this.normalizeImportedCourse(course), recs);
             }
             this.courses = this.svc.getCourses();
             this.showToast(
@@ -486,10 +682,24 @@ export class CoursesPage implements OnDestroy {
     if (typeof data !== 'object' || data === null) return false;
     const d = data as Record<string, unknown>;
     return (
-      d['version'] === 1 &&
+      (d['version'] === 1 || d['version'] === 2) &&
       Array.isArray(d['courses']) &&
       typeof d['records'] === 'object'
     );
+  }
+
+  private normalizeImportedCourse(course: Course): Course {
+    return this.svc.normalizeCourse({
+      ...course,
+      periodMode: course.periodMode ?? 'month',
+      modules: course.modules ?? [],
+    });
+  }
+
+  protected periodModeLabel(course: Course): string {
+    return course.periodMode === 'module'
+      ? this.translate.instant('COURSES.PERIOD_MODE_MODULE')
+      : this.translate.instant('COURSES.PERIOD_MODE_MONTH');
   }
 
   private async showToast(message: string, color: string): Promise<void> {

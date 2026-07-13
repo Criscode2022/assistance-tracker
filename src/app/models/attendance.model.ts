@@ -19,6 +19,23 @@ export interface DayEntry {
   isFuture: boolean;
 }
 
+export type PeriodMode = 'month' | 'module';
+
+export interface CourseModule {
+  id: string;
+  name: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+}
+
+/** A selectable attendance period (calendar month or custom module). */
+export interface CoursePeriod {
+  key: string;
+  label: string;
+  startDate: string;
+  endDate: string;
+}
+
 export interface MonthStats {
   month: string;
   monthLabel: string;
@@ -52,4 +69,8 @@ export interface Course {
   maxAbsences: number;
   maxTardiness: number;
   minAttendancePercent: number;
+  /** Default: calendar months. Module: custom date ranges. */
+  periodMode?: PeriodMode;
+  /** Required when periodMode is 'module'. */
+  modules?: CourseModule[];
 }

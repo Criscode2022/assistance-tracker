@@ -161,7 +161,7 @@
     "NO_COURSES": "Sin cursos",
     "NO_COURSES_HINT": "Crea un curso para ver el historial.",
     "NO_HISTORY": "Sin historial",
-    "NO_HISTORY_HINT": "Registra asistencia para ver el historial mensual.",
+    "NO_HISTORY_HINT": "Registra asistencia para ver el historial por periodo.",
     "ATTENDANCE_LABEL": "Asistencia"
   },
   "COURSES": {
@@ -177,7 +177,18 @@
     "ENTRY_TIME": "Hora de entrada",
     "EXIT_TIME": "Hora de salida",
     "HOURS_PER_DAY": "Horas por día",
+    "PERIOD_CONFIG": "Periodos de asistencia",
+    "PERIOD_CONFIG_HINT": "Elige meses naturales (predeterminado) o define módulos personalizados con sus propias fechas.",
+    "PERIOD_MODE_MONTH": "Por mes",
+    "PERIOD_MODE_MODULE": "Por módulo",
+    "PERIOD_LIMITS": "Límites por periodo",
     "MONTHLY_LIMITS": "Límites mensuales",
+    "MODULE_LABEL": "Módulo {{n}}",
+    "MODULE_NAME": "Nombre del módulo",
+    "MODULE_NAME_PLACEHOLDER": "p. ej. Módulo 1",
+    "MODULE_START": "Fecha inicio",
+    "MODULE_END": "Fecha fin",
+    "ADD_MODULE": "Añadir módulo",
     "MAX_ABSENCES": "Máx. faltas",
     "MAX_TARDINESS": "Máx. impuntualidades",
     "MIN_ATTENDANCE": "% asistencia mínima",
@@ -214,7 +225,16 @@
       "MAX_ABSENCES_MIN": "No puede ser negativo.",
       "MAX_TARDINESS_MIN": "No puede ser negativo.",
       "MIN_ATTENDANCE_MIN": "La asistencia mínima es 1%.",
-      "MIN_ATTENDANCE_MAX": "La asistencia máxima es 100%."
+      "MIN_ATTENDANCE_MAX": "La asistencia máxima es 100%.",
+      "MODULES_REQUIRED": "Añade al menos un módulo.",
+      "MODULE_NAME_REQUIRED": "Introduce un nombre para cada módulo.",
+      "MODULE_START_REQUIRED": "Selecciona una fecha de inicio para este módulo.",
+      "MODULE_END_REQUIRED": "Selecciona una fecha de fin para este módulo.",
+      "MODULE_DATES_REQUIRED": "Indica fecha de inicio y fin en cada módulo.",
+      "MODULE_END_BEFORE_START": "La fecha fin debe ser igual o posterior a la de inicio.",
+      "MODULE_DATE_BEFORE_COURSE": "No puede ser anterior a la fecha de inicio del curso ({{date}}).",
+      "MODULE_DATE_AFTER_COURSE": "No puede ser posterior a la fecha de fin del curso ({{date}}).",
+      "MODULE_OUT_OF_RANGE": "Las fechas del módulo deben estar dentro del rango del curso."
     }
   }
 }

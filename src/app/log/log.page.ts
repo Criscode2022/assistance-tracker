@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
-import { Course, DayEntry, DayRecord } from '../models/attendance.model';
+import { Course, CoursePeriod, DayEntry, DayRecord } from '../models/attendance.model';
 
 @Component({
   selector: 'app-log',
@@ -16,8 +16,8 @@ export class LogPage implements OnDestroy {
   days: DayEntry[] = [];
   courses: Course[] = [];
   selectedCourseId: string | null = null;
-  selectedMonth = '';
-  availableMonths: string[] = [];
+  selectedPeriod = '';
+  availablePeriods: CoursePeriod[] = [];
 
   private langSub?: Subscription;
   private dataSub?: Subscription;
@@ -47,35 +47,35 @@ export class LogPage implements OnDestroy {
   private refreshView(): void {
     this.courses = this.svc.getCourses();
     this.selectedCourseId = this.svc.selectedCourseId;
-    this.refreshMonths();
+    this.refreshPeriods();
     this.loadDays();
     this.cdr.detectChanges();
   }
 
-  private refreshMonths(): void {
-    this.availableMonths = this.svc.getMonthsForCourse(
+  private refreshPeriods(): void {
+    this.availablePeriods = this.svc.getPeriodsForCourse(
       this.selectedCourseId ?? undefined
     );
-    const cur = this.svc.getCurrentMonth();
-    this.selectedMonth = this.availableMonths.includes(cur)
-      ? cur
-      : (this.availableMonths[0] ?? cur);
+    const current = this.svc.getCurrentPeriodKey(this.selectedCourseId ?? undefined);
+    this.selectedPeriod = this.availablePeriods.some((p) => p.key === current)
+      ? current
+      : (this.availablePeriods[0]?.key ?? current);
   }
 
   onCourseChange(): void {
     this.svc.selectedCourseId = this.selectedCourseId;
-    this.refreshMonths();
+    this.refreshPeriods();
     this.loadDays();
   }
 
-  onMonthChange(): void {
+  onPeriodChange(): void {
     this.loadDays();
   }
 
   loadDays(): void {
     this.ngZone.run(() => {
-      this.days = this.svc.getDayEntriesForMonth(
-        this.selectedMonth,
+      this.days = this.svc.getDayEntriesForPeriod(
+        this.selectedPeriod,
         this.selectedCourseId ?? undefined
       );
     });
@@ -93,12 +93,12 @@ export class LogPage implements OnDestroy {
     return `${day.date}:${day.status}:${day.entryTime ?? ''}:${day.exitTime ?? ''}`;
   }
 
-  monthLabelFor(m: string): string {
-    return this.lang.formatMonthYear(m);
+  periodLabelFor(period: CoursePeriod): string {
+    return period.label;
   }
 
-  get monthLabel(): string {
-    return this.selectedMonth ? this.monthLabelFor(this.selectedMonth) : '';
+  get periodLabel(): string {
+    return this.availablePeriods.find((p) => p.key === this.selectedPeriod)?.label ?? '';
   }
 
   private saveDayRecord(date: string, record: DayRecord): void {

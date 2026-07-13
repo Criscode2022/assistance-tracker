@@ -49,9 +49,9 @@ export class HistoryPage implements OnDestroy {
   }
 
   load(): void {
-    const months = this.svc.getMonthsForCourse(this.selectedCourseId ?? undefined);
-    this.monthStatsList = months.map((m) =>
-      this.svc.getMonthStats(m, this.selectedCourseId ?? undefined)
+    const periods = this.svc.getPeriodsForCourse(this.selectedCourseId ?? undefined);
+    this.monthStatsList = periods.map((p) =>
+      this.svc.getPeriodStats(p.key, this.selectedCourseId ?? undefined)
     );
   }
 

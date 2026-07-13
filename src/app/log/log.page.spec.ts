@@ -52,7 +52,7 @@ describe('LogPage', () => {
 
     const day = component.days.find((d) => d.date === '2026-05-05');
     expect(day?.status).toBe('present');
-    expect(component.monthLabel).toContain('2026-05');
+    expect(component.periodLabel).toContain('2026-05');
   });
 
   it('should not open status picker for future days', async () => {

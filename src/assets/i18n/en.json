@@ -161,7 +161,7 @@
     "NO_COURSES": "No courses",
     "NO_COURSES_HINT": "Create a course to view history.",
     "NO_HISTORY": "No history",
-    "NO_HISTORY_HINT": "Log attendance to see monthly history.",
+    "NO_HISTORY_HINT": "Log attendance to see period history.",
     "ATTENDANCE_LABEL": "Attendance"
   },
   "COURSES": {
@@ -177,7 +177,18 @@
     "ENTRY_TIME": "Entry time",
     "EXIT_TIME": "Exit time",
     "HOURS_PER_DAY": "Hours per day",
+    "PERIOD_CONFIG": "Attendance periods",
+    "PERIOD_CONFIG_HINT": "Choose calendar months (default) or define custom modules with their own date ranges.",
+    "PERIOD_MODE_MONTH": "By month",
+    "PERIOD_MODE_MODULE": "By module",
+    "PERIOD_LIMITS": "Period limits",
     "MONTHLY_LIMITS": "Monthly limits",
+    "MODULE_LABEL": "Module {{n}}",
+    "MODULE_NAME": "Module name",
+    "MODULE_NAME_PLACEHOLDER": "e.g. Module 1",
+    "MODULE_START": "Start date",
+    "MODULE_END": "End date",
+    "ADD_MODULE": "Add module",
     "MAX_ABSENCES": "Max absences",
     "MAX_TARDINESS": "Max tardiness",
     "MIN_ATTENDANCE": "Min attendance %",
@@ -214,7 +225,16 @@
       "MAX_ABSENCES_MIN": "Cannot be negative.",
       "MAX_TARDINESS_MIN": "Cannot be negative.",
       "MIN_ATTENDANCE_MIN": "Minimum attendance is 1%.",
-      "MIN_ATTENDANCE_MAX": "Maximum attendance is 100%."
+      "MIN_ATTENDANCE_MAX": "Maximum attendance is 100%.",
+      "MODULES_REQUIRED": "Add at least one module.",
+      "MODULE_NAME_REQUIRED": "Enter a name for each module.",
+      "MODULE_START_REQUIRED": "Select a start date for this module.",
+      "MODULE_END_REQUIRED": "Select an end date for this module.",
+      "MODULE_DATES_REQUIRED": "Set start and end dates for each module.",
+      "MODULE_END_BEFORE_START": "End date must be on or after the start date.",
+      "MODULE_DATE_BEFORE_COURSE": "Cannot be before the course start date ({{date}}).",
+      "MODULE_DATE_AFTER_COURSE": "Cannot be after the course end date ({{date}}).",
+      "MODULE_OUT_OF_RANGE": "Module dates must fall within the course date range."
     }
   }
 }

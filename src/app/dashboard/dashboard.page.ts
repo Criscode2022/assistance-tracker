@@ -3,7 +3,7 @@ import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
-import { Course, MonthStats } from '../models/attendance.model';
+import { Course, CoursePeriod, MonthStats } from '../models/attendance.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,8 +15,8 @@ export class DashboardPage implements OnDestroy {
   stats!: MonthStats;
   courses: Course[] = [];
   selectedCourseId: string | null = null;
-  selectedMonth = '';
-  availableMonths: string[] = [];
+  selectedPeriod = '';
+  availablePeriods: CoursePeriod[] = [];
 
   readonly CIRC = 251.33;
 
@@ -45,34 +45,34 @@ export class DashboardPage implements OnDestroy {
   private refreshView(): void {
     this.courses = this.svc.getCourses();
     this.selectedCourseId = this.svc.selectedCourseId;
-    this.refreshMonths();
+    this.refreshPeriods();
     this.loadStats();
     this.cdr.detectChanges();
   }
 
-  private refreshMonths(): void {
-    this.availableMonths = this.svc.getMonthsForCourse(
+  private refreshPeriods(): void {
+    this.availablePeriods = this.svc.getPeriodsForCourse(
       this.selectedCourseId ?? undefined
     );
-    const cur = this.svc.getCurrentMonth();
-    this.selectedMonth = this.availableMonths.includes(cur)
-      ? cur
-      : (this.availableMonths[0] ?? cur);
+    const current = this.svc.getCurrentPeriodKey(this.selectedCourseId ?? undefined);
+    this.selectedPeriod = this.availablePeriods.some((p) => p.key === current)
+      ? current
+      : (this.availablePeriods[0]?.key ?? current);
   }
 
   onCourseChange(): void {
     this.svc.selectedCourseId = this.selectedCourseId;
-    this.refreshMonths();
+    this.refreshPeriods();
     this.loadStats();
   }
 
-  onMonthChange(): void {
+  onPeriodChange(): void {
     this.loadStats();
   }
 
   loadStats(): void {
-    this.stats = this.svc.getMonthStats(
-      this.selectedMonth,
+    this.stats = this.svc.getPeriodStats(
+      this.selectedPeriod,
       this.selectedCourseId ?? undefined
     );
   }
@@ -134,8 +134,8 @@ export class DashboardPage implements OnDestroy {
     return this.svc.getCourse(this.selectedCourseId ?? '')?.name ?? '';
   }
 
-  monthLabelFor(m: string): string {
-    return this.lang.formatMonthYear(m);
+  periodLabelFor(period: CoursePeriod): string {
+    return period.label;
   }
 
   formatHours(h: number): string {

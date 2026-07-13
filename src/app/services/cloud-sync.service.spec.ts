@@ -137,13 +137,47 @@ describe('CloudSyncService', () => {
     expect(neon.client.from.calls.count()).toBe(fromCallsBefore);
   });
 
-  it('should schedule push when online and data changes', async () => {
-    appMode.enableOnlineMode();
-    attendance.saveCourse(createMockCourse());
+  it('should map module mode courses from cloud', async () => {
+    const downloadNeon = createMockNeonService(
+      { user: { id: 'user-1' } },
+      createMockNeonClient({
+        courses: () =>
+          Promise.resolve({
+            data: [
+              {
+                id: 'cloud-mod',
+                name: 'Modular course',
+                start_date: '2026-05-01',
+                end_date: '2026-05-31',
+                start_time: '09:00',
+                hours_per_day: 5,
+                max_absences: 3,
+                max_tardiness: 7,
+                min_attendance_percent: 75,
+                period_mode: 'module',
+                modules: [
+                  { id: 'm1', name: 'Part 1', startDate: '2026-05-01', endDate: '2026-05-15' },
+                ],
+              },
+            ],
+            error: null,
+          }),
+        attendance_records: () => Promise.resolve({ data: [], error: null }),
+        user_preferences: () =>
+          Promise.resolve({ data: { selected_course_id: 'cloud-mod' }, error: null }),
+      }),
+    );
+    const downloadSync = new CloudSyncService(
+      attendance,
+      appMode,
+      downloadNeon as unknown as NeonService,
+    );
 
-    jasmine.clock().tick(500);
-    await Promise.resolve();
+    await downloadSync.downloadFromCloud();
 
-    expect(neon.client.from).toHaveBeenCalled();
+    const course = attendance.getCourse('cloud-mod');
+    expect(course?.periodMode).toBe('module');
+    expect(course?.modules?.length).toBe(1);
+    expect(course?.modules?.[0].name).toBe('Part 1');
   });
 });

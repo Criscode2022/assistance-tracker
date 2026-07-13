@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AttendanceService } from './attendance.service';
 import { AppModeService } from './app-mode.service';
 import { NeonService } from './neon.service';
-import { Course, DayRecord } from '../models/attendance.model';
+import { Course, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
 
 interface DbCourse {
   id: string;
@@ -15,6 +15,8 @@ interface DbCourse {
   max_absences: number;
   max_tardiness: number;
   min_attendance_percent: number;
+  period_mode?: string;
+  modules?: CourseModule[] | string;
 }
 
 interface DbRecord {
@@ -210,6 +212,7 @@ export class CloudSyncService {
   }
 
   private toDbCourse(c: Course, userId: string): DbCourse {
+    const periodMode: PeriodMode = c.periodMode ?? 'month';
     return {
       id: c.id,
       user_id: userId,
@@ -221,10 +224,14 @@ export class CloudSyncService {
       max_absences: c.maxAbsences,
       max_tardiness: c.maxTardiness,
       min_attendance_percent: c.minAttendancePercent,
+      period_mode: periodMode,
+      modules: periodMode === 'module' ? (c.modules ?? []) : [],
     };
   }
 
   private fromDbCourse(c: DbCourse): Course {
+    const periodMode: PeriodMode = c.period_mode === 'module' ? 'module' : 'month';
+    const modules = this.parseModules(c.modules);
     return {
       id: c.id,
       name: c.name,
@@ -235,7 +242,23 @@ export class CloudSyncService {
       maxAbsences: c.max_absences,
       maxTardiness: c.max_tardiness,
       minAttendancePercent: Number(c.min_attendance_percent),
+      periodMode,
+      modules: periodMode === 'module' ? modules : [],
     };
+  }
+
+  private parseModules(raw: CourseModule[] | string | undefined): CourseModule[] {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw) as CourseModule[];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
   }
 
   private toDbRecord(courseId: string, date: string, record: DayRecord, userId: string): DbRecord {
