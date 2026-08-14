@@ -56,7 +56,7 @@ test.describe('Dashboard', () => {
     await clickTab(page, 'dashboard');
     await expect(page.locator('.course-name')).toHaveText('MCP Workflow Test');
     await expect(page.getByText(/1 presentes|1 present/i)).toBeVisible();
-    await expect(page.locator('.hours-value')).toContainText('5h');
+    await expect(page.locator('.hours-card .metric-num')).toContainText('5h');
   });
 });
 

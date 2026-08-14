@@ -25,10 +25,17 @@ jobs:
       - name: Install dependencies
         run: npm ci --include=optional
 
-      - name: Run tests
+      - name: Run unit tests
         run: npm run test:ci
         env:
           CHROME_BIN: chrome
+          CI: true
+
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          CHROME_BIN: chrome
+          CI: true
 
   e2e-tests:
     name: Playwright E2E tests

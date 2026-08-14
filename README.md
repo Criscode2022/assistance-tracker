@@ -330,6 +330,16 @@ ionic serve
 
 The app opens at `http://localhost:8100` with live reload.
 
+### Testing
+
+```bash
+npm run test:ci            # unitarios (Jasmine + Karma)
+npm run test:integration   # rutas + persistencia localStorage
+npm run e2e:ci             # Playwright (Chromium)
+```
+
+Docs: [`docs/12-testing.md`](./docs/12-testing.md). GitHub Actions (`.github/workflows/test.yml`) corre las tres capas sin Neon.
+
 ### Environment variables (optional, for cloud sync)
 
 Create a `.env` file at the project root:
