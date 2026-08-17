@@ -51,7 +51,7 @@ describe('DashboardPage', () => {
     expect(component.courseName).toBe(course.name);
   });
 
-  it('should refresh stats when course changes', () => {
+  it('should persist the course and refresh stats when the selection changes', () => {
     const a = createMockCourse({ id: 'a', name: 'Curso A' });
     const b = createMockCourse({ id: 'b', name: 'Curso B' });
     svc.saveCourse(a);
@@ -63,8 +63,21 @@ describe('DashboardPage', () => {
     component.selectedCourseId = 'b';
     component.onCourseChange();
 
+    expect(svc.selectedCourseId).toBe('b');
     expect(component.stats.presentDays).toBe(1);
     expect(component.stats.absentDays).toBe(0);
+  });
+
+  it('should ignore a no-op course change', () => {
+    const course = createMockCourse({ id: 'a', name: 'Curso A' });
+    svc.saveCourse(course);
+    component.ionViewWillEnter();
+
+    const loadStats = spyOn(component, 'loadStats').and.callThrough();
+    component.onCourseChange();
+
+    expect(svc.selectedCourseId).toBe('a');
+    expect(loadStats).not.toHaveBeenCalled();
   });
 
   it('should compute progress arc from attendance percent', () => {

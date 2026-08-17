@@ -61,9 +61,10 @@ export class DashboardPage implements OnDestroy {
   }
 
   onCourseChange(): void {
+    if (this.svc.selectedCourseId === this.selectedCourseId) {
+      return;
+    }
     this.svc.selectedCourseId = this.selectedCourseId;
-    this.refreshPeriods();
-    this.loadStats();
   }
 
   onPeriodChange(): void {
