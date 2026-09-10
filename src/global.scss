@@ -201,7 +201,7 @@ ion-tab-bar {
 @media (min-width: 1024px) {
   ion-tab-bar {
     width: calc(100% - 48px);
-    max-width: var(--app-shell-wide);
+    max-width: var(--app-shell-dashboard-wide);
     margin-inline: auto;
     border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
     border: 1px solid var(--ion-color-light-shade);

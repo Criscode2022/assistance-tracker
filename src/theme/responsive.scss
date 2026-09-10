@@ -10,6 +10,9 @@
   --app-shell-wide: 1040px;
   --app-shell-narrow: 600px;
   --app-shell-form: 960px;
+  --app-shell-dashboard-tablet: 1080px;
+  --app-shell-dashboard-desktop: 1180px;
+  --app-shell-dashboard-wide: 1280px;
 }
 
 // ── Shared page container ──────────────────────────────────────────────────────
@@ -45,5 +48,19 @@
 .page-shell--form {
   @media (min-width: 1024px) {
     max-width: var(--app-shell-form);
+  }
+}
+
+.page-shell--dashboard {
+  @media (min-width: 768px) {
+    max-width: var(--app-shell-dashboard-tablet);
+  }
+
+  @media (min-width: 1024px) {
+    max-width: var(--app-shell-dashboard-desktop);
+  }
+
+  @media (min-width: 1280px) {
+    max-width: var(--app-shell-dashboard-wide);
   }
 }
