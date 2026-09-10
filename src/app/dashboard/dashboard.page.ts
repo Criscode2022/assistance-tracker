@@ -3,7 +3,7 @@ import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
-import { Course, CoursePeriod, MonthStats } from '../models/attendance.model';
+import { Course, CoursePeriod, DayEntry, MonthStats } from '../models/attendance.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +17,7 @@ export class DashboardPage implements OnDestroy {
   selectedCourseId: string | null = null;
   selectedPeriod = '';
   availablePeriods: CoursePeriod[] = [];
+  days: DayEntry[] = [];
 
   readonly CIRC = 251.33;
 
@@ -75,6 +76,12 @@ export class DashboardPage implements OnDestroy {
       this.selectedPeriod,
       this.selectedCourseId ?? undefined
     );
+    this.days = this.selectedPeriod
+      ? this.svc.getDayEntriesForPeriod(
+          this.selectedPeriod,
+          this.selectedCourseId ?? undefined
+        )
+      : [];
   }
 
   get progressArc(): number {
@@ -164,5 +171,25 @@ export class DashboardPage implements OnDestroy {
 
   openConfig(): void {
     this.nav.navigateForward('/config');
+  }
+
+  openLog(): void {
+    this.nav.navigateRoot('/log');
+  }
+
+  weekdayColumn(day: DayEntry): number {
+    const dow = new Date(day.date + 'T12:00:00').getDay();
+    return dow === 0 ? 7 : dow;
+  }
+
+  dayNumber(day: DayEntry): string {
+    return day.date.slice(8, 10);
+  }
+
+  get weekdayLabels(): string[] {
+    return [1, 2, 3, 4, 5].map((dow) => {
+      const d = new Date(`2026-06-0${dow}T12:00:00`);
+      return d.toLocaleDateString(this.lang.localeId, { weekday: 'short' });
+    });
   }
 }

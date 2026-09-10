@@ -25,7 +25,7 @@ describe('DashboardPage', () => {
       providers: [
         AttendanceService,
         { provide: LanguageService, useValue: createMockLanguageService() },
-        { provide: NavController, useValue: jasmine.createSpyObj('NavController', ['navigateForward']) },
+        { provide: NavController, useValue: jasmine.createSpyObj('NavController', ['navigateForward', 'navigateRoot']) },
       ],
     });
 
@@ -99,5 +99,26 @@ describe('DashboardPage', () => {
     const nav = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     component.openConfig();
     expect(nav.navigateForward).toHaveBeenCalledWith('/config');
+  });
+
+  it('should load working days for the selected period', () => {
+    const course = createMockCourse();
+    svc.saveCourse(course);
+    svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
+    component.ionViewWillEnter();
+
+    expect(component.days.length).toBeGreaterThan(0);
+    expect(component.days.some((d) => d.date === '2026-05-05' && d.status === 'present')).toBeTrue();
+  });
+
+  it('should map weekday columns from Monday to Friday', () => {
+    expect(component.weekdayColumn({ date: '2026-05-04' } as never)).toBe(1);
+    expect(component.weekdayColumn({ date: '2026-05-08' } as never)).toBe(5);
+  });
+
+  it('should navigate to the log from the period board', () => {
+    const nav = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    component.openLog();
+    expect(nav.navigateRoot).toHaveBeenCalledWith('/log');
   });
 });

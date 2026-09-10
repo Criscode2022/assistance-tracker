@@ -146,6 +146,35 @@
       </div>
     </div>
 
+    <div class="period-board" *ngIf="days.length > 0">
+      <div class="period-board-head">
+        <div>
+          <div class="period-kicker">{{ 'DASHBOARD.PERIOD_DAYS' | translate }}</div>
+          <div class="period-title">{{ stats.monthLabel }}</div>
+        </div>
+        <button type="button" class="period-link" (click)="openLog()">
+          {{ 'DASHBOARD.OPEN_LOG' | translate }}
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="period-weekdays">
+        <span *ngFor="let label of weekdayLabels">{{ label }}</span>
+      </div>
+      <div class="period-grid">
+        <button
+          type="button"
+          *ngFor="let day of days"
+          class="period-day"
+          [attr.data-status]="day.status"
+          [class.is-today]="day.isToday"
+          [class.is-future]="day.isFuture"
+          [style.grid-column]="weekdayColumn(day)"
+          (click)="openLog()">
+          <span class="period-day-num">{{ dayNumber(day) }}</span>
+        </button>
+      </div>
+    </div>
+
     </div>
   </ng-container>
 </ion-content>

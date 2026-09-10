@@ -84,6 +84,7 @@ test.describe('Dashboard layout', () => {
     const metrics = await page.locator('.metrics-grid').boundingBox();
     expect(hero && metrics).toBeTruthy();
     expect(metrics!.y).toBeGreaterThan(hero!.y + hero!.height - 8);
+    await expect(page.locator('.period-board')).toBeHidden();
   });
 
   test('D-041: tablet places hero beside metrics', async ({ page }) => {
@@ -96,6 +97,8 @@ test.describe('Dashboard layout', () => {
     expect(hero && metrics).toBeTruthy();
     expect(hero!.x + hero!.width).toBeLessThanOrEqual(metrics!.x + 8);
     expect(Math.abs(hero!.y - metrics!.y)).toBeLessThan(48);
+    await expect(page.locator('.period-board')).toBeVisible();
+    await expect(page.locator('.period-day').first()).toBeVisible();
   });
 
   test('D-042: desktop shows three metric cards in a row', async ({ page }) => {
@@ -110,6 +113,9 @@ test.describe('Dashboard layout', () => {
     expect(tardiness!.x).toBeGreaterThan(absences!.x + absences!.width - 8);
     expect(hours!.x).toBeGreaterThan(tardiness!.x + tardiness!.width - 8);
     expect(Math.abs(absences!.y - hours!.y)).toBeLessThan(24);
+    await expect(page.locator('.period-board')).toBeVisible();
+    await page.locator('.period-link').click();
+    await expect(page).toHaveURL(/\/log/);
   });
 });
 
