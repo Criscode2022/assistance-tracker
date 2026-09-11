@@ -1,5 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthPage } from './auth.page';
@@ -17,9 +18,11 @@ describe('AuthPage', () => {
   let fixture: ComponentFixture<AuthPage>;
   let attendance: AttendanceService;
   let authFlowNav: jasmine.SpyObj<AuthFlowNavigationService>;
+  let queryParams: Record<string, string>;
 
   beforeEach(async () => {
     clearBrowserStorage();
+    queryParams = {};
 
     await TestBed.configureTestingModule({
       declarations: [AuthPage],
@@ -37,6 +40,16 @@ describe('AuthPage', () => {
         {
           provide: AuthFlowNavigationService,
           useValue: jasmine.createSpyObj('AuthFlowNavigationService', ['exitToDashboard']),
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: {
+                get: (key: string) => queryParams[key] ?? null,
+              },
+            },
+          },
         },
       ],
     }).compileComponents();
@@ -77,5 +90,19 @@ describe('AuthPage', () => {
   it('should exit auth flow to dashboard on back', () => {
     component.goBack();
     expect(authFlowNav.exitToDashboard).toHaveBeenCalled();
+  });
+
+  it('should open the sign-in tab from the query param', () => {
+    queryParams['tab'] = 'signin';
+    component.ngOnInit();
+    expect(component.tab).toBe('signin');
+  });
+
+  it('should prefer tab=signin over the local-data signup default', () => {
+    attendance.saveCourse(createMockCourse());
+    queryParams['tab'] = 'signin';
+    component.ngOnInit();
+    expect(component.hasOfflineData).toBeTrue();
+    expect(component.tab).toBe('signin');
   });
 });

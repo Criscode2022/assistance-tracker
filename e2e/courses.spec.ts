@@ -74,7 +74,7 @@ test.describe('Courses — Import validation', () => {
   });
 
   test('IE-008: invalid JSON shows error toast', async ({ page }) => {
-    await page.locator('input[type="file"]').setInputFiles({
+    await page.locator('app-empty-courses input[type="file"]').setInputFiles({
       name: 'bad.json',
       mimeType: 'application/json',
       buffer: Buffer.from('not json'),

@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AttendanceService } from '../services/attendance.service';
@@ -33,10 +34,16 @@ export class AuthPage implements OnInit {
     private translate: TranslateService,
     private authFlowNav: AuthFlowNavigationService,
     private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.hasOfflineData = this.attendance.hasLocalData();
+    const requestedTab = this.route.snapshot.queryParamMap.get('tab');
+    if (requestedTab === 'signin' || requestedTab === 'signup') {
+      this.tab = requestedTab;
+      return;
+    }
     if (this.hasOfflineData) {
       this.tab = 'signup';
     }

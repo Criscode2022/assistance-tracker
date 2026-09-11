@@ -21,15 +21,9 @@ import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
-import { Course, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
+import { Course, CourseExport, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
 import { CREATE_COURSE_NAV } from '../constants/empty-courses';
-
-export interface CourseExport {
-  version: 1 | 2;
-  exported: string;
-  courses: Course[];
-  records: Record<string, Record<string, DayRecord>>;
-}
+import { CourseImportService } from '../services/course-import.service';
 
 /** Form model shape (no id — assigned on save). */
 export interface CourseFormModel {
@@ -198,6 +192,7 @@ export class CoursesPage implements OnDestroy {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router,
+    private courseImport: CourseImportService,
   ) {
     this.langSub = this.lang.onLangChange().subscribe(() => this.refreshCourses());
     this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshCourses());
@@ -635,80 +630,7 @@ export class CoursesPage implements OnDestroy {
   }
 
   async onFileSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    let raw: string;
-    try {
-      raw = await file.text();
-    } catch {
-      await this.showToast(this.translate.instant('COURSES.FILE_READ_ERROR'), 'danger');
-      return;
-    }
-
-    let data: unknown;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      await this.showToast(this.translate.instant('COURSES.FILE_JSON_ERROR'), 'danger');
-      return;
-    }
-
-    if (!this.isValidExport(data)) {
-      await this.showToast(this.translate.instant('COURSES.FILE_FORMAT_ERROR'), 'danger');
-      return;
-    }
-
-    const exportData = data as CourseExport;
-    const count = exportData.courses.length;
-
-    const al = await this.alert.create({
-      header: this.translate.instant('COURSES.IMPORT_HEADER'),
-      message: count === 1
-        ? this.translate.instant('COURSES.IMPORT_MSG_ONE')
-        : this.translate.instant('COURSES.IMPORT_MSG_MANY', { count }),
-      buttons: [
-        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: this.translate.instant('COMMON.IMPORT'),
-          handler: () => {
-            for (const course of exportData.courses) {
-              const recs = exportData.records[course.id] ?? {};
-              this.svc.importCourseData(this.normalizeImportedCourse(course), recs);
-            }
-            this.courses = this.svc.getCourses();
-            this.showToast(
-              count === 1
-                ? this.translate.instant('COURSES.IMPORT_SUCCESS_ONE')
-                : this.translate.instant('COURSES.IMPORT_SUCCESS_MANY', { count }),
-              'success'
-            );
-          },
-        },
-      ],
-    });
-    await al.present();
-    await al.onDidDismiss();
-    this.refreshCourses();
-  }
-
-  private isValidExport(data: unknown): boolean {
-    if (typeof data !== 'object' || data === null) return false;
-    const d = data as Record<string, unknown>;
-    return (
-      (d['version'] === 1 || d['version'] === 2) &&
-      Array.isArray(d['courses']) &&
-      typeof d['records'] === 'object'
-    );
-  }
-
-  private normalizeImportedCourse(course: Course): Course {
-    return this.svc.normalizeCourse({
-      ...course,
-      periodMode: course.periodMode ?? 'month',
-      modules: course.modules ?? [],
-    });
+    await this.courseImport.importFromInputEvent(event);
   }
 
   protected periodModeLabel(course: Course): string {
