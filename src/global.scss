@@ -315,6 +315,11 @@ ion-item-sliding {
     font-weight: 700;
     text-transform: none;
     letter-spacing: 0.01em;
+
+    ion-icon[slot='start'] {
+      margin-inline-start: 0;
+      margin-inline-end: 10px;
+    }
   }
 
   .empty-state-actions {
