@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, AlertOptions, ToastController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CourseExport } from '../models/attendance.model';
 import { AttendanceService } from './attendance.service';
@@ -26,8 +26,10 @@ describe('CourseImportService', () => {
     toastPresent = jasmine.createSpy('present').and.resolveTo();
 
     alertCtrl = jasmine.createSpyObj('AlertController', ['create']);
-    alertCtrl.create.and.callFake(async (opts: { buttons?: Array<{ role?: string; handler?: () => void }> }) => {
-      importHandler = opts.buttons?.find((button) => button.role !== 'cancel')?.handler;
+    alertCtrl.create.and.callFake(async (opts?: AlertOptions) => {
+      const buttons = opts?.buttons ?? [];
+      const confirm = buttons.find((button) => typeof button !== 'string' && button.role !== 'cancel');
+      importHandler = typeof confirm === 'object' ? confirm.handler as (() => void) | undefined : undefined;
       return {
         present: () => Promise.resolve(),
         onDidDismiss: () => Promise.resolve({}),
