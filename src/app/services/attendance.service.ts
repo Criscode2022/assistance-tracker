@@ -12,6 +12,8 @@ import {
 } from '../models/attendance.model';
 import { LanguageService } from './language.service';
 
+const SELECTED_PERIOD_KEY = 'selected_period_v1';
+
 @Injectable({ providedIn: 'root' })
 export class AttendanceService {
   // Records keyed by courseId → date → DayRecord
@@ -112,6 +114,7 @@ export class AttendanceService {
   deleteCourse(id: string): void {
     this.courses = this.courses.filter((c) => c.id !== id);
     delete this.records[id];
+    this.clearSelectedPeriodKey(id);
     if (this._selectedCourseId === id)
       this.selectedCourseId = this.courses[0]?.id ?? null;
     this.saveCourses();
@@ -300,6 +303,60 @@ export class AttendanceService {
       (p) => today >= p.startDate && today <= p.endDate,
     );
     return current?.key ?? periods[0]?.key ?? this.getCurrentMonth();
+  }
+
+  /**
+   * Period the user last picked for this course in the current browser session.
+   * Falls back to the current calendar period when nothing valid is stored.
+   */
+  getSelectedPeriodKey(courseId?: string): string {
+    const cid = courseId ?? this._selectedCourseId ?? undefined;
+    const periods = this.getPeriodsForCourse(cid);
+    const stored = cid ? this.readPeriodMap()[cid] : undefined;
+    if (stored && periods.some((p) => p.key === stored)) {
+      return stored;
+    }
+    const current = this.getCurrentPeriodKey(cid);
+    return periods.some((p) => p.key === current)
+      ? current
+      : (periods[0]?.key ?? current);
+  }
+
+  setSelectedPeriodKey(periodKey: string, courseId?: string): void {
+    const cid = courseId ?? this._selectedCourseId;
+    if (!cid || !periodKey) return;
+    const map = this.readPeriodMap();
+    map[cid] = periodKey;
+    this.writePeriodMap(map);
+  }
+
+  clearSelectedPeriodKey(courseId?: string): void {
+    if (!courseId) {
+      sessionStorage.removeItem(SELECTED_PERIOD_KEY);
+      return;
+    }
+    const map = this.readPeriodMap();
+    if (!(courseId in map)) return;
+    delete map[courseId];
+    this.writePeriodMap(map);
+  }
+
+  private readPeriodMap(): Record<string, string> {
+    try {
+      const raw = sessionStorage.getItem(SELECTED_PERIOD_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw) as unknown;
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        return {};
+      }
+      return parsed as Record<string, string>;
+    } catch {
+      return {};
+    }
+  }
+
+  private writePeriodMap(map: Record<string, string>): void {
+    sessionStorage.setItem(SELECTED_PERIOD_KEY, JSON.stringify(map));
   }
 
   getPeriodLabel(periodKey: string, courseId?: string): string {
@@ -521,6 +578,7 @@ export class AttendanceService {
     localStorage.removeItem('attendance_v1');
     localStorage.removeItem('selected_course_id');
     localStorage.removeItem('notification_settings_v1');
+    this.clearSelectedPeriodKey();
     this.notifyChange();
   }
 

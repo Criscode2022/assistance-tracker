@@ -242,4 +242,32 @@ describe('AttendanceService', () => {
     expect(svc.hasLocalData()).toBeFalse();
     expect(localStorage.getItem('courses_v1')).toBeNull();
   });
+
+  it('should remember the selected period for the browser session', () => {
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-06-30' });
+    svc.saveCourse(course);
+
+    expect(svc.getSelectedPeriodKey(course.id)).toBe('2026-05');
+
+    svc.setSelectedPeriodKey('2026-06', course.id);
+    expect(svc.getSelectedPeriodKey(course.id)).toBe('2026-06');
+    expect(sessionStorage.getItem('selected_period_v1')).toContain('2026-06');
+  });
+
+  it('should ignore a stored period that is no longer valid for the course', () => {
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-05-31' });
+    svc.saveCourse(course);
+    svc.setSelectedPeriodKey('2026-06', course.id);
+
+    expect(svc.getSelectedPeriodKey(course.id)).toBe('2026-05');
+  });
+
+  it('should clear stored periods when local data is wiped', () => {
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-06-30' });
+    svc.saveCourse(course);
+    svc.setSelectedPeriodKey('2026-06', course.id);
+
+    svc.clearAllData();
+    expect(sessionStorage.getItem('selected_period_v1')).toBeNull();
+  });
 });

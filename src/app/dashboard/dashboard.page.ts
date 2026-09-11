@@ -54,10 +54,9 @@ export class DashboardPage implements OnDestroy {
     this.availablePeriods = this.svc.getPeriodsForCourse(
       this.selectedCourseId ?? undefined
     );
-    const current = this.svc.getCurrentPeriodKey(this.selectedCourseId ?? undefined);
-    this.selectedPeriod = this.availablePeriods.some((p) => p.key === current)
-      ? current
-      : (this.availablePeriods[0]?.key ?? current);
+    this.selectedPeriod = this.svc.getSelectedPeriodKey(
+      this.selectedCourseId ?? undefined
+    );
   }
 
   onCourseChange(): void {
@@ -67,6 +66,10 @@ export class DashboardPage implements OnDestroy {
   }
 
   onPeriodChange(): void {
+    this.svc.setSelectedPeriodKey(
+      this.selectedPeriod,
+      this.selectedCourseId ?? undefined
+    );
     this.loadStats();
   }
 

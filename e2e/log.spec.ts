@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gotoTab, logDayRows, markFirstPastDayPresent } from './helpers/navigation';
+import { clickTab, gotoTab, logDayRows, markFirstPastDayPresent, selectMonthPeriod } from './helpers/navigation';
 import { seedLocalStorage, makeCourse } from './helpers/storage';
 
 const course = makeCourse({
@@ -31,5 +31,28 @@ test.describe('Attendance Log', () => {
       await futureDays.first().locator('ion-item').click({ force: true });
       await expect(page.locator('ion-action-sheet')).not.toBeVisible();
     }
+  });
+});
+
+test.describe('Attendance Log — selected month', () => {
+  test('L-040: marking a day keeps the selected month', async ({ page }) => {
+    const multiMonth = makeCourse({
+      name: 'Curso varios meses',
+      startDate: '2026-05-01',
+      endDate: '2026-09-30',
+    });
+    await seedLocalStorage(page, { courses: [multiMonth], selectedCourseId: multiMonth.id });
+    await gotoTab(page, 'log');
+
+    await selectMonthPeriod(page, /mayo de 2026|may 2026/i);
+    await expect(page.locator('.month-section-label')).toContainText(/mayo|may/i);
+
+    await markFirstPastDayPresent(page);
+
+    await expect(page.locator('.month-section-label')).toContainText(/mayo|may/i);
+    await expect(page.locator('ion-select.month-select')).toContainText(/mayo|may/i);
+
+    await clickTab(page, 'dashboard');
+    await expect(page.locator('ion-select.month-select')).toContainText(/mayo|may/i);
   });
 });

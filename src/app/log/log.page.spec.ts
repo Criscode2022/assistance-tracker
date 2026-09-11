@@ -154,4 +154,27 @@ describe('LogPage', () => {
     component.quickToggle(component.days.find((d) => d.date === date)!);
     expect(component.days.find((d) => d.date === date)?.status).toBe('absent');
   });
+
+  it('should keep the selected month after changing a day status', () => {
+    jasmine.clock().mockDate(new Date('2026-06-15T12:00:00'));
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-06-30' });
+    svc.saveCourse(course);
+    component.ionViewWillEnter();
+    expect(component.selectedPeriod).toBe('2026-06');
+
+    spyOn(window, 'requestAnimationFrame').and.callFake((fn: FrameRequestCallback) => {
+      fn(0);
+      return 1;
+    });
+
+    component.selectedPeriod = '2026-05';
+    component.onPeriodChange();
+    expect(component.days.some((d) => d.date.startsWith('2026-05'))).toBeTrue();
+
+    const mayDay = component.days.find((d) => d.date === '2026-05-05')!;
+    component.quickToggle(mayDay);
+
+    expect(component.selectedPeriod).toBe('2026-05');
+    expect(component.days.find((d) => d.date === '2026-05-05')?.status).toBe('present');
+  });
 });
