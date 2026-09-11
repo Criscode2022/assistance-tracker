@@ -45,14 +45,14 @@ test.describe('Attendance Log — selected month', () => {
     await gotoTab(page, 'log');
 
     await selectMonthPeriod(page, /mayo de 2026|may 2026/i);
-    await expect(page.locator('.month-section-label')).toContainText(/mayo|may/i);
+    await expect(page.locator('app-log .month-section-label')).toContainText(/mayo|may/i);
 
     await markFirstPastDayPresent(page);
 
-    await expect(page.locator('.month-section-label')).toContainText(/mayo|may/i);
-    await expect(page.locator('ion-select.month-select')).toContainText(/mayo|may/i);
+    await expect(page.locator('app-log .month-section-label')).toContainText(/mayo|may/i);
+    await expect(page.locator('app-log ion-select.month-select')).toHaveJSProperty('value', '2026-05');
 
     await clickTab(page, 'dashboard');
-    await expect(page.locator('ion-select.month-select')).toContainText(/mayo|may/i);
+    await expect(page.locator('app-dashboard ion-select.month-select')).toHaveJSProperty('value', '2026-05');
   });
 });
