@@ -18,9 +18,11 @@ import {
 } from '@angular/forms/signals';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
 import { Course, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
+import { CREATE_COURSE_NAV } from '../constants/empty-courses';
 
 export interface CourseExport {
   version: 1 | 2;
@@ -169,6 +171,7 @@ export class CoursesPage implements OnDestroy {
 
   private langSub?: Subscription;
   private dataSub?: Subscription;
+  private routeSub?: Subscription;
   private tabletMql?: MediaQueryList;
   private readonly onTabletLayoutChange = (e: MediaQueryListEvent) => {
     this.tabletLayout.set(e.matches);
@@ -193,9 +196,21 @@ export class CoursesPage implements OnDestroy {
     private translate: TranslateService,
     private lang: LanguageService,
     private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.langSub = this.lang.onLangChange().subscribe(() => this.refreshCourses());
     this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshCourses());
+    this.routeSub = this.route.queryParamMap.subscribe((params) => {
+      if (params.get(CREATE_COURSE_NAV.queryParam) === CREATE_COURSE_NAV.queryValue) {
+        this.openNew();
+        void this.router.navigate([], {
+          queryParams: { [CREATE_COURSE_NAV.queryParam]: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      }
+    });
 
     this.tabletMql = window.matchMedia('(min-width: 768px)');
     this.tabletLayout.set(this.tabletMql.matches);
@@ -715,6 +730,7 @@ export class CoursesPage implements OnDestroy {
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
     this.dataSub?.unsubscribe();
+    this.routeSub?.unsubscribe();
     this.tabletMql?.removeEventListener('change', this.onTabletLayoutChange);
   }
 }

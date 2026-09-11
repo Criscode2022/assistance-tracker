@@ -1,0 +1,11 @@
+<div class="empty-state">
+  <div class="empty-icon-wrap">
+    <ion-icon [name]="copy.icon"></ion-icon>
+  </div>
+  <h3>{{ copy.titleKey | translate }}</h3>
+  <p>{{ copy.hintKey | translate }}</p>
+  <ion-button class="empty-state-action" (click)="onCreate()">
+    <ion-icon slot="start" name="add-outline"></ion-icon>
+    {{ copy.actionKey | translate }}
+  </ion-button>
+</div>

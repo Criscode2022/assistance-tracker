@@ -1,6 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { convertToParamMap, provideRouter, ActivatedRoute } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 import { ActionSheetController, AlertController, IonicModule, ToastController } from '@ionic/angular';
 
@@ -73,6 +74,7 @@ describe('CoursesPage', () => {
   let fixture: ComponentFixture<CoursesPage>;
 
   let svc: AttendanceService;
+  let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
 
 
@@ -80,7 +82,7 @@ describe('CoursesPage', () => {
 
     clearBrowserStorage();
 
-
+    queryParamMap$ = new BehaviorSubject(convertToParamMap({}));
 
     await TestBed.configureTestingModule({
 
@@ -121,6 +123,16 @@ describe('CoursesPage', () => {
           provide: ToastController,
 
           useValue: jasmine.createSpyObj('ToastController', ['create']),
+
+        },
+
+        provideRouter([]),
+
+        {
+
+          provide: ActivatedRoute,
+
+          useValue: { queryParamMap: queryParamMap$ },
 
         },
 
@@ -169,6 +181,18 @@ describe('CoursesPage', () => {
       }),
 
     );
+
+  });
+
+
+
+  it('should open the new-course form from the shared create query param', () => {
+
+    expect(page(component).showForm).toBeFalse();
+
+    queryParamMap$.next(convertToParamMap({ create: '1' }));
+
+    expect(page(component).showForm).toBeTrue();
 
   });
 

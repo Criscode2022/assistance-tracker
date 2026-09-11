@@ -427,15 +427,7 @@
 
 
 
-    <div *ngIf="courses.length === 0" class="empty-state">
-
-      <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
-
-      <h3>{{ 'COURSES.NO_COURSES' | translate }}</h3>
-
-      <p [innerHTML]="'COURSES.NO_COURSES_HINT' | translate"></p>
-
-    </div>
+    <app-empty-courses *ngIf="courses.length === 0" (create)="openNew()"></app-empty-courses>
 
 
 

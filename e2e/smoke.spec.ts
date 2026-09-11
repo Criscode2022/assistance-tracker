@@ -54,5 +54,24 @@ test.describe('First launch & empty state', () => {
   test('E-002: log tab shows no-courses empty state', async ({ page }) => {
     await gotoTab(page, 'log');
     await expect(page.locator('.empty-state')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /sin cursos|no courses/i })).toBeVisible();
+    await expect(page.getByText(/crea tu primer curso para comenzar|create your first course to get started/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /crear curso|create course/i })).toBeVisible();
+  });
+
+  test('E-001: every tab shares the same no-courses empty state', async ({ page }) => {
+    for (const tab of ['dashboard', 'log', 'history', 'courses'] as const) {
+      await gotoTab(page, tab);
+      await expect(page.getByRole('heading', { name: /sin cursos|no courses/i })).toBeVisible();
+      await expect(page.getByText(/crea tu primer curso para comenzar|create your first course to get started/i)).toBeVisible();
+      await expect(page.getByRole('button', { name: /crear curso|create course/i })).toBeVisible();
+    }
+  });
+
+  test('E-005: empty-state button opens the new course form', async ({ page }) => {
+    await gotoTab(page, 'dashboard');
+    await page.getByRole('button', { name: /crear curso|create course/i }).click();
+    await expect(page).toHaveURL(/\/courses/);
+    await expect(page.locator('.form-wrap')).toBeVisible();
   });
 });
