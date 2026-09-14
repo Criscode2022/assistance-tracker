@@ -12,11 +12,12 @@ import { ThemeService } from '../services/theme.service';
 import { LanguageService } from '../services/language.service';
 import { NeonService } from '../services/neon.service';
 import { AuthFlowNavigationService } from '../services/auth-flow-navigation.service';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage } from '../../testing/fixtures';
 import { createMockLanguageService, createMockNeonService } from '../../testing/mocks';
 
 describe('ConfigPage', () => {
-  let component: ConfigPage;
+  let component: any;
   let fixture: ComponentFixture<ConfigPage>;
   let theme: ThemeService;
   let authFlowNav: jasmine.SpyObj<AuthFlowNavigationService>;
@@ -48,7 +49,7 @@ describe('ConfigPage', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConfigPage);
-    component = fixture.componentInstance;
+    component = accessible(fixture.componentInstance);
     theme = TestBed.inject(ThemeService);
     authFlowNav = TestBed.inject(AuthFlowNavigationService) as jasmine.SpyObj<AuthFlowNavigationService>;
     fixture.detectChanges();

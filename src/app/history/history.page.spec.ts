@@ -4,11 +4,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { HistoryPage } from './history.page';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage, createMockCourse } from '../../testing/fixtures';
 import { createMockLanguageService } from '../../testing/mocks';
 
 describe('HistoryPage', () => {
-  let component: HistoryPage;
+  let component: any;
   let svc: AttendanceService;
 
   beforeEach(() => {
@@ -26,7 +27,7 @@ describe('HistoryPage', () => {
       ],
     });
 
-    component = TestBed.createComponent(HistoryPage).componentInstance;
+    component = accessible(TestBed.createComponent(HistoryPage).componentInstance);
     svc = TestBed.inject(AttendanceService);
   });
 
@@ -46,7 +47,7 @@ describe('HistoryPage', () => {
     component.ionViewWillEnter();
 
     expect(component.monthStatsList.length).toBe(3);
-    expect(component.monthStatsList.every((s) => s.monthLabel.startsWith('Month'))).toBeTrue();
+    expect(component.monthStatsList.every((s: { monthLabel: string }) => s.monthLabel.startsWith('Month'))).toBeTrue();
   });
 
   it('should reload when course changes', () => {

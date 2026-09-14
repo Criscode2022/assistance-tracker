@@ -9,19 +9,19 @@ import { AppModeService } from '../services/app-mode.service';
   standalone: false,
 })
 export class OnlineIndicatorComponent implements OnInit, OnDestroy {
-  isOnline = false;
+  protected isOnline = false;
   private sub?: Subscription;
 
-  constructor(private appMode: AppModeService) {}
+  constructor(private readonly appMode: AppModeService) {}
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.isOnline = this.appMode.isOnline();
     this.sub = this.appMode.watchMode().subscribe((mode) => {
       this.isOnline = mode === 'online';
     });
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.sub?.unsubscribe();
   }
 }

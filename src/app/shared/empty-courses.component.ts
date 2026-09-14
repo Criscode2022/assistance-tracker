@@ -12,18 +12,18 @@ import { CourseImportService } from '../services/course-import.service';
   standalone: false,
 })
 export class EmptyCoursesComponent implements OnDestroy {
-  readonly copy = EMPTY_COURSES_COPY;
-  showSignIn = true;
+  protected readonly copy = EMPTY_COURSES_COPY;
+  protected showSignIn = true;
 
-  @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>;
   @Output() create = new EventEmitter<void>();
 
   private readonly modeSub: Subscription;
 
   constructor(
-    private router: Router,
-    private appMode: AppModeService,
-    private courseImport: CourseImportService,
+    private readonly router: Router,
+    private readonly appMode: AppModeService,
+    private readonly courseImport: CourseImportService,
   ) {
     this.showSignIn = !this.appMode.isOnline();
     this.modeSub = this.appMode.watchMode().subscribe((mode) => {
@@ -31,11 +31,11 @@ export class EmptyCoursesComponent implements OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.modeSub.unsubscribe();
   }
 
-  onCreate(): void {
+  protected onCreate(): void {
     if (this.create.observed) {
       this.create.emit();
       return;
@@ -45,18 +45,18 @@ export class EmptyCoursesComponent implements OnDestroy {
     });
   }
 
-  onImport(): void {
+  protected onImport(): void {
     const input = this.fileInput?.nativeElement;
     if (!input) return;
     input.value = '';
     input.click();
   }
 
-  onFileSelected(event: Event): void {
+  protected onFileSelected(event: Event): void {
     void this.courseImport.importFromInputEvent(event);
   }
 
-  onSignIn(): void {
+  protected onSignIn(): void {
     this.appMode.setOnlineIntent();
     void this.router.navigate([SIGN_IN_NAV.path], {
       queryParams: { [SIGN_IN_NAV.queryParam]: SIGN_IN_NAV.queryValue },

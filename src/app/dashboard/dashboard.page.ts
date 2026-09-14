@@ -12,33 +12,33 @@ import { Course, CoursePeriod, MonthStats } from '../models/attendance.model';
   standalone: false,
 })
 export class DashboardPage implements OnDestroy {
-  stats!: MonthStats;
-  courses: Course[] = [];
-  selectedCourseId: string | null = null;
-  selectedPeriod = '';
-  availablePeriods: CoursePeriod[] = [];
+  protected stats!: MonthStats;
+  protected courses: Course[] = [];
+  protected selectedCourseId: string | null = null;
+  protected selectedPeriod = '';
+  protected availablePeriods: CoursePeriod[] = [];
 
-  readonly CIRC = 251.33;
+  protected readonly CIRC = 251.33;
 
-  private langSub?: Subscription;
-  private dataSub?: Subscription;
+  private readonly langSub: Subscription;
+  private readonly dataSub: Subscription;
 
   constructor(
-    public svc: AttendanceService,
-    private nav: NavController,
-    private lang: LanguageService,
-    private cdr: ChangeDetectorRef,
+    private readonly svc: AttendanceService,
+    private readonly nav: NavController,
+    private readonly lang: LanguageService,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.langSub = this.lang.onLangChange().subscribe(() => this.refreshView());
     this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshView());
   }
 
-  ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
-    this.dataSub?.unsubscribe();
+  public ngOnDestroy(): void {
+    this.langSub.unsubscribe();
+    this.dataSub.unsubscribe();
   }
 
-  ionViewWillEnter(): void {
+  public ionViewWillEnter(): void {
     this.refreshView();
   }
 
@@ -60,28 +60,28 @@ export class DashboardPage implements OnDestroy {
       : (this.availablePeriods[0]?.key ?? current);
   }
 
-  onCourseChange(): void {
+  protected onCourseChange(): void {
     this.svc.selectedCourseId = this.selectedCourseId;
     this.refreshPeriods();
     this.loadStats();
   }
 
-  onPeriodChange(): void {
+  protected onPeriodChange(): void {
     this.loadStats();
   }
 
-  loadStats(): void {
+  private loadStats(): void {
     this.stats = this.svc.getPeriodStats(
       this.selectedPeriod,
       this.selectedCourseId ?? undefined
     );
   }
 
-  get progressArc(): number {
+  protected get progressArc(): number {
     return (Math.min(100, this.stats.attendancePercent) / 100) * this.CIRC;
   }
 
-  get ringColor(): string {
+  protected get ringColor(): string {
     const colors: Record<string, string> = {
       ok: '#b8ebe4',
       warning: '#f5d9a8',
@@ -90,7 +90,7 @@ export class DashboardPage implements OnDestroy {
     return colors[this.stats?.overallStatus ?? 'ok'];
   }
 
-  get heroGradient(): string {
+  protected get heroGradient(): string {
     const g: Record<string, string> = {
       ok:      'linear-gradient(145deg, #145854 0%, #1a6b65 40%, #2d9d94 100%)',
       warning: 'linear-gradient(145deg, #7a4a12 0%, #b45309 55%, #d4955c 100%)',
@@ -99,70 +99,70 @@ export class DashboardPage implements OnDestroy {
     return g[this.stats?.overallStatus ?? 'ok'];
   }
 
-  get absencesColor(): string {
+  protected get absencesColor(): string {
     if (this.stats.absentDays > this.stats.maxAbsences) return 'danger';
     if (this.stats.absencesRemaining <= 1) return 'warning';
     return 'success';
   }
 
-  get latenessColor(): string {
+  protected get latenessColor(): string {
     if (this.stats.lateDays > this.stats.maxTardiness) return 'danger';
     if (this.stats.latenessRemaining <= 2) return 'warning';
     return 'success';
   }
 
-  get attendanceBarColor(): string {
+  protected get attendanceBarColor(): string {
     if (this.stats.elapsedWorkingDays === 0) return 'medium';
     if (this.stats.attendancePercent < this.stats.minAttendancePercent) return 'danger';
     if (this.stats.attendancePercent < this.stats.minAttendancePercent + 5) return 'warning';
     return 'success';
   }
 
-  get statusKey(): string {
+  protected get statusKey(): string {
     if (this.stats.overallStatus === 'failed') return 'DASHBOARD.STATUS_FAILED';
     if (this.stats.overallStatus === 'warning') return 'DASHBOARD.STATUS_WARNING';
     return 'DASHBOARD.STATUS_OK';
   }
 
-  get statusIcon(): string {
+  protected get statusIcon(): string {
     if (this.stats.overallStatus === 'failed') return 'close-circle';
     if (this.stats.overallStatus === 'warning') return 'warning';
     return 'checkmark-circle';
   }
 
-  get courseName(): string {
+  protected get courseName(): string {
     return this.svc.getCourse(this.selectedCourseId ?? '')?.name ?? '';
   }
 
-  periodLabelFor(period: CoursePeriod): string {
+  protected periodLabelFor(period: CoursePeriod): string {
     return period.label;
   }
 
-  formatHours(h: number): string {
+  protected formatHours(h: number): string {
     const hrs = Math.floor(h);
     const mins = Math.round((h - hrs) * 60);
     return mins === 0 ? `${hrs}h` : hrs > 0 ? `${hrs}h ${mins}min` : `${mins}min`;
   }
 
-  get absencesBarValue(): number {
+  protected get absencesBarValue(): number {
     return this.stats.maxAbsences > 0
       ? Math.min(1, this.stats.absentDays / this.stats.maxAbsences)
       : 0;
   }
 
-  get latenessBarValue(): number {
+  protected get latenessBarValue(): number {
     return this.stats.maxTardiness > 0
       ? Math.min(1, this.stats.lateDays / this.stats.maxTardiness)
       : 0;
   }
 
-  get hoursBarValue(): number {
+  protected get hoursBarValue(): number {
     return this.stats.expectedHoursToDate > 0
       ? Math.min(1, this.stats.totalHoursAttended / this.stats.expectedHoursToDate)
       : 0;
   }
 
-  openConfig(): void {
+  protected openConfig(): void {
     this.nav.navigateForward('/config');
   }
 }
