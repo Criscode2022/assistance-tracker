@@ -403,7 +403,7 @@
 
 
 
-    <div class="course-list-wrap">
+    <div class="course-list-wrap" *ngIf="courses.length">
 
       <div class="import-card" (click)="triggerImport()">
 
@@ -427,15 +427,7 @@
 
 
 
-    <div *ngIf="courses.length === 0" class="empty-state">
-
-      <div class="empty-icon-wrap"><ion-icon name="book-outline"></ion-icon></div>
-
-      <h3>{{ 'COURSES.NO_COURSES' | translate }}</h3>
-
-      <p [innerHTML]="'COURSES.NO_COURSES_HINT' | translate"></p>
-
-    </div>
+    <app-empty-courses *ngIf="courses.length === 0" (create)="openNew()"></app-empty-courses>
 
 
 
@@ -455,7 +447,7 @@
 
           class="course-item"
 
-          [class.course-active]="!selectMode() && svc.selectedCourseId === course.id"
+          [class.course-active]="!selectMode() && selectedCourseId === course.id"
 
           [class.course-selected]="selectMode() && isSelected(course.id)"
 
@@ -473,7 +465,7 @@
 
               class="course-radio"
 
-              [class.radio-on]="svc.selectedCourseId === course.id">
+              [class.radio-on]="selectedCourseId === course.id">
 
             </div>
 

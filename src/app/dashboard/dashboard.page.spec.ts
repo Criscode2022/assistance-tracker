@@ -5,11 +5,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DashboardPage } from './dashboard.page';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage, createMockCourse } from '../../testing/fixtures';
 import { createMockLanguageService } from '../../testing/mocks';
 
 describe('DashboardPage', () => {
-  let component: DashboardPage;
+  let component: any;
   let fixture: ComponentFixture<DashboardPage>;
   let svc: AttendanceService;
 
@@ -30,7 +31,7 @@ describe('DashboardPage', () => {
     });
 
     fixture = TestBed.createComponent(DashboardPage);
-    component = fixture.componentInstance;
+    component = accessible(fixture.componentInstance);
     svc = TestBed.inject(AttendanceService);
   });
 

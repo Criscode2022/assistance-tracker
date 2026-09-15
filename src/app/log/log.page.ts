@@ -13,34 +13,34 @@ import { Course, CoursePeriod, DayEntry, DayRecord } from '../models/attendance.
   standalone: false,
 })
 export class LogPage implements OnDestroy {
-  days: DayEntry[] = [];
-  courses: Course[] = [];
-  selectedCourseId: string | null = null;
-  selectedPeriod = '';
-  availablePeriods: CoursePeriod[] = [];
+  protected days: DayEntry[] = [];
+  protected courses: Course[] = [];
+  protected selectedCourseId: string | null = null;
+  protected selectedPeriod = '';
+  protected availablePeriods: CoursePeriod[] = [];
 
-  private langSub?: Subscription;
-  private dataSub?: Subscription;
+  private readonly langSub: Subscription;
+  private readonly dataSub: Subscription;
 
   constructor(
-    private svc: AttendanceService,
-    private actionSheet: ActionSheetController,
-    private alertCtrl: AlertController,
-    private translate: TranslateService,
-    private lang: LanguageService,
-    private ngZone: NgZone,
-    private cdr: ChangeDetectorRef,
+    private readonly svc: AttendanceService,
+    private readonly actionSheet: ActionSheetController,
+    private readonly alertCtrl: AlertController,
+    private readonly translate: TranslateService,
+    private readonly lang: LanguageService,
+    private readonly ngZone: NgZone,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.langSub = this.lang.onLangChange().subscribe(() => this.refreshView());
     this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshView());
   }
 
-  ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
-    this.dataSub?.unsubscribe();
+  public ngOnDestroy(): void {
+    this.langSub.unsubscribe();
+    this.dataSub.unsubscribe();
   }
 
-  ionViewWillEnter(): void {
+  public ionViewWillEnter(): void {
     this.refreshView();
   }
 
@@ -62,17 +62,17 @@ export class LogPage implements OnDestroy {
       : (this.availablePeriods[0]?.key ?? current);
   }
 
-  onCourseChange(): void {
+  protected onCourseChange(): void {
     this.svc.selectedCourseId = this.selectedCourseId;
     this.refreshPeriods();
     this.loadDays();
   }
 
-  onPeriodChange(): void {
+  protected onPeriodChange(): void {
     this.loadDays();
   }
 
-  loadDays(): void {
+  private loadDays(): void {
     this.ngZone.run(() => {
       this.days = this.svc.getDayEntriesForPeriod(
         this.selectedPeriod,
@@ -89,15 +89,15 @@ export class LogPage implements OnDestroy {
     });
   }
 
-  trackByDate(_index: number, day: DayEntry): string {
+  protected trackByDate(_index: number, day: DayEntry): string {
     return `${day.date}:${day.status}:${day.entryTime ?? ''}:${day.exitTime ?? ''}`;
   }
 
-  periodLabelFor(period: CoursePeriod): string {
+  protected periodLabelFor(period: CoursePeriod): string {
     return period.label;
   }
 
-  get periodLabel(): string {
+  protected get periodLabel(): string {
     return this.availablePeriods.find((p) => p.key === this.selectedPeriod)?.label ?? '';
   }
 
@@ -105,14 +105,14 @@ export class LogPage implements OnDestroy {
     this.svc.setDayRecord(date, record, this.selectedCourseId ?? undefined);
   }
 
-  quickToggle(day: DayEntry): void {
+  protected quickToggle(day: DayEntry): void {
     if (day.isFuture) return;
     const newStatus = day.status === 'present' ? 'absent' : 'present';
     this.saveDayRecord(day.date, { status: newStatus });
     this.refreshAfterEdit();
   }
 
-  async openStatusPicker(day: DayEntry): Promise<void> {
+  protected async openStatusPicker(day: DayEntry): Promise<void> {
     if (day.isFuture) return;
 
     let refreshAfterSheet = false;
@@ -237,14 +237,14 @@ export class LogPage implements OnDestroy {
     }
   }
 
-  formatHours(h: number): string {
+  protected formatHours(h: number): string {
     const hrs = Math.floor(h);
     const mins = Math.round((h - hrs) * 60);
     if (mins === 0) return `${hrs}h`;
     return hrs > 0 ? `${hrs}h ${mins}min` : `${mins}min`;
   }
 
-  statusIcon(day: DayEntry): string {
+  protected statusIcon(day: DayEntry): string {
     switch (day.status) {
       case 'present':   return 'checkmark-circle';
       case 'absent':    return 'close-circle';
@@ -254,7 +254,7 @@ export class LogPage implements OnDestroy {
     }
   }
 
-  statusColor(day: DayEntry): string {
+  protected statusColor(day: DayEntry): string {
     switch (day.status) {
       case 'present':   return 'success';
       case 'absent':    return 'danger';
@@ -264,7 +264,7 @@ export class LogPage implements OnDestroy {
     }
   }
 
-  statusLabelKey(day: DayEntry): string {
+  protected statusLabelKey(day: DayEntry): string {
     switch (day.status) {
       case 'present':   return 'COMMON.PRESENT';
       case 'absent':    return 'COMMON.ABSENT';

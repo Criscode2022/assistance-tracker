@@ -74,3 +74,11 @@ export interface Course {
   /** Required when periodMode is 'module'. */
   modules?: CourseModule[];
 }
+
+/** JSON payload produced by course export / accepted by course import. */
+export interface CourseExport {
+  version: 1 | 2;
+  exported: string;
+  courses: Course[];
+  records: Record<string, Record<string, DayRecord>>;
+}

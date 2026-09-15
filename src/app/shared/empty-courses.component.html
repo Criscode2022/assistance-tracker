@@ -1,0 +1,33 @@
+<input
+  #fileInput
+  class="hidden-file-input"
+  type="file"
+  accept=".json,application/json"
+  (change)="onFileSelected($event)" />
+
+<div class="empty-state">
+  <div class="empty-icon-wrap">
+    <ion-icon [name]="copy.icon"></ion-icon>
+  </div>
+  <h3>{{ copy.titleKey | translate }}</h3>
+  <p>{{ copy.hintKey | translate }}</p>
+
+  <div class="empty-state-actions">
+    <ion-button class="empty-state-action" (click)="onCreate()">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      {{ copy.actionKey | translate }}
+    </ion-button>
+    <ion-button class="empty-state-action" fill="outline" (click)="onImport()">
+      <ion-icon slot="start" name="folder-open-outline"></ion-icon>
+      {{ copy.importKey | translate }}
+    </ion-button>
+  </div>
+
+  <div class="empty-state-signin" *ngIf="showSignIn">
+    <p class="empty-state-signin-hint">{{ copy.signInHintKey | translate }}</p>
+    <ion-button class="empty-state-action" fill="outline" color="medium" (click)="onSignIn()">
+      <ion-icon slot="start" name="log-in-outline"></ion-icon>
+      {{ copy.signInKey | translate }}
+    </ion-button>
+  </div>
+</div>

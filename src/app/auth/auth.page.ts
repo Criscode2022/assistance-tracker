@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AttendanceService } from '../services/attendance.service';
@@ -16,41 +17,47 @@ type AuthTab = 'signin' | 'signup';
   standalone: false,
 })
 export class AuthPage implements OnInit {
-  tab: AuthTab = 'signup';
-  email = '';
-  password = '';
-  name = '';
-  loading = false;
-  hasOfflineData = false;
+  protected tab: AuthTab = 'signup';
+  protected email = '';
+  protected password = '';
+  protected name = '';
+  protected loading = false;
+  protected hasOfflineData = false;
 
   constructor(
-    private nav: NavController,
-    private toast: ToastController,
-    private neon: NeonService,
-    private appMode: AppModeService,
-    private cloudSync: CloudSyncService,
-    private attendance: AttendanceService,
-    private translate: TranslateService,
-    private authFlowNav: AuthFlowNavigationService,
-    private cdr: ChangeDetectorRef,
+    private readonly nav: NavController,
+    private readonly toast: ToastController,
+    private readonly neon: NeonService,
+    private readonly appMode: AppModeService,
+    private readonly cloudSync: CloudSyncService,
+    private readonly attendance: AttendanceService,
+    private readonly translate: TranslateService,
+    private readonly authFlowNav: AuthFlowNavigationService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly route: ActivatedRoute,
   ) {}
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.hasOfflineData = this.attendance.hasLocalData();
+    const requestedTab = this.route.snapshot.queryParamMap.get('tab');
+    if (requestedTab === 'signin' || requestedTab === 'signup') {
+      this.tab = requestedTab;
+      return;
+    }
     if (this.hasOfflineData) {
       this.tab = 'signup';
     }
   }
 
-  goBack(): void {
+  protected goBack(): void {
     void this.authFlowNav.exitToDashboard();
   }
 
-  setTab(tab: AuthTab): void {
+  protected setTab(tab: AuthTab): void {
     this.tab = tab;
   }
 
-  async submit(): Promise<void> {
+  protected async submit(): Promise<void> {
     if (this.loading) return;
     this.loading = true;
 

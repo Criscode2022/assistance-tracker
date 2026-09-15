@@ -25,6 +25,12 @@
     "LATE_PLURAL": "late",
     "ABSENT_PLURAL": "absences",
     "LOST": "lost",
+    "NO_COURSES": "No courses",
+    "NO_COURSES_HINT": "Create your first course to get started",
+    "CREATE_COURSE": "Create course",
+    "IMPORT_COURSE": "Import course",
+    "NO_COURSES_SIGNIN_HINT": "Already have courses in the cloud? Sign in to load them.",
+    "SIGN_IN": "Sign in",
     "SELECT_COURSE": "Select a course",
     "NO_SCHEDULE": "No schedule recorded",
     "USER": "User",
@@ -131,8 +137,6 @@
   },
   "DASHBOARD": {
     "TITLE": "Overview",
-    "NO_COURSES": "No courses",
-    "NO_COURSES_HINT": "Go to the <strong>Courses</strong> tab and create your first course.",
     "STATUS_OK": "On track",
     "STATUS_WARNING": "Attention",
     "STATUS_FAILED": "At risk",
@@ -147,8 +151,6 @@
   },
   "LOG": {
     "TITLE": "Log",
-    "NO_COURSES": "No courses",
-    "NO_COURSES_HINT": "Create a course in the <strong>Courses</strong> tab to get started.",
     "NO_WORKING_DAYS": "No working days",
     "NO_WORKING_DAYS_HINT": "No days in this month fall within the course date range.",
     "LATE_OPTION": "Late (tardiness)",
@@ -160,8 +162,6 @@
   },
   "HISTORY": {
     "TITLE": "History",
-    "NO_COURSES": "No courses",
-    "NO_COURSES_HINT": "Create a course to view history.",
     "NO_HISTORY": "No history",
     "NO_HISTORY_HINT": "Log attendance to see period history.",
     "ATTENDANCE_LABEL": "Attendance"
@@ -197,8 +197,6 @@
     "SAVE_COURSE": "Save course",
     "IMPORT_TITLE": "Import course",
     "IMPORT_SUB": "From JSON file",
-    "NO_COURSES": "No courses",
-    "NO_COURSES_HINT": "Tap <strong>+</strong> to create your first course.",
     "HOURS_DAY": "{{hours}}h/day",
     "MAX_ABSENCES_CHIP": "≤{{max}} absences",
     "MAX_TARDINESS_CHIP": "≤{{max}} late",

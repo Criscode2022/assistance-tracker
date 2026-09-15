@@ -1,6 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { convertToParamMap, provideRouter, ActivatedRoute } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 import { ActionSheetController, AlertController, IonicModule, ToastController } from '@ionic/angular';
 
@@ -40,7 +41,29 @@ type CoursesPageTestable = CoursesPage & {
 
   editingId: string | null;
 
+  courseForm: CoursesPage['courseForm'];
+
+  courseModel: CoursesPage['courseModel'];
+
+  isValidForm: CoursesPage['isValidForm'];
+
+  formSubmitted: CoursesPage['formSubmitted'];
+
+  calcExitTime: CoursesPage['calcExitTime'];
+
+  tabletLayout: CoursesPage['tabletLayout'];
+
+  selectedCount: number;
+
+  actionsLabel: string;
+
   fieldErrors(field: string): { kind: string; message?: string }[];
+
+  shouldShowErrors(field: string): boolean;
+
+  moduleFieldErrors(moduleId: string, field: 'name' | 'startDate' | 'endDate'): { kind: string }[];
+
+  shouldShowModuleFieldErrors(moduleId: string, field: 'name' | 'startDate' | 'endDate'): boolean;
 
   openNew(): void;
 
@@ -73,6 +96,7 @@ describe('CoursesPage', () => {
   let fixture: ComponentFixture<CoursesPage>;
 
   let svc: AttendanceService;
+  let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
 
 
@@ -80,7 +104,7 @@ describe('CoursesPage', () => {
 
     clearBrowserStorage();
 
-
+    queryParamMap$ = new BehaviorSubject(convertToParamMap({}));
 
     await TestBed.configureTestingModule({
 
@@ -124,6 +148,16 @@ describe('CoursesPage', () => {
 
         },
 
+        provideRouter([]),
+
+        {
+
+          provide: ActivatedRoute,
+
+          useValue: { queryParamMap: queryParamMap$ },
+
+        },
+
       ],
 
     }).compileComponents();
@@ -154,9 +188,9 @@ describe('CoursesPage', () => {
 
     expect(component).toBeTruthy();
 
-    expect(component.courseForm).toBeTruthy();
+    expect(page(component).courseForm).toBeTruthy();
 
-    expect(component.courseModel()).toEqual(
+    expect(page(component).courseModel()).toEqual(
 
       jasmine.objectContaining({
 
@@ -174,15 +208,27 @@ describe('CoursesPage', () => {
 
 
 
+  it('should open the new-course form from the shared create query param', () => {
+
+    expect(page(component).showForm).toBeFalse();
+
+    queryParamMap$.next(convertToParamMap({ create: '1' }));
+
+    expect(page(component).showForm).toBeTrue();
+
+  });
+
+
+
   describe('signal form validation (isValidForm)', () => {
 
     it('should be invalid when name is empty', () => {
 
-      component.courseModel.set(createCourseFormModel({ name: '' }));
+      page(component).courseModel.set(createCourseFormModel({ name: '' }));
 
-      expect(component.isValidForm()).toBeFalse();
+      expect(page(component).isValidForm()).toBeFalse();
 
-      expect(component.courseForm.name().invalid()).toBeTrue();
+      expect(page(component).courseForm.name().invalid()).toBeTrue();
 
     });
 
@@ -190,9 +236,9 @@ describe('CoursesPage', () => {
 
     it('should be invalid when name is only whitespace', () => {
 
-      component.courseModel.set(createCourseFormModel({ name: '   ' }));
+      page(component).courseModel.set(createCourseFormModel({ name: '   ' }));
 
-      expect(component.isValidForm()).toBeFalse();
+      expect(page(component).isValidForm()).toBeFalse();
 
     });
 
@@ -200,9 +246,9 @@ describe('CoursesPage', () => {
 
     it('should be valid when all validated fields pass', () => {
 
-      component.courseModel.set(createCourseFormModel());
+      page(component).courseModel.set(createCourseFormModel());
 
-      expect(component.isValidForm()).toBeTrue();
+      expect(page(component).isValidForm()).toBeTrue();
 
     });
 
@@ -210,7 +256,7 @@ describe('CoursesPage', () => {
 
     it('should be invalid when end date is before start date', () => {
 
-      component.courseModel.set(
+      page(component).courseModel.set(
 
         createCourseFormModel({
 
@@ -222,9 +268,9 @@ describe('CoursesPage', () => {
 
       );
 
-      expect(component.isValidForm()).toBeFalse();
+      expect(page(component).isValidForm()).toBeFalse();
 
-      expect(component.courseForm.endDate().invalid()).toBeTrue();
+      expect(page(component).courseForm.endDate().invalid()).toBeTrue();
 
     });
 
@@ -232,15 +278,15 @@ describe('CoursesPage', () => {
 
     it('should be invalid when hours per day is out of range', () => {
 
-      component.courseModel.set(createCourseFormModel({ hoursPerDay: 0 }));
+      page(component).courseModel.set(createCourseFormModel({ hoursPerDay: 0 }));
 
-      expect(component.isValidForm()).toBeFalse();
+      expect(page(component).isValidForm()).toBeFalse();
 
 
 
-      component.courseModel.set(createCourseFormModel({ hoursPerDay: 13 }));
+      page(component).courseModel.set(createCourseFormModel({ hoursPerDay: 13 }));
 
-      expect(component.isValidForm()).toBeFalse();
+      expect(page(component).isValidForm()).toBeFalse();
 
     });
 
@@ -248,17 +294,17 @@ describe('CoursesPage', () => {
 
     it('should sync model and validity when updating via courseForm', () => {
 
-      component.courseModel.set(createCourseFormModel({ name: '' }));
+      page(component).courseModel.set(createCourseFormModel({ name: '' }));
 
-      expect(component.isValidForm()).toBeFalse();
+      expect(page(component).isValidForm()).toBeFalse();
 
 
 
-      component.courseForm.name().value.set('Curso de prueba');
+      page(component).courseForm.name().value.set('Curso de prueba');
 
-      expect(component.courseModel().name).toBe('Curso de prueba');
+      expect(page(component).courseModel().name).toBe('Curso de prueba');
 
-      expect(component.isValidForm()).toBeTrue();
+      expect(page(component).isValidForm()).toBeTrue();
 
     });
 
@@ -270,15 +316,15 @@ describe('CoursesPage', () => {
 
     it('should hide errors until submit attempt', () => {
 
-      component.courseModel.set(createCourseFormModel({ name: '' }));
+      page(component).courseModel.set(createCourseFormModel({ name: '' }));
 
-      expect(component.shouldShowErrors('name')).toBeFalse();
+      expect(page(component).shouldShowErrors('name')).toBeFalse();
 
 
 
-      component.formSubmitted.set(true);
+      page(component).formSubmitted.set(true);
 
-      expect(component.shouldShowErrors('name')).toBeTrue();
+      expect(page(component).shouldShowErrors('name')).toBeTrue();
 
     });
 
@@ -286,7 +332,7 @@ describe('CoursesPage', () => {
 
     it('should expose i18n error keys for invalid end date range', () => {
 
-      component.courseModel.set(
+      page(component).courseModel.set(
 
         createCourseFormModel({
 
@@ -298,7 +344,7 @@ describe('CoursesPage', () => {
 
       );
 
-      component.formSubmitted.set(true);
+      page(component).formSubmitted.set(true);
 
 
 
@@ -316,7 +362,7 @@ describe('CoursesPage', () => {
 
       const modId = 'mod-test';
 
-      component.courseModel.set(
+      page(component).courseModel.set(
 
         createCourseFormModel({
 
@@ -346,13 +392,13 @@ describe('CoursesPage', () => {
 
       );
 
-      component.formSubmitted.set(true);
+      page(component).formSubmitted.set(true);
 
 
 
-      const startErrors = component.moduleFieldErrors(modId, 'startDate');
+      const startErrors = page(component).moduleFieldErrors(modId, 'startDate');
 
-      const endErrors = component.moduleFieldErrors(modId, 'endDate');
+      const endErrors = page(component).moduleFieldErrors(modId, 'endDate');
 
 
 
@@ -360,9 +406,9 @@ describe('CoursesPage', () => {
 
       expect(endErrors.some((e) => e.kind === 'afterCourse')).toBeTrue();
 
-      expect(component.shouldShowModuleFieldErrors(modId, 'startDate')).toBeTrue();
+      expect(page(component).shouldShowModuleFieldErrors(modId, 'startDate')).toBeTrue();
 
-      expect(component.shouldShowModuleFieldErrors(modId, 'endDate')).toBeTrue();
+      expect(page(component).shouldShowModuleFieldErrors(modId, 'endDate')).toBeTrue();
 
     });
 
@@ -376,7 +422,7 @@ describe('CoursesPage', () => {
 
       page(component).showForm = true;
 
-      component.courseModel.set(createCourseFormModel({ name: '' }));
+      page(component).courseModel.set(createCourseFormModel({ name: '' }));
 
 
 
@@ -388,7 +434,7 @@ describe('CoursesPage', () => {
 
       expect(page(component).showForm).toBeTrue();
 
-      expect(component.formSubmitted()).toBeTrue();
+      expect(page(component).formSubmitted()).toBeTrue();
 
     });
 
@@ -398,7 +444,7 @@ describe('CoursesPage', () => {
 
       page(component).showForm = true;
 
-      component.courseModel.set(createCourseFormModel({ name: 'Nuevo curso' }));
+      page(component).courseModel.set(createCourseFormModel({ name: 'Nuevo curso' }));
 
 
 
@@ -408,7 +454,7 @@ describe('CoursesPage', () => {
 
       expect(page(component).showForm).toBeFalse();
 
-      expect(component.formSubmitted()).toBeFalse();
+      expect(page(component).formSubmitted()).toBeFalse();
 
       expect(svc.getCourses().length).toBe(1);
 
@@ -424,17 +470,17 @@ describe('CoursesPage', () => {
 
     it('should reset courseModel when opening a new course', () => {
 
-      component.courseModel.set(createCourseFormModel({ name: 'Viejo' }));
+      page(component).courseModel.set(createCourseFormModel({ name: 'Viejo' }));
 
       page(component).openNew();
 
 
 
-      expect(component.courseModel().name).toBe('');
+      expect(page(component).courseModel().name).toBe('');
 
-      expect(component.isValidForm()).toBeFalse();
+      expect(page(component).isValidForm()).toBeFalse();
 
-      expect(component.formSubmitted()).toBeFalse();
+      expect(page(component).formSubmitted()).toBeFalse();
 
     });
 
@@ -448,9 +494,9 @@ describe('CoursesPage', () => {
 
 
 
-      expect(component.courseModel().name).toBe('Editar este');
+      expect(page(component).courseModel().name).toBe('Editar este');
 
-      expect(component.isValidForm()).toBeTrue();
+      expect(page(component).isValidForm()).toBeTrue();
 
       expect(page(component).editingId).toBe(course.id);
 
@@ -462,7 +508,7 @@ describe('CoursesPage', () => {
 
   it('should compute calcExitTime from courseModel', () => {
 
-    component.courseModel.set(
+    page(component).courseModel.set(
 
       createCourseFormModel({
 
@@ -474,7 +520,7 @@ describe('CoursesPage', () => {
 
     );
 
-    expect(component.calcExitTime()).toBe('13:00');
+    expect(page(component).calcExitTime()).toBe('13:00');
 
   });
 
@@ -500,7 +546,7 @@ describe('CoursesPage', () => {
 
     expect(page(component).isSelected(course.id)).toBeTrue();
 
-    expect(component.selectedCount).toBe(1);
+    expect(page(component).selectedCount).toBe(1);
 
 
 
@@ -528,9 +574,9 @@ describe('CoursesPage', () => {
 
 
 
-    expect(component.selectedCount).toBe(2);
+    expect(page(component).selectedCount).toBe(2);
 
-    expect(component.actionsLabel).toBe('Actions (2)');
+    expect(page(component).actionsLabel).toBe('Actions (2)');
 
   });
 
@@ -574,7 +620,7 @@ describe('CoursesPage', () => {
 
 
 
-      expect(tabletPage.tabletLayout()).toBeTrue();
+      expect(page(tabletPage).tabletLayout()).toBeTrue();
 
     });
 

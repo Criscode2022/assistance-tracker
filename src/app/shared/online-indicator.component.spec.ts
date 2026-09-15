@@ -3,6 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { OnlineIndicatorComponent } from './online-indicator.component';
 import { AppModeService } from '../services/app-mode.service';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage } from '../../testing/fixtures';
 
 describe('OnlineIndicatorComponent', () => {
@@ -25,14 +26,14 @@ describe('OnlineIndicatorComponent', () => {
   afterEach(() => clearBrowserStorage());
 
   it('should show offline by default', () => {
-    expect(fixture.componentInstance.isOnline).toBeFalse();
+    expect(accessible(fixture.componentInstance).isOnline).toBeFalse();
   });
 
   it('should reflect online mode changes', () => {
     appMode.enableOnlineMode();
-    expect(fixture.componentInstance.isOnline).toBeTrue();
+    expect(accessible(fixture.componentInstance).isOnline).toBeTrue();
 
     appMode.disableOnlineMode();
-    expect(fixture.componentInstance.isOnline).toBeFalse();
+    expect(accessible(fixture.componentInstance).isOnline).toBeFalse();
   });
 });

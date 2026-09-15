@@ -14,6 +14,11 @@ test.describe('Courses — UI', () => {
   });
 
   test('CU-001: import card shows folder icon without chevron', async ({ page }) => {
+    await createCourse(page, {
+      name: 'Select UI Course',
+      startDate: '2026-06-01',
+      endDate: '2026-06-30',
+    });
     await expect(page.locator('.import-card ion-icon[name="folder-open-outline"]')).toBeVisible();
     await expect(page.locator('.import-card ion-icon[name="chevron-forward-outline"]')).toHaveCount(0);
   });

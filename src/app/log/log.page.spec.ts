@@ -5,11 +5,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LogPage } from './log.page';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage, createMockCourse } from '../../testing/fixtures';
 import { createMockLanguageService, createMockTranslateService } from '../../testing/mocks';
 
 describe('LogPage', () => {
-  let component: LogPage;
+  let component: any;
   let fixture: ComponentFixture<LogPage>;
   let svc: AttendanceService;
 
@@ -32,7 +33,7 @@ describe('LogPage', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(LogPage);
-    component = fixture.componentInstance;
+    component = accessible(fixture.componentInstance);
     svc = TestBed.inject(AttendanceService);
     spyOn((component as unknown as { cdr: ChangeDetectorRef }).cdr, 'detectChanges');
   });
@@ -50,7 +51,7 @@ describe('LogPage', () => {
     svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
     component.ionViewWillEnter();
 
-    const day = component.days.find((d) => d.date === '2026-05-05');
+    const day = component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === '2026-05-05');
     expect(day?.status).toBe('present');
     expect(component.periodLabel).toContain('2026-05');
   });
@@ -61,7 +62,7 @@ describe('LogPage', () => {
     svc.saveCourse(course);
     component.ionViewWillEnter();
 
-    const future = component.days.find((d) => d.isFuture);
+    const future = component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.isFuture);
     expect(future).toBeTruthy();
 
     await component.openStatusPicker(future!);
@@ -81,11 +82,11 @@ describe('LogPage', () => {
     svc.saveCourse(course);
     svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
     component.ionViewWillEnter();
-    expect(component.days.find((d) => d.date === '2026-05-05')?.status).toBe('present');
+    expect(component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === '2026-05-05')?.status).toBe('present');
 
     svc.setDayRecord('2026-05-05', { status: 'absent' }, course.id);
-    component.loadDays();
-    expect(component.days.find((d) => d.date === '2026-05-05')?.status).toBe('absent');
+    component.onPeriodChange();
+    expect(component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === '2026-05-05')?.status).toBe('absent');
   });
 
   it('should reload days after course change', () => {
@@ -100,7 +101,7 @@ describe('LogPage', () => {
     component.selectedCourseId = 'b';
     component.onCourseChange();
 
-    const day = component.days.find((d) => d.date === '2026-05-05');
+    const day = component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === '2026-05-05');
     expect(day?.status).toBe('present');
   });
 
@@ -114,7 +115,7 @@ describe('LogPage', () => {
     svc.saveCourse(course);
     component.ionViewWillEnter();
 
-    const target = component.days.find((d) => d.date === '2026-05-05');
+    const target = component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === '2026-05-05');
     expect(target?.status).toBe('unlogged');
 
     spyOn(window, 'requestAnimationFrame').and.callFake((fn: FrameRequestCallback) => {
@@ -134,7 +135,7 @@ describe('LogPage', () => {
     });
 
     await component.openStatusPicker(target!);
-    expect(component.days.find((d) => d.date === '2026-05-05')?.status).toBe('present');
+    expect(component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === '2026-05-05')?.status).toBe('present');
   });
 
   it('should quick toggle between present and absent', () => {
@@ -148,10 +149,10 @@ describe('LogPage', () => {
     });
 
     const date = '2026-05-05';
-    component.quickToggle(component.days.find((d) => d.date === date)!);
-    expect(component.days.find((d) => d.date === date)?.status).toBe('present');
+    component.quickToggle(component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === date)!);
+    expect(component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === date)?.status).toBe('present');
 
-    component.quickToggle(component.days.find((d) => d.date === date)!);
-    expect(component.days.find((d) => d.date === date)?.status).toBe('absent');
+    component.quickToggle(component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === date)!);
+    expect(component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.date === date)?.status).toBe('absent');
   });
 });

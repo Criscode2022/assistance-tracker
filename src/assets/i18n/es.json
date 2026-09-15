@@ -25,6 +25,12 @@
     "LATE_PLURAL": "impuntualidades",
     "ABSENT_PLURAL": "faltas",
     "LOST": "perdidos",
+    "NO_COURSES": "Sin cursos",
+    "NO_COURSES_HINT": "Crea tu primer curso para comenzar",
+    "CREATE_COURSE": "Crear curso",
+    "IMPORT_COURSE": "Importar curso",
+    "NO_COURSES_SIGNIN_HINT": "¿Ya tienes cursos en la nube? Inicia sesión para cargarlos.",
+    "SIGN_IN": "Iniciar sesión",
     "SELECT_COURSE": "Selecciona un curso",
     "NO_SCHEDULE": "Sin horario registrado",
     "USER": "Usuario",
@@ -131,8 +137,6 @@
   },
   "DASHBOARD": {
     "TITLE": "Resumen",
-    "NO_COURSES": "Sin cursos",
-    "NO_COURSES_HINT": "Ve a la pestaña <strong>Cursos</strong> y crea tu primer curso.",
     "STATUS_OK": "Vas bien",
     "STATUS_WARNING": "Atención",
     "STATUS_FAILED": "En riesgo",
@@ -147,8 +151,6 @@
   },
   "LOG": {
     "TITLE": "Registro",
-    "NO_COURSES": "Sin cursos",
-    "NO_COURSES_HINT": "Crea un curso en la pestaña <strong>Cursos</strong> para empezar.",
     "NO_WORKING_DAYS": "Sin días hábiles",
     "NO_WORKING_DAYS_HINT": "No hay días en este mes dentro del rango del curso.",
     "LATE_OPTION": "Impuntual (impuntualidad)",
@@ -160,8 +162,6 @@
   },
   "HISTORY": {
     "TITLE": "Historial",
-    "NO_COURSES": "Sin cursos",
-    "NO_COURSES_HINT": "Crea un curso para ver el historial.",
     "NO_HISTORY": "Sin historial",
     "NO_HISTORY_HINT": "Registra asistencia para ver el historial por periodo.",
     "ATTENDANCE_LABEL": "Asistencia"
@@ -197,8 +197,6 @@
     "SAVE_COURSE": "Guardar curso",
     "IMPORT_TITLE": "Importar curso",
     "IMPORT_SUB": "Desde archivo JSON",
-    "NO_COURSES": "Sin cursos",
-    "NO_COURSES_HINT": "Pulsa <strong>+</strong> para crear tu primer curso.",
     "HOURS_DAY": "{{hours}}h/día",
     "MAX_ABSENCES_CHIP": "≤{{max}} faltas",
     "MAX_TARDINESS_CHIP": "≤{{max}} impuntualidades",
