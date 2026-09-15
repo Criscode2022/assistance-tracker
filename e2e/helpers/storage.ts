@@ -16,6 +16,7 @@ export async function seedLocalStorage(page: import('@playwright/test').Page, da
     (window as unknown as { __e2e_seeded?: boolean }).__e2e_seeded = true;
 
     localStorage.clear();
+    sessionStorage.clear();
     if (payload.courses) localStorage.setItem('courses_v1', JSON.stringify(payload.courses));
     if (payload.records) localStorage.setItem('attendance_v3', JSON.stringify(payload.records));
     if (payload.selectedCourseId !== undefined) {

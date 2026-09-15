@@ -95,6 +95,13 @@ export async function markFirstPastDayAbsent(page: Page): Promise<void> {
   await expect(pastDay.locator('.day-status-label[data-status="absent"]')).toBeVisible();
 }
 
+export async function selectMonthPeriod(page: Page, label: RegExp, host = 'app-log'): Promise<void> {
+  await page.locator(`${host} ion-select.month-select`).click();
+  const popover = page.locator('ion-popover, ion-alert, ion-action-sheet').last();
+  await expect(popover).toBeVisible();
+  await popover.getByText(label).click();
+}
+
 export async function switchLanguage(page: Page, lang: 'es' | 'en'): Promise<void> {
   await page.locator(`ion-segment-button[value="${lang}"]`).click();
   await expect.poll(async () => page.evaluate(() => localStorage.getItem('app_lang_v1'))).toBe(lang);

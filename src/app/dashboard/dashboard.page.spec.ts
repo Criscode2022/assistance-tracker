@@ -103,6 +103,24 @@ describe('DashboardPage', () => {
     expect(nav.navigateForward).toHaveBeenCalledWith('/config');
   });
 
+  it('should keep the selected month after attendance data changes', () => {
+    jasmine.clock().mockDate(new Date('2026-06-15T12:00:00'));
+    const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-06-30' });
+    svc.saveCourse(course);
+    component.ionViewWillEnter();
+    expect(component.selectedPeriod).toBe('2026-06');
+
+    component.selectedPeriod = '2026-05';
+    component.onPeriodChange();
+    expect(component.stats.month).toBe('2026-05');
+
+    svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
+
+    expect(component.selectedPeriod).toBe('2026-05');
+    expect(component.stats.month).toBe('2026-05');
+    expect(component.stats.presentDays).toBe(1);
+  });
+
   it('should load working days for the selected period', () => {
     const course = createMockCourse();
     svc.saveCourse(course);
