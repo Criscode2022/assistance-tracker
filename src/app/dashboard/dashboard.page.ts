@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { AttendanceService } from '../services/attendance.service';
+import { DayStatusPickerService } from '../services/day-status-picker.service';
 import { LanguageService } from '../services/language.service';
 import { Course, CoursePeriod, DayEntry, MonthStats } from '../models/attendance.model';
 
@@ -27,6 +28,7 @@ export class DashboardPage implements OnDestroy {
   constructor(
     private readonly svc: AttendanceService,
     private readonly nav: NavController,
+    private readonly statusPicker: DayStatusPickerService,
     private readonly lang: LanguageService,
     private readonly cdr: ChangeDetectorRef,
   ) {
@@ -178,6 +180,10 @@ export class DashboardPage implements OnDestroy {
 
   protected openLog(): void {
     this.nav.navigateRoot('/log');
+  }
+
+  protected async openStatusPicker(day: DayEntry): Promise<void> {
+    await this.statusPicker.open(day, this.selectedCourseId);
   }
 
   protected weekdayColumn(day: DayEntry): number {

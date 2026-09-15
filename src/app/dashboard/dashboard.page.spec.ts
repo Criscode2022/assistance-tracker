@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DashboardPage } from './dashboard.page';
 import { DayEntry } from '../models/attendance.model';
 import { AttendanceService } from '../services/attendance.service';
+import { DayStatusPickerService } from '../services/day-status-picker.service';
 import { LanguageService } from '../services/language.service';
 import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage, createMockCourse } from '../../testing/fixtures';
@@ -14,11 +15,14 @@ describe('DashboardPage', () => {
   let component: any;
   let fixture: ComponentFixture<DashboardPage>;
   let svc: AttendanceService;
+  let statusPicker: jasmine.SpyObj<DayStatusPickerService>;
 
   beforeEach(() => {
     clearBrowserStorage();
     jasmine.clock().install();
     jasmine.clock().mockDate(new Date('2026-05-15T12:00:00'));
+    statusPicker = jasmine.createSpyObj('DayStatusPickerService', ['open']);
+    statusPicker.open.and.returnValue(Promise.resolve(true));
 
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
@@ -28,6 +32,7 @@ describe('DashboardPage', () => {
         AttendanceService,
         { provide: LanguageService, useValue: createMockLanguageService() },
         { provide: NavController, useValue: jasmine.createSpyObj('NavController', ['navigateForward', 'navigateRoot']) },
+        { provide: DayStatusPickerService, useValue: statusPicker },
       ],
     });
 
@@ -142,5 +147,15 @@ describe('DashboardPage', () => {
     const nav = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     component.openLog();
     expect(nav.navigateRoot).toHaveBeenCalledWith('/log');
+  });
+
+  it('should open the status picker for a period day without navigating', async () => {
+    const nav = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    const day = { date: '2026-05-23', isFuture: true } as DayEntry;
+
+    await component.openStatusPicker(day);
+
+    expect(statusPicker.open).toHaveBeenCalledWith(day, component.selectedCourseId);
+    expect(nav.navigateRoot).not.toHaveBeenCalled();
   });
 });

@@ -165,7 +165,7 @@
           [class.is-today]="day.isToday"
           [class.is-future]="day.isFuture"
           [style.grid-column]="weekdayColumn(day)"
-          (click)="openLog()">
+          (click)="openStatusPicker(day)">
           <span class="period-day-num">{{ dayNumber(day) }}</span>
         </button>
       </div>
