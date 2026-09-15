@@ -10,11 +10,12 @@ import { CloudSyncService } from '../services/cloud-sync.service';
 import { NeonService } from '../services/neon.service';
 import { AuthFlowNavigationService } from '../services/auth-flow-navigation.service';
 import { LanguageService } from '../services/language.service';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage, createMockCourse } from '../../testing/fixtures';
 import { createMockLanguageService, createMockNeonService, createMockTranslateService } from '../../testing/mocks';
 
 describe('AuthPage', () => {
-  let component: AuthPage;
+  let component: any;
   let fixture: ComponentFixture<AuthPage>;
   let attendance: AttendanceService;
   let authFlowNav: jasmine.SpyObj<AuthFlowNavigationService>;
@@ -55,7 +56,7 @@ describe('AuthPage', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(AuthPage);
-    component = fixture.componentInstance;
+    component = accessible(fixture.componentInstance);
     attendance = TestBed.inject(AttendanceService);
     authFlowNav = TestBed.inject(AuthFlowNavigationService) as jasmine.SpyObj<AuthFlowNavigationService>;
   });

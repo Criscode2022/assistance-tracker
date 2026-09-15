@@ -7,6 +7,7 @@ import { CREATE_COURSE_NAV, EMPTY_COURSES_COPY, SIGN_IN_NAV } from '../constants
 import { AppModeService } from '../services/app-mode.service';
 import { CourseImportService } from '../services/course-import.service';
 import { EmptyCoursesComponent } from './empty-courses.component';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage } from '../../testing/fixtures';
 
 @Component({
@@ -58,7 +59,7 @@ describe('EmptyCoursesComponent', () => {
     const navSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
     fixture.detectChanges();
 
-    fixture.componentInstance.onCreate();
+    accessible(fixture.componentInstance).onCreate();
 
     expect(navSpy).toHaveBeenCalledWith([CREATE_COURSE_NAV.path], {
       queryParams: { [CREATE_COURSE_NAV.queryParam]: CREATE_COURSE_NAV.queryValue },
@@ -72,7 +73,7 @@ describe('EmptyCoursesComponent', () => {
     fixture.detectChanges();
 
     const child = fixture.debugElement.children[0].componentInstance as EmptyCoursesComponent;
-    child.onCreate();
+    accessible(child).onCreate();
 
     expect(fixture.componentInstance.opened).toBeTrue();
     expect(navSpy).not.toHaveBeenCalled();
@@ -84,7 +85,7 @@ describe('EmptyCoursesComponent', () => {
     const input = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
     const clickSpy = spyOn(input, 'click');
 
-    fixture.componentInstance.onImport();
+    accessible(fixture.componentInstance).onImport();
 
     expect(clickSpy).toHaveBeenCalled();
   });
@@ -93,7 +94,7 @@ describe('EmptyCoursesComponent', () => {
     const fixture = TestBed.createComponent(EmptyCoursesComponent);
     const event = { target: { files: [], value: 'x' } } as unknown as Event;
 
-    fixture.componentInstance.onFileSelected(event);
+    accessible(fixture.componentInstance).onFileSelected(event);
 
     expect(courseImport.importFromInputEvent).toHaveBeenCalledWith(event);
   });
@@ -106,7 +107,7 @@ describe('EmptyCoursesComponent', () => {
     spyOn(appMode, 'setOnlineIntent').and.callThrough();
     fixture.detectChanges();
 
-    fixture.componentInstance.onSignIn();
+    accessible(fixture.componentInstance).onSignIn();
 
     expect(appMode.setOnlineIntent).toHaveBeenCalled();
     expect(navSpy).toHaveBeenCalledWith([SIGN_IN_NAV.path], {

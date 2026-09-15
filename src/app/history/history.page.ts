@@ -11,28 +11,28 @@ import { Subscription } from 'rxjs';
   standalone: false,
 })
 export class HistoryPage implements OnDestroy {
-  monthStatsList: MonthStats[] = [];
-  courses: Course[] = [];
-  selectedCourseId: string | null = null;
+  protected monthStatsList: MonthStats[] = [];
+  protected courses: Course[] = [];
+  protected selectedCourseId: string | null = null;
 
-  private langSub?: Subscription;
-  private dataSub?: Subscription;
+  private readonly langSub: Subscription;
+  private readonly dataSub: Subscription;
 
   constructor(
-    private svc: AttendanceService,
-    private lang: LanguageService,
-    private cdr: ChangeDetectorRef,
+    private readonly svc: AttendanceService,
+    private readonly lang: LanguageService,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.langSub = this.lang.onLangChange().subscribe(() => this.refreshView());
     this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshView());
   }
 
-  ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
-    this.dataSub?.unsubscribe();
+  public ngOnDestroy(): void {
+    this.langSub.unsubscribe();
+    this.dataSub.unsubscribe();
   }
 
-  ionViewWillEnter(): void {
+  public ionViewWillEnter(): void {
     this.refreshView();
   }
 
@@ -43,23 +43,23 @@ export class HistoryPage implements OnDestroy {
     this.cdr.detectChanges();
   }
 
-  onCourseChange(): void {
+  protected onCourseChange(): void {
     this.svc.selectedCourseId = this.selectedCourseId;
     this.load();
   }
 
-  load(): void {
+  private load(): void {
     const periods = this.svc.getPeriodsForCourse(this.selectedCourseId ?? undefined);
     this.monthStatsList = periods.map((p) =>
       this.svc.getPeriodStats(p.key, this.selectedCourseId ?? undefined)
     );
   }
 
-  statusColor(s: MonthStats): string {
+  protected statusColor(s: MonthStats): string {
     return s.overallStatus === 'failed' ? 'danger' : s.overallStatus === 'warning' ? 'warning' : 'success';
   }
 
-  statusIcon(s: MonthStats): string {
+  protected statusIcon(s: MonthStats): string {
     return s.overallStatus === 'failed' ? 'close-circle' : s.overallStatus === 'warning' ? 'warning' : 'checkmark-circle';
   }
 }

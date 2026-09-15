@@ -125,21 +125,20 @@ const courseFormSchema = (schemaPath: SchemaPathTree<CourseFormModel>) => {
   standalone: false,
 })
 export class CoursesPage implements OnDestroy {
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInput') private readonly fileInput!: ElementRef<HTMLInputElement>;
 
   protected courses: Course[] = [];
   protected showForm = false;
   protected editingId: string | null = null;
 
-  readonly courseModel = signal<CourseFormModel>(this.blankForm());
+  protected readonly courseModel = signal<CourseFormModel>(this.blankForm());
+  protected readonly courseForm = form(this.courseModel, courseFormSchema);
 
-  readonly courseForm = form(this.courseModel, courseFormSchema);
-
-  readonly isValidForm = computed(() =>
+  protected readonly isValidForm = computed(() =>
     VALIDATED_COURSE_FIELDS.every((field) => this.fieldState(field).valid()),
   );
 
-  readonly calcExitTime = computed(() => {
+  protected readonly calcExitTime = computed(() => {
     const { startTime, hoursPerDay } = this.courseModel();
     if (!startTime || !hoursPerDay) return '';
     const [h, m] = startTime.split(':').map(Number);
@@ -147,35 +146,39 @@ export class CoursesPage implements OnDestroy {
     return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
   });
 
-  readonly limitsSectionKey = computed(() =>
+  protected readonly limitsSectionKey = computed(() =>
     this.courseModel().periodMode === 'module'
       ? 'COURSES.PERIOD_LIMITS'
       : 'COURSES.MONTHLY_LIMITS',
   );
 
-  readonly showModules = computed(() => this.courseModel().periodMode === 'module');
+  protected readonly showModules = computed(() => this.courseModel().periodMode === 'module');
 
-  readonly formSubmitted = signal(false);
+  protected readonly formSubmitted = signal(false);
 
   private readonly moduleFieldTouched = new Set<string>();
 
-  protected selectMode = signal(false);
-  protected selectedIds = new Set<string>();
-  readonly tabletLayout = signal(false);
+  protected readonly selectMode = signal(false);
+  private readonly selectedIds = new Set<string>();
+  protected readonly tabletLayout = signal(false);
 
-  private langSub?: Subscription;
-  private dataSub?: Subscription;
-  private routeSub?: Subscription;
-  private tabletMql?: MediaQueryList;
+  private readonly langSub: Subscription;
+  private readonly dataSub: Subscription;
+  private readonly routeSub: Subscription;
+  private readonly tabletMql: MediaQueryList;
   private readonly onTabletLayoutChange = (e: MediaQueryListEvent) => {
     this.tabletLayout.set(e.matches);
   };
 
-  get selectedCount(): number {
+  protected get selectedCourseId(): string | null {
+    return this.svc.selectedCourseId;
+  }
+
+  protected get selectedCount(): number {
     return this.selectedIds.size;
   }
 
-  get actionsLabel(): string {
+  protected get actionsLabel(): string {
     const count = this.selectedCount;
     return count > 0
       ? this.translate.instant('COURSES.ACTIONS_COUNT', { count })
@@ -183,16 +186,16 @@ export class CoursesPage implements OnDestroy {
   }
 
   constructor(
-    public svc: AttendanceService,
-    private alert: AlertController,
-    private actionSheet: ActionSheetController,
-    private toast: ToastController,
-    private translate: TranslateService,
-    private lang: LanguageService,
-    private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute,
-    private router: Router,
-    private courseImport: CourseImportService,
+    private readonly svc: AttendanceService,
+    private readonly alert: AlertController,
+    private readonly actionSheet: ActionSheetController,
+    private readonly toast: ToastController,
+    private readonly translate: TranslateService,
+    private readonly lang: LanguageService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly courseImport: CourseImportService,
   ) {
     this.langSub = this.lang.onLangChange().subscribe(() => this.refreshCourses());
     this.dataSub = this.svc.dataChanged$.subscribe(() => this.refreshCourses());
@@ -212,10 +215,10 @@ export class CoursesPage implements OnDestroy {
     this.tabletMql.addEventListener('change', this.onTabletLayoutChange);
   }
 
-  ionViewWillEnter(): void {
+  public ionViewWillEnter(): void {
     this.refreshCourses();
     this.exitSelectMode();
-    this.tabletLayout.set(this.tabletMql?.matches ?? false);
+    this.tabletLayout.set(this.tabletMql.matches);
   }
 
   private refreshCourses(): void {
@@ -278,18 +281,18 @@ export class CoursesPage implements OnDestroy {
     this.courseModel.set({ ...current, modules: current.modules });
   }
 
-  trackModuleById(_index: number, mod: CourseModule): string {
+  protected trackModuleById(_index: number, mod: CourseModule): string {
     return mod.id;
   }
 
-  shouldShowModuleFieldErrors(moduleId: string, field: ModuleField): boolean {
+  protected shouldShowModuleFieldErrors(moduleId: string, field: ModuleField): boolean {
     return (
       (this.moduleFieldTouched.has(`${moduleId}:${field}`) || this.formSubmitted()) &&
       this.moduleFieldErrors(moduleId, field).length > 0
     );
   }
 
-  moduleFieldErrors(moduleId: string, field: ModuleField): ModuleFieldError[] {
+  protected moduleFieldErrors(moduleId: string, field: ModuleField): ModuleFieldError[] {
     const data = this.courseModel();
     if (data.periodMode !== 'module') return [];
 
@@ -355,7 +358,7 @@ export class CoursesPage implements OnDestroy {
     return errors;
   }
 
-  periodModeSectionErrors(): ModuleFieldError[] {
+  protected periodModeSectionErrors(): ModuleFieldError[] {
     return this.fieldErrors('periodMode')
       .filter((e) => e.kind === 'modulesRequired')
       .map((e) => ({
@@ -384,24 +387,24 @@ export class CoursesPage implements OnDestroy {
   }
 
   /** Show inline errors after touch, edit, or a save attempt. */
-  shouldShowErrors(field: CourseFormField): boolean {
+  protected shouldShowErrors(field: CourseFormField): boolean {
     const state = this.fieldState(field);
     return (
       (state.touched() || state.dirty() || this.formSubmitted()) && state.invalid()
     );
   }
 
- protected fieldErrors(field: CourseFormField) {
+  protected fieldErrors(field: CourseFormField) {
     return this.fieldState(field).errors();
   }
 
- protected openNew(): void {
+  protected openNew(): void {
     this.editingId = null;
     this.resetCourseModel();
     this.showForm = true;
   }
 
- protected openEdit(course: Course): void {
+  protected openEdit(course: Course): void {
     this.editingId = course.id;
     const normalized = this.svc.normalizeCourse(course);
     this.courseModel.set({
@@ -452,7 +455,7 @@ export class CoursesPage implements OnDestroy {
     this.editingId = null;
   }
 
- protected selectCourse(id: string): void {
+  protected selectCourse(id: string): void {
     if (this.selectMode()) {
       this.toggleSelectId(id);
     } else {
@@ -460,7 +463,7 @@ export class CoursesPage implements OnDestroy {
     }
   }
 
-  async confirmDelete(course: Course): Promise<void> {
+  protected async confirmDelete(course: Course): Promise<void> {
     const al = await this.alert.create({
       header: this.translate.instant('COURSES.DELETE_HEADER'),
       message: this.translate.instant('COURSES.DELETE_MSG', { name: course.name }),
@@ -484,8 +487,8 @@ export class CoursesPage implements OnDestroy {
   }
 
   protected enterSelectMode(): void {
-  this.selectMode.set(true);
-  this.selectedIds.clear();
+    this.selectMode.set(true);
+    this.selectedIds.clear();
   }
 
   protected exitSelectMode(): void {
@@ -589,13 +592,13 @@ export class CoursesPage implements OnDestroy {
     this.exitSelectMode();
   }
 
- private exportSelected(): void {
+  private exportSelected(): void {
     const ids = [...this.selectedIds];
     this.exportCourseIds(ids);
     this.exitSelectMode();
   }
 
- protected exportSingle(course: Course): void {
+  protected exportSingle(course: Course): void {
     this.exportCourseIds([course.id]);
   }
 
@@ -624,12 +627,12 @@ export class CoursesPage implements OnDestroy {
     URL.revokeObjectURL(url);
   }
 
- protected triggerImport(): void {
+  protected triggerImport(): void {
     this.fileInput.nativeElement.value = '';
     this.fileInput.nativeElement.click();
   }
 
-  async onFileSelected(event: Event): Promise<void> {
+  protected async onFileSelected(event: Event): Promise<void> {
     await this.courseImport.importFromInputEvent(event);
   }
 
@@ -644,15 +647,15 @@ export class CoursesPage implements OnDestroy {
     await t.present();
   }
 
- protected dateRangeLabel(course: Course): string {
+  protected dateRangeLabel(course: Course): string {
     const fmt = (ds: string) => this.lang.formatShortDate(ds);
     return `${fmt(course.startDate)} → ${fmt(course.endDate)}`;
   }
 
-  ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
-    this.dataSub?.unsubscribe();
-    this.routeSub?.unsubscribe();
-    this.tabletMql?.removeEventListener('change', this.onTabletLayoutChange);
+  public ngOnDestroy(): void {
+    this.langSub.unsubscribe();
+    this.dataSub.unsubscribe();
+    this.routeSub.unsubscribe();
+    this.tabletMql.removeEventListener('change', this.onTabletLayoutChange);
   }
 }

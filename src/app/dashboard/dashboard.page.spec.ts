@@ -3,13 +3,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardPage } from './dashboard.page';
+import { DayEntry } from '../models/attendance.model';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
+import { accessible } from '../../testing/accessible';
 import { clearBrowserStorage, createMockCourse } from '../../testing/fixtures';
 import { createMockLanguageService } from '../../testing/mocks';
 
 describe('DashboardPage', () => {
-  let component: DashboardPage;
+  let component: any;
   let fixture: ComponentFixture<DashboardPage>;
   let svc: AttendanceService;
 
@@ -25,12 +27,12 @@ describe('DashboardPage', () => {
       providers: [
         AttendanceService,
         { provide: LanguageService, useValue: createMockLanguageService() },
-        { provide: NavController, useValue: jasmine.createSpyObj('NavController', ['navigateForward']) },
+        { provide: NavController, useValue: jasmine.createSpyObj('NavController', ['navigateForward', 'navigateRoot']) },
       ],
     });
 
     fixture = TestBed.createComponent(DashboardPage);
-    component = fixture.componentInstance;
+    component = accessible(fixture.componentInstance);
     svc = TestBed.inject(AttendanceService);
   });
 
@@ -117,5 +119,28 @@ describe('DashboardPage', () => {
     expect(component.selectedPeriod).toBe('2026-05');
     expect(component.stats.month).toBe('2026-05');
     expect(component.stats.presentDays).toBe(1);
+  });
+
+  it('should load working days for the selected period', () => {
+    const course = createMockCourse();
+    svc.saveCourse(course);
+    svc.setDayRecord('2026-05-05', { status: 'present' }, course.id);
+    component.ionViewWillEnter();
+
+    expect(component.days.length).toBeGreaterThan(0);
+    expect(
+      (component.days as DayEntry[]).some((d) => d.date === '2026-05-05' && d.status === 'present'),
+    ).toBeTrue();
+  });
+
+  it('should map weekday columns from Monday to Friday', () => {
+    expect(component.weekdayColumn({ date: '2026-05-04' } as never)).toBe(1);
+    expect(component.weekdayColumn({ date: '2026-05-08' } as never)).toBe(5);
+  });
+
+  it('should navigate to the log from the period board', () => {
+    const nav = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    component.openLog();
+    expect(nav.navigateRoot).toHaveBeenCalledWith('/log');
   });
 });

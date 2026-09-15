@@ -12,14 +12,14 @@ import { NeonService } from './services/neon.service';
 })
 export class AppComponent implements OnInit {
   constructor(
-    private appMode: AppModeService,
-    private neon: NeonService,
-    private router: Router,
+    private readonly appMode: AppModeService,
+    private readonly neon: NeonService,
+    private readonly router: Router,
     // Ensures cloud sync hooks are registered at startup
-    private _cloudSync: CloudSyncService,
+    private readonly _cloudSync: CloudSyncService,
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  public async ngOnInit(): Promise<void> {
     if (!this.appMode.isOnline()) return;
 
     const session = await this.neon.getSession();

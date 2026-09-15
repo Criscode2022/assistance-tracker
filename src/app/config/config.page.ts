@@ -17,35 +17,35 @@ import { AuthFlowNavigationService } from '../services/auth-flow-navigation.serv
   standalone: false,
 })
 export class ConfigPage {
-  settings: NotificationSettings;
-  permissionStatus: NotificationPermission | 'unsupported' = 'unsupported';
-  testSent = false;
-  onlineMode = false;
-  onlineUser: AuthUser | null = null;
-  switchingMode = false;
-  currentLang: AppLanguage = 'es';
-  darkMode = false;
+  protected settings: NotificationSettings;
+  protected permissionStatus: NotificationPermission | 'unsupported' = 'unsupported';
+  protected testSent = false;
+  protected onlineMode = false;
+  protected onlineUser: AuthUser | null = null;
+  protected switchingMode = false;
+  protected currentLang: AppLanguage = 'es';
+  protected darkMode = false;
 
   constructor(
-    private nav: NavController,
-    private router: Router,
-    private notifSvc: NotificationService,
-    private attendanceSvc: AttendanceService,
-    private alertCtrl: AlertController,
-    private appMode: AppModeService,
-    private neon: NeonService,
-    private toast: ToastController,
-    private translate: TranslateService,
-    private lang: LanguageService,
-    private theme: ThemeService,
-    private authFlowNav: AuthFlowNavigationService,
-    private cdr: ChangeDetectorRef,
+    private readonly nav: NavController,
+    private readonly router: Router,
+    private readonly notifSvc: NotificationService,
+    private readonly attendanceSvc: AttendanceService,
+    private readonly alertCtrl: AlertController,
+    private readonly appMode: AppModeService,
+    private readonly neon: NeonService,
+    private readonly toast: ToastController,
+    private readonly translate: TranslateService,
+    private readonly lang: LanguageService,
+    private readonly theme: ThemeService,
+    private readonly authFlowNav: AuthFlowNavigationService,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.settings = this.notifSvc.getSettings();
     this.permissionStatus = this.notifSvc.getPermission();
   }
 
-  ionViewWillEnter(): void {
+  public ionViewWillEnter(): void {
     this.settings = this.notifSvc.getSettings();
     this.permissionStatus = this.notifSvc.getPermission();
     this.testSent = false;
@@ -55,7 +55,7 @@ export class ConfigPage {
     void this.loadOnlineUser();
   }
 
-  onDarkModeChange(event: CustomEvent): void {
+  protected onDarkModeChange(event: CustomEvent): void {
     this.theme.onToggleChange(!!event.detail.checked);
     this.darkMode = this.theme.isDark;
   }
@@ -65,27 +65,27 @@ export class ConfigPage {
     this.cdr.detectChanges();
   }
 
-  get onlineActive(): boolean {
+  protected get onlineActive(): boolean {
     return this.appMode.isOnline();
   }
 
-  get onlinePending(): boolean {
+  protected get onlinePending(): boolean {
     return this.appMode.hasOnlineIntent();
   }
 
-  onLanguageChange(event: CustomEvent): void {
+  protected onLanguageChange(event: CustomEvent): void {
     const value = event.detail.value as AppLanguage;
     this.currentLang = value;
     this.lang.setLanguage(value);
   }
 
-  goToAuth(): void {
+  protected goToAuth(): void {
     this.appMode.setOnlineIntent();
     this.onlineMode = true;
     void this.router.navigate(['/auth']);
   }
 
-  async onOnlineModeChange(event: CustomEvent): Promise<void> {
+  protected async onOnlineModeChange(event: CustomEvent): Promise<void> {
     const enabled = event.detail.checked;
 
     if (enabled) {
@@ -136,7 +136,7 @@ export class ConfigPage {
     }
   }
 
-  async signOutOnline(): Promise<void> {
+  protected async signOutOnline(): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: this.translate.instant('ONLINE.SIGNOUT_HEADER'),
       message: this.translate.instant('ONLINE.SIGNOUT_MSG'),
@@ -156,27 +156,27 @@ export class ConfigPage {
     await t.present();
   }
 
-  goBack(): void {
+  protected goBack(): void {
     void this.authFlowNav.exitToDashboard();
   }
 
-  get notifSupported(): boolean {
+  protected get notifSupported(): boolean {
     return this.notifSvc.isSupported();
   }
 
-  get permissionGranted(): boolean {
+  protected get permissionGranted(): boolean {
     return this.permissionStatus === 'granted';
   }
 
-  get permissionDenied(): boolean {
+  protected get permissionDenied(): boolean {
     return this.permissionStatus === 'denied';
   }
 
-  onSettingChange(): void {
+  protected onSettingChange(): void {
     this.notifSvc.saveSettings(this.settings);
   }
 
-  async requestPermission(): Promise<void> {
+  protected async requestPermission(): Promise<void> {
     const result = await this.notifSvc.requestPermission();
     this.permissionStatus = result;
     if (result === 'granted') {
@@ -184,7 +184,7 @@ export class ConfigPage {
     }
   }
 
-  async sendTestNotification(): Promise<void> {
+  protected async sendTestNotification(): Promise<void> {
     if (this.permissionStatus !== 'granted') {
       await this.requestPermission();
     }
@@ -195,7 +195,7 @@ export class ConfigPage {
     setTimeout(() => (this.testSent = false), 3000);
   }
 
-  async confirmDeleteAll(): Promise<void> {
+  protected async confirmDeleteAll(): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: this.translate.instant('CONFIG.DELETE_ALL_HEADER'),
       message: this.translate.instant('CONFIG.DELETE_ALL_MSG'),

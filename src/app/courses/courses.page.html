@@ -447,7 +447,7 @@
 
           class="course-item"
 
-          [class.course-active]="!selectMode() && svc.selectedCourseId === course.id"
+          [class.course-active]="!selectMode() && selectedCourseId === course.id"
 
           [class.course-selected]="selectMode() && isSelected(course.id)"
 
@@ -465,7 +465,7 @@
 
               class="course-radio"
 
-              [class.radio-on]="svc.selectedCourseId === course.id">
+              [class.radio-on]="selectedCourseId === course.id">
 
             </div>
 
