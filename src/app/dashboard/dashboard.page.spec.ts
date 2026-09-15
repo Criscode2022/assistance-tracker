@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardPage } from './dashboard.page';
+import { DayEntry } from '../models/attendance.model';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
 import { accessible } from '../../testing/accessible';
@@ -109,7 +110,9 @@ describe('DashboardPage', () => {
     component.ionViewWillEnter();
 
     expect(component.days.length).toBeGreaterThan(0);
-    expect(component.days.some((d) => d.date === '2026-05-05' && d.status === 'present')).toBeTrue();
+    expect(
+      (component.days as DayEntry[]).some((d) => d.date === '2026-05-05' && d.status === 'present'),
+    ).toBeTrue();
   });
 
   it('should map weekday columns from Monday to Friday', () => {
