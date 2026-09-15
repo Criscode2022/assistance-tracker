@@ -7,7 +7,7 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { ActionSheetButton, ActionSheetController, AlertController, ToastController } from '@ionic/angular';
+import { ActionSheetButton, ActionSheetController, AlertController } from '@ionic/angular';
 import {
   form,
   max,
@@ -189,7 +189,6 @@ export class CoursesPage implements OnDestroy {
     private readonly svc: AttendanceService,
     private readonly alert: AlertController,
     private readonly actionSheet: ActionSheetController,
-    private readonly toast: ToastController,
     private readonly translate: TranslateService,
     private readonly lang: LanguageService,
     private readonly cdr: ChangeDetectorRef,
@@ -640,11 +639,6 @@ export class CoursesPage implements OnDestroy {
     return course.periodMode === 'module'
       ? this.translate.instant('COURSES.PERIOD_MODE_MODULE')
       : this.translate.instant('COURSES.PERIOD_MODE_MONTH');
-  }
-
-  private async showToast(message: string, color: string): Promise<void> {
-    const t = await this.toast.create({ message, color, duration: 2500, position: 'bottom' });
-    await t.present();
   }
 
   protected dateRangeLabel(course: Course): string {

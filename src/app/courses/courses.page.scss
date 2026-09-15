@@ -12,7 +12,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    align-items: start;
+    align-items: stretch;
     padding-bottom: 96px;
   }
 }
@@ -32,6 +32,7 @@
     @media (min-width: 1024px) {
       grid-column: 1;
       grid-row: 1 / span 2;
+      height: 100%;
     }
   }
 

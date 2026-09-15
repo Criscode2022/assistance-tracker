@@ -16,7 +16,7 @@ export class EmptyCoursesComponent implements OnDestroy {
   protected showSignIn = true;
 
   @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>;
-  @Output() create = new EventEmitter<void>();
+  @Output() readonly create = new EventEmitter<void>();
 
   private readonly modeSub: Subscription;
 

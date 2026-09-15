@@ -25,7 +25,7 @@ export class AttendanceService {
   private readonly dataChangedSubject = new Subject<void>();
   readonly dataChanged$ = this.dataChangedSubject.asObservable();
 
-  constructor(private lang: LanguageService) {
+  constructor(private readonly lang: LanguageService) {
     this.load();
   }
 
@@ -330,7 +330,7 @@ export class AttendanceService {
     this.writePeriodMap(map);
   }
 
-  clearSelectedPeriodKey(courseId?: string): void {
+  private clearSelectedPeriodKey(courseId?: string): void {
     if (!courseId) {
       sessionStorage.removeItem(SELECTED_PERIOD_KEY);
       return;
