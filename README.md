@@ -251,6 +251,19 @@ To sign out, go to Settings → Sign out. Your local data is retained on the dev
 
 > **Note**: Email verification is required before signing in. Check your inbox after registration.
 
+### Row-Level Security
+
+Cloud tables are queried directly from the browser through the Neon Data API. Postgres RLS is what stops one account from reading or writing another account's data.
+
+| Table | Rule |
+| --- | --- |
+| `courses` | Authenticated user can CRUD only rows where `user_id` = JWT `sub` |
+| `attendance_records` | Same owner check; writes must also reference a course that user owns |
+| `user_preferences` | Same owner check; `selected_course_id` must be null or a course that user owns |
+| Anonymous Data API callers | No access |
+
+SQL: [`sql/rls.sql`](sql/rls.sql). Full policy catalog: [`docs/RLS.md`](docs/RLS.md).
+
 ---
 
 ## Tech Stack
