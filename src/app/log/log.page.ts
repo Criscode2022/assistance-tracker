@@ -90,7 +90,7 @@ export class LogPage implements OnDestroy {
   }
 
   protected trackByDate(_index: number, day: DayEntry): string {
-    return `${day.date}:${day.status}:${day.entryTime ?? ''}:${day.exitTime ?? ''}`;
+    return `${day.date}:${day.status}:${day.holidayName ?? ''}:${day.entryTime ?? ''}:${day.exitTime ?? ''}`;
   }
 
   protected periodLabelFor(period: CoursePeriod): string {
@@ -102,14 +102,13 @@ export class LogPage implements OnDestroy {
   }
 
   protected quickToggle(day: DayEntry): void {
-    if (day.isFuture) return;
+    if (day.isFuture || day.status === 'holiday') return;
     const newStatus = day.status === 'present' ? 'absent' : 'present';
     this.svc.setDayRecord(day.date, { status: newStatus }, this.selectedCourseId ?? undefined);
     this.refreshAfterEdit();
   }
 
   protected async openStatusPicker(day: DayEntry): Promise<void> {
-    if (day.isFuture) return;
     const changed = await this.statusPicker.open(day, this.selectedCourseId);
     if (changed) {
       this.refreshAfterEdit();
@@ -129,6 +128,7 @@ export class LogPage implements OnDestroy {
       case 'absent':    return 'close-circle';
       case 'late':      return 'time';
       case 'cancelled': return 'ban';
+      case 'holiday':   return 'flag';
       default:          return 'ellipse-outline';
     }
   }
@@ -139,6 +139,7 @@ export class LogPage implements OnDestroy {
       case 'absent':    return 'danger';
       case 'late':      return 'warning';
       case 'cancelled': return 'medium';
+      case 'holiday':   return 'tertiary';
       default:          return 'medium';
     }
   }

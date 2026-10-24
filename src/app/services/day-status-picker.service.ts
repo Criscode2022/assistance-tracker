@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActionSheetController, AlertController } from '@ionic/angular';
+import { ActionSheetButton, ActionSheetController, AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { DayEntry, DayRecord } from '../models/attendance.model';
 import { AttendanceService } from './attendance.service';
@@ -14,55 +14,22 @@ export class DayStatusPickerService {
   ) {}
 
   public async open(day: DayEntry, courseId?: string | null): Promise<boolean> {
+    if (day.status === 'holiday') return false;
+
     let refreshAfterSheet = false;
     let openLatePicker = false;
+    const markChanged = () => {
+      refreshAfterSheet = true;
+    };
 
     const sheet = await this.actionSheet.create({
       header: `${day.dayLabel}, ${day.dateLabel}`,
       cssClass: 'modern-action-sheet',
-      buttons: [
-        {
-          text: this.translate.instant('COMMON.PRESENT'),
-          icon: 'checkmark-circle-outline',
-          handler: () => {
-            this.saveDayRecord(day.date, { status: 'present' }, courseId);
-            refreshAfterSheet = true;
-          },
-        },
-        {
-          text: this.translate.instant('LOG.LATE_OPTION'),
-          icon: 'time-outline',
-          handler: () => {
+      buttons: day.isFuture
+        ? this.futureDayButtons(day, courseId, markChanged)
+        : this.loggedDayButtons(day, courseId, markChanged, () => {
             openLatePicker = true;
-          },
-        },
-        {
-          text: this.translate.instant('COMMON.ABSENT'),
-          icon: 'close-circle-outline',
-          role: 'destructive',
-          handler: () => {
-            this.saveDayRecord(day.date, { status: 'absent' }, courseId);
-            refreshAfterSheet = true;
-          },
-        },
-        {
-          text: this.translate.instant('LOG.CANCELLED_OPTION'),
-          icon: 'ban-outline',
-          handler: () => {
-            this.saveDayRecord(day.date, { status: 'cancelled' }, courseId);
-            refreshAfterSheet = true;
-          },
-        },
-        {
-          text: this.translate.instant('COMMON.UNLOGGED'),
-          icon: 'remove-circle-outline',
-          handler: () => {
-            this.saveDayRecord(day.date, { status: 'unlogged' }, courseId);
-            refreshAfterSheet = true;
-          },
-        },
-        { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
-      ],
+          }),
     });
 
     await sheet.present();
@@ -72,6 +39,83 @@ export class DayStatusPickerService {
       return this.askForTimes(day, courseId);
     }
     return refreshAfterSheet;
+  }
+
+  private futureDayButtons(
+    day: DayEntry,
+    courseId: string | null | undefined,
+    markChanged: () => void,
+  ): ActionSheetButton[] {
+    return [
+      {
+        text: this.translate.instant('COMMON.UNLOGGED'),
+        icon: 'remove-circle-outline',
+        handler: () => {
+          this.saveDayRecord(day.date, { status: 'unlogged' }, courseId);
+          markChanged();
+        },
+      },
+      {
+        text: this.translate.instant('LOG.CANCELLED_OPTION'),
+        icon: 'ban-outline',
+        handler: () => {
+          this.saveDayRecord(day.date, { status: 'cancelled' }, courseId);
+          markChanged();
+        },
+      },
+      { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
+    ];
+  }
+
+  private loggedDayButtons(
+    day: DayEntry,
+    courseId: string | null | undefined,
+    markChanged: () => void,
+    openLatePicker: () => void,
+  ): ActionSheetButton[] {
+    return [
+      {
+        text: this.translate.instant('COMMON.PRESENT'),
+        icon: 'checkmark-circle-outline',
+        handler: () => {
+          this.saveDayRecord(day.date, { status: 'present' }, courseId);
+          markChanged();
+        },
+      },
+      {
+        text: this.translate.instant('LOG.LATE_OPTION'),
+        icon: 'time-outline',
+        handler: () => {
+          openLatePicker();
+        },
+      },
+      {
+        text: this.translate.instant('COMMON.ABSENT'),
+        icon: 'close-circle-outline',
+        role: 'destructive',
+        handler: () => {
+          this.saveDayRecord(day.date, { status: 'absent' }, courseId);
+          markChanged();
+        },
+      },
+      {
+        text: this.translate.instant('LOG.CANCELLED_OPTION'),
+        icon: 'ban-outline',
+        handler: () => {
+          this.saveDayRecord(day.date, { status: 'cancelled' }, courseId);
+          markChanged();
+        },
+      },
+      {
+        text: this.translate.instant('COMMON.UNLOGGED'),
+        icon: 'remove-circle-outline',
+        handler: () => {
+          this.saveDayRecord(day.date, { status: 'unlogged' }, courseId);
+          markChanged();
+        },
+      },
+      { text: this.translate.instant('COMMON.CANCEL'), role: 'cancel' },
+    ];
   }
 
   private saveDayRecord(

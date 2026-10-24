@@ -54,7 +54,7 @@
   @media (min-width: 1024px) {
     padding: 15px 18px;
 
-    &:hover:not(.day-future) {
+    &:hover:not(.day-holiday) {
       box-shadow: var(--app-shadow-md);
     }
   }
@@ -72,7 +72,8 @@
   &.day-absent  { border-left-color: var(--ion-color-danger); }
   &.day-late    { border-left-color: var(--ion-color-warning); }
   &.day-cancelled { border-left-color: #94a3b8; opacity: 0.7; }
-  &.day-future    { opacity: 0.45; cursor: default; }
+  &.day-holiday   { border-left-color: #6366f1; cursor: default; }
+  &.day-future:not(.day-holiday) { opacity: 0.45; }
 }
 
 .day-date-col {

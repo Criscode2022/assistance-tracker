@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AttendanceService } from './attendance.service';
 import { AppModeService } from './app-mode.service';
 import { NeonService } from './neon.service';
-import { Course, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
+import { Course, CourseHoliday, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
 
 interface DbCourse {
   id: string;
@@ -17,6 +17,7 @@ interface DbCourse {
   min_attendance_percent: number;
   period_mode?: string;
   modules?: CourseModule[] | string;
+  holidays?: CourseHoliday[] | string;
 }
 
 interface DbRecord {
@@ -226,6 +227,7 @@ export class CloudSyncService {
       min_attendance_percent: c.minAttendancePercent,
       period_mode: periodMode,
       modules: periodMode === 'module' ? (c.modules ?? []) : [],
+      holidays: c.holidays ?? [],
     };
   }
 
@@ -244,7 +246,22 @@ export class CloudSyncService {
       minAttendancePercent: Number(c.min_attendance_percent),
       periodMode,
       modules: periodMode === 'module' ? modules : [],
+      holidays: this.parseHolidays(c.holidays),
     };
+  }
+
+  private parseHolidays(raw: CourseHoliday[] | string | undefined): CourseHoliday[] {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw) as CourseHoliday[];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
   }
 
   private parseModules(raw: CourseModule[] | string | undefined): CourseModule[] {

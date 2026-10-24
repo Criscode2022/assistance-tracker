@@ -1,4 +1,4 @@
-export type AttendanceStatus = 'present' | 'absent' | 'late' | 'unlogged' | 'cancelled';
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'unlogged' | 'cancelled' | 'holiday';
 
 export interface DayRecord {
   status: AttendanceStatus;
@@ -11,12 +11,21 @@ export interface DayEntry {
   dateLabel: string;
   dayLabel: string;
   status: AttendanceStatus;
+  /** Set when status is 'holiday'. Shown instead of a generic label. */
+  holidayName?: string;
   entryTime?: string;
   exitTime?: string;
   hoursAttended: number;
   lostMinutes: number;
   isToday: boolean;
   isFuture: boolean;
+}
+
+/** A weekday excluded from attendance, displayed under its own name. */
+export interface CourseHoliday {
+  id: string;
+  date: string; // YYYY-MM-DD
+  name: string;
 }
 
 export type PeriodMode = 'month' | 'module';
@@ -73,6 +82,8 @@ export interface Course {
   periodMode?: PeriodMode;
   /** Required when periodMode is 'module'. */
   modules?: CourseModule[];
+  /** Weekdays marked automatically. Counted like a cancelled day. */
+  holidays?: CourseHoliday[];
 }
 
 /** JSON payload produced by course export / accepted by course import. */

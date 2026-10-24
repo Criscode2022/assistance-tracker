@@ -80,6 +80,7 @@ test.describe('Dashboard layout', () => {
     await seedLayoutCourse(page);
     await gotoTab(page, 'dashboard');
     await expect(page.locator('.dashboard-page')).toHaveCSS('display', 'block');
+    await expect(page.locator('app-dashboard ion-content')).toHaveCSS('--overflow', 'auto');
     const hero = await page.locator('.hero').boundingBox();
     const metrics = await page.locator('.metrics-grid').boundingBox();
     expect(hero && metrics).toBeTruthy();
@@ -114,6 +115,13 @@ test.describe('Dashboard layout', () => {
     expect(hours!.x).toBeGreaterThan(tardiness!.x + tardiness!.width - 8);
     expect(Math.abs(absences!.y - hours!.y)).toBeLessThan(24);
     await expect(page.locator('.period-board')).toBeVisible();
+    await expect(page.locator('app-dashboard ion-content')).toHaveCSS('--overflow', 'hidden');
+    const lastDay = page.locator('.period-day', { hasText: '30' });
+    await expect(lastDay).toBeVisible();
+    const lastBox = await lastDay.boundingBox();
+    const tabBox = await page.locator('ion-tab-bar').boundingBox();
+    expect(lastBox && tabBox).toBeTruthy();
+    expect(lastBox!.y + lastBox!.height).toBeLessThanOrEqual(tabBox!.y + 1);
     await page.locator('.period-link').click();
     await expect(page).toHaveURL(/\/log/);
   });

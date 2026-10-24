@@ -377,7 +377,57 @@
 
     </div>
 
+    <div class="form-section">
+      <div class="form-section-label">{{ 'COURSES.HOLIDAYS' | translate }}</div>
+      <p class="field-hint">{{ 'COURSES.HOLIDAYS_HINT' | translate }}</p>
 
+      <div class="modules-wrap" *ngIf="courseModel().holidays.length">
+        <div class="module-row" *ngFor="let holiday of courseModel().holidays; trackBy: trackHolidayById">
+          <div class="module-head">
+            <span class="module-index">{{ holiday.name || ('COURSES.HOLIDAY_NAME' | translate) }}</span>
+            <ion-button fill="clear" color="danger" size="small" (click)="removeHoliday(holiday.id)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">{{ 'COURSES.HOLIDAY_NAME' | translate }}</label>
+            <input
+              type="text"
+              class="modern-input"
+              [class.input-invalid]="shouldShowHolidayFieldErrors(holiday.id, 'name')"
+              [placeholder]="'COURSES.HOLIDAY_NAME_PLACEHOLDER' | translate"
+              [value]="holiday.name"
+              (input)="updateHoliday(holiday.id, { name: $any($event.target).value })" />
+            @if (shouldShowHolidayFieldErrors(holiday.id, 'name')) {
+              @for (error of holidayFieldErrors(holiday.id, 'name'); track error.kind) {
+                <p class="field-error">{{ error.message | translate }}</p>
+              }
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">{{ 'COURSES.HOLIDAY_DATE' | translate }}</label>
+            <input
+              type="date"
+              class="modern-input"
+              [class.input-invalid]="shouldShowHolidayFieldErrors(holiday.id, 'date')"
+              [value]="holiday.date"
+              (input)="updateHoliday(holiday.id, { date: $any($event.target).value })" />
+            @if (shouldShowHolidayFieldErrors(holiday.id, 'date')) {
+              @for (error of holidayFieldErrors(holiday.id, 'date'); track error.kind) {
+                <p class="field-error">{{ error.message | translate }}</p>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <ion-button expand="block" fill="outline" size="small" (click)="addHoliday()" class="add-module-btn">
+        <ion-icon slot="start" name="add-outline"></ion-icon>
+        {{ 'COURSES.ADD_HOLIDAY' | translate }}
+      </ion-button>
+    </div>
 
     <div class="form-actions">
 

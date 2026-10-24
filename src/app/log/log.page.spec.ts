@@ -56,7 +56,7 @@ describe('LogPage', () => {
     expect(component.periodLabel).toContain('2026-05');
   });
 
-  it('should not open status picker for future days', async () => {
+  it('should mark a future day cancelled from the limited picker', async () => {
     const actionSheet = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     const course = createMockCourse({ startDate: '2026-05-01', endDate: '2026-05-31' });
     svc.saveCourse(course);
@@ -65,7 +65,40 @@ describe('LogPage', () => {
     const future = component.days.find((d: { date: string; status: string; isFuture?: boolean }) => d.isFuture);
     expect(future).toBeTruthy();
 
+    spyOn(window, 'requestAnimationFrame').and.callFake((fn: FrameRequestCallback) => {
+      fn(0);
+      return 1;
+    });
+
+    actionSheet.create.and.callFake(async (opts: { buttons: { icon?: string; handler?: () => void }[] }) => {
+      const cancelled = opts.buttons.find((b) => b.icon === 'ban-outline');
+      return {
+        present: async () => {
+          cancelled?.handler?.();
+        },
+        onDidDismiss: async () => ({}),
+      } as unknown as HTMLIonActionSheetElement;
+    });
+
     await component.openStatusPicker(future!);
+    expect(
+      component.days.find((d: { date: string; status: string }) => d.date === future!.date)?.status,
+    ).toBe('cancelled');
+  });
+
+  it('should show a holiday name and skip the status picker', async () => {
+    const actionSheet = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
+    const course = createMockCourse({
+      holidays: [{ id: 'h1', date: '2026-05-14', name: 'Ascensión' }],
+    });
+    svc.saveCourse(course);
+    component.ionViewWillEnter();
+
+    const holiday = component.days.find((d: { date: string }) => d.date === '2026-05-14');
+    expect(holiday?.status).toBe('holiday');
+    expect(holiday?.holidayName).toBe('Ascensión');
+
+    await component.openStatusPicker(holiday!);
     expect(actionSheet.create).not.toHaveBeenCalled();
   });
 
@@ -75,6 +108,7 @@ describe('LogPage', () => {
     expect(component.statusColor({ status: 'late' } as never)).toBe('warning');
     expect(component.statusLabelKey({ status: 'unlogged' } as never)).toBe('COMMON.UNLOGGED');
     expect(component.statusIcon({ status: 'cancelled' } as never)).toBe('ban');
+    expect(component.statusIcon({ status: 'holiday' } as never)).toBe('flag');
   });
 
   it('should refresh day list when attendance record changes', () => {

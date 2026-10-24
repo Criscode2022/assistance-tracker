@@ -228,6 +228,30 @@ describe('AttendanceService', () => {
     const normalized = svc.normalizeCourse(course);
     expect(normalized.periodMode).toBe('month');
     expect(normalized.modules).toEqual([]);
+    expect(normalized.holidays).toEqual([]);
+  });
+
+  it('should show a holiday name and exclude that day from attendance', () => {
+    const course = createMockCourse({
+      holidays: [{ id: 'h1', date: '2026-05-14', name: 'Ascensión' }],
+    });
+    svc.saveCourse(course);
+    svc.setDayRecord('2026-05-13', { status: 'present' }, course.id);
+    svc.setDayRecord('2026-05-14', { status: 'absent' }, course.id);
+    svc.setDayRecord('2026-05-20', { status: 'cancelled' }, course.id);
+
+    const entries = svc.getDayEntriesForMonth('2026-05', course.id);
+    const holiday = entries.find((e) => e.date === '2026-05-14');
+    expect(holiday?.status).toBe('holiday');
+    expect(holiday?.holidayName).toBe('Ascensión');
+    expect(entries.find((e) => e.date === '2026-05-20')?.status).toBe('cancelled');
+
+    const stats = svc.getMonthStats('2026-05', course.id);
+    expect(stats.cancelledDays).toBe(1);
+    expect(stats.absentDays).toBe(0);
+    expect(stats.presentDays).toBe(1);
+    expect(stats.expectedHoursToDate).toBe(50);
+    expect(stats.attendancePercent).toBe(10);
   });
 
   it('should calc default exit time from course schedule', () => {

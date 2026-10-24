@@ -71,6 +71,8 @@ type CoursesPageTestable = CoursesPage & {
 
   saveForm(): void;
 
+  holidayFieldErrors(holidayId: string, field: 'name' | 'date'): { kind: string }[];
+
   selectCourse(id: string): void;
 
   enterSelectMode(): void;
@@ -460,6 +462,27 @@ describe('CoursesPage', () => {
 
       expect(svc.getCourses()[0].name).toBe('Nuevo curso');
 
+    });
+
+    it('should save holidays and reject a weekend date', () => {
+      page(component).showForm = true;
+      page(component).courseModel.set(createCourseFormModel({
+        name: 'Con festivo',
+        holidays: [{ id: 'h1', date: '2026-05-01', name: 'Día del Trabajo' }],
+      }));
+
+      page(component).saveForm();
+
+      expect(svc.getCourses()[0].holidays).toEqual([
+        { id: 'h1', date: '2026-05-01', name: 'Día del Trabajo' },
+      ]);
+
+      page(component).showForm = true;
+      page(component).courseModel.set(createCourseFormModel({
+        holidays: [{ id: 'h2', date: '2026-05-02', name: 'Sábado' }],
+      }));
+      expect(page(component).isValidForm()).toBeFalse();
+      expect(page(component).holidayFieldErrors('h2', 'date').some((e) => e.kind === 'weekend')).toBeTrue();
     });
 
   });

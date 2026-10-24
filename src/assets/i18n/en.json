@@ -191,6 +191,12 @@
     "MODULE_START": "Start date",
     "MODULE_END": "End date",
     "ADD_MODULE": "Add module",
+    "HOLIDAYS": "Holidays",
+    "HOLIDAYS_HINT": "Weekdays you add here are marked automatically. They do not count toward the attendance percentage, and the log shows the holiday name.",
+    "HOLIDAY_NAME": "Holiday name",
+    "HOLIDAY_NAME_PLACEHOLDER": "e.g. Labour Day",
+    "HOLIDAY_DATE": "Date",
+    "ADD_HOLIDAY": "Add holiday",
     "MAX_ABSENCES": "Max absences",
     "MAX_TARDINESS": "Max tardiness",
     "MIN_ATTENDANCE": "Min attendance %",
@@ -234,7 +240,12 @@
       "MODULE_END_BEFORE_START": "End date must be on or after the start date.",
       "MODULE_DATE_BEFORE_COURSE": "Cannot be before the course start date ({{date}}).",
       "MODULE_DATE_AFTER_COURSE": "Cannot be after the course end date ({{date}}).",
-      "MODULE_OUT_OF_RANGE": "Module dates must fall within the course date range."
+      "MODULE_OUT_OF_RANGE": "Module dates must fall within the course date range.",
+      "HOLIDAY_NAME_REQUIRED": "Enter a name for each holiday.",
+      "HOLIDAY_DATE_REQUIRED": "Select a date for each holiday.",
+      "HOLIDAY_DUPLICATE": "This date is already a holiday.",
+      "HOLIDAY_OUT_OF_RANGE": "Holiday dates must fall within the course date range.",
+      "HOLIDAY_WEEKEND": "Holidays apply to weekdays only (Monday–Friday)."
     }
   }
 }

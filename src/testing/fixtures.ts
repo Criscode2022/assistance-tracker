@@ -21,6 +21,7 @@ export function createCourseFormModel(
     minAttendancePercent: 75,
     periodMode: 'month',
     modules: [],
+    holidays: [],
     ...overrides,
   };
 }
@@ -38,6 +39,7 @@ export function createMockCourse(overrides: Partial<Course> = {}): Course {
     minAttendancePercent: 75,
     periodMode: 'month',
     modules: [],
+    holidays: [],
     ...overrides,
   };
 }

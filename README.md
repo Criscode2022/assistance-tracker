@@ -94,9 +94,11 @@ The Log tab (`/tabs/log`) shows every working day in the selected course for the
 - A colored left border indicating status
 - A chevron indicating the card is tappable
 
-**Future days** are shown at reduced opacity and are not tappable.
+**Future days** are shown at reduced opacity. Tapping one offers only two statuses: unlogged (not registered) or class cancelled. Swipe stays disabled on future days.
 
-**Tapping a card** opens an action sheet to set the status:
+**Holidays** are set on the course (a date and a name). Matching weekdays are marked automatically with that name. They are excluded from the attendance percentage the same way as a cancelled class, and they are not edited from the log.
+
+**Tapping a card** for today or a past day opens an action sheet to set the status:
 - Present
 - Late / Impuntual (with optional entry and exit time)
 - Absent
@@ -193,9 +195,10 @@ A "Send test notification" button lets you verify that notifications are working
 | Late | Yellow | No | Yes (partial, based on logged times) | Clock |
 | Absent | Red | Yes | Yes | X circle |
 | Cancelled | Grey (muted) | No | **No** | Ban |
+| Holiday | Indigo | No | **No** | Flag |
 | Unlogged | None | No | No | Empty circle |
 
-**Cancelled** days are excluded from the attendance denominator entirely. If a class is cancelled, it does not count as an absence and does not contribute to the expected hours total — the attendance percentage is calculated as if that day did not exist.
+**Cancelled** days and **holidays** are excluded from the attendance denominator entirely. A holiday shows its name instead of "Class cancelled". Neither counts as an absence, and neither contributes to the expected hours total — the attendance percentage is calculated as if that day did not exist.
 
 ---
 
@@ -208,7 +211,7 @@ attendancePercent = totalHoursAttended / (effectiveWorkingDays × hoursPerDay) �
 ```
 
 - `elapsedWorkingDays`: Mon–Fri days within the course date range, up to and including today
-- `cancelledDays`: days within the elapsed period marked as "Cancelled"
+- `cancelledDays`: elapsed days marked as "Cancelled", plus elapsed holidays
 - `totalHoursAttended`: sum of hours for Present days (full `hoursPerDay`) + Late days (hours between logged entry and exit times, or 0 if no schedule recorded)
 - Hours for a Late day with times: `exitTime − entryTime` capped at `hoursPerDay`
 - `lostMinutes` per late day: `hoursPerDay × 60 − minutesAttended`

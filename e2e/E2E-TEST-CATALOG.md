@@ -167,8 +167,8 @@
 | L-001 | P0 | Log shows Mon–Fri only within course date range | No weekends |
 | L-002 | P0 | Today badge on current day | "TODAY" visible |
 | L-003 | P1 | Future days shown at reduced opacity | `isFuture` styling |
-| L-004 | P1 | Future days not tappable | Action sheet does not open |
-| L-005 | P1 | Future days swipe disabled | `ion-item-sliding` disabled |
+| L-004 | P1 | Tap a future day | Action sheet offers only unlogged and cancelled |
+| L-005 | P1 | Future days swipe disabled | No swipe options on future rows |
 | L-006 | P1 | Status icons/colors: present=green, absent=red, late=yellow, cancelled=grey, unlogged=empty | Correct visual |
 | L-007 | P1 | Month section label matches selected month | Locale-formatted |
 | L-008 | P1 | Course selector lists all courses | Switching reloads days |

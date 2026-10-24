@@ -43,10 +43,13 @@
       <ion-list lines="none" class="days-sliding-list">
         <ion-item-sliding
           *ngFor="let day of days; trackBy: trackByDate"
-          [disabled]="day.isFuture">
+          [disabled]="day.status === 'holiday'">
 
-          <!-- Swipe right: toggle present ↔ absent -->
-          <ion-item-options side="start" (ionSwipe)="quickToggle(day)">
+          <!-- Swipe right: toggle present ↔ absent. Future days stay tap-only. -->
+          <ion-item-options
+            *ngIf="!day.isFuture && day.status !== 'holiday'"
+            side="start"
+            (ionSwipe)="quickToggle(day)">
             <ion-item-option
               expandable
               [color]="day.status === 'present' ? 'danger' : 'success'"
@@ -66,7 +69,8 @@
               [class.day-present]="day.status === 'present'"
               [class.day-absent]="day.status === 'absent'"
               [class.day-late]="day.status === 'late'"
-              [class.day-cancelled]="day.status === 'cancelled'">
+              [class.day-cancelled]="day.status === 'cancelled'"
+              [class.day-holiday]="day.status === 'holiday'">
 
               <div class="day-date-col">
                 <span class="day-num">{{ day.date | slice:8:10 }}</span>
@@ -80,7 +84,8 @@
 
               <div class="day-info-col">
                 <span class="day-status-label" [attr.data-status]="day.status">
-                  {{ statusLabelKey(day) | translate }}
+                  <ng-container *ngIf="day.status === 'holiday'; else statusKey">{{ day.holidayName }}</ng-container>
+                  <ng-template #statusKey>{{ statusLabelKey(day) | translate }}</ng-template>
                 </span>
                 <span class="day-time-label"
                   *ngIf="day.status === 'late' && day.entryTime && day.exitTime">

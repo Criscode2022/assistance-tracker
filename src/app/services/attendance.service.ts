@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import {
   AttendanceStatus,
   Course,
+  CourseHoliday,
   CourseModule,
   CoursePeriod,
   DayEntry,
@@ -192,7 +193,13 @@ export class AttendanceService {
   }
 
   private hoursFromRecord(record: DayRecord, hoursPerDay: number): number {
-    if (record.status === 'absent' || record.status === 'cancelled') return 0;
+    if (
+      record.status === 'absent' ||
+      record.status === 'cancelled' ||
+      record.status === 'holiday'
+    ) {
+      return 0;
+    }
     if (record.status !== 'late' || !record.entryTime || !record.exitTime)
       return hoursPerDay;
     return Math.max(
@@ -256,7 +263,29 @@ export class AttendanceService {
       ...course,
       periodMode,
       modules: periodMode === 'module' ? (course.modules ?? []) : [],
+      holidays: this.cleanHolidays(course.holidays),
     };
+  }
+
+  private cleanHolidays(raw: CourseHoliday[] | undefined): CourseHoliday[] {
+    if (!Array.isArray(raw)) return [];
+    const seen = new Set<string>();
+    const cleaned: CourseHoliday[] = [];
+    for (const item of raw) {
+      if (!item || typeof item.date !== 'string' || typeof item.name !== 'string') continue;
+      const date = item.date.trim();
+      const name = item.name.trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !name || seen.has(date)) continue;
+      seen.add(date);
+      cleaned.push({ id: item.id?.trim() || `holiday-${date}`, date, name });
+    }
+    cleaned.sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
+    return cleaned;
+  }
+
+  private holidayName(course: Course | null, date: string): string | null {
+    const match = course?.holidays?.find((h) => h.date === date);
+    return match?.name ?? null;
   }
 
   getPeriodMode(courseId?: string): PeriodMode {
@@ -427,15 +456,22 @@ export class AttendanceService {
       const d = new Date(date + 'T12:00:00');
       const locale = this.lang.localeId;
       const record = this.getDayRecord(date, cid ?? undefined);
+      const holidayName = this.holidayName(course, date);
+      const status = holidayName ? 'holiday' : record.status;
       return {
         date,
         dateLabel: d.toLocaleDateString(locale, { day: 'numeric', month: 'short' }),
         dayLabel: d.toLocaleDateString(locale, { weekday: 'long' }),
-        status: record.status,
-        entryTime: record.entryTime,
-        exitTime: record.exitTime,
-        hoursAttended: this.hoursFromRecord(record, course?.hoursPerDay ?? 5),
-        lostMinutes: this.lostMinsFromRecord(record, course?.startTime),
+        status,
+        holidayName: holidayName ?? undefined,
+        entryTime: holidayName ? undefined : record.entryTime,
+        exitTime: holidayName ? undefined : record.exitTime,
+        hoursAttended: holidayName
+          ? 0
+          : this.hoursFromRecord(record, course?.hoursPerDay ?? 5),
+        lostMinutes: holidayName
+          ? 0
+          : this.lostMinsFromRecord(record, course?.startTime),
         isToday: date === today,
         isFuture: date > today,
       };
@@ -469,7 +505,8 @@ export class AttendanceService {
     for (const day of workingDays) {
       if (day > today) continue;
       const record = this.getDayRecord(day, cid ?? undefined);
-      switch (record.status) {
+      const status = this.holidayName(course, day) ? 'holiday' : record.status;
+      switch (status) {
         case 'present':
           presentDays++;
           totalHoursAttended += hoursPerDay;
@@ -483,7 +520,8 @@ export class AttendanceService {
           totalLostMinutes += this.lostMinsFromRecord(record, course?.startTime);
           break;
         case 'cancelled':
-          // Cancelled days are excluded from the working-day denominator
+        case 'holiday':
+          // Cancelled days and holidays are excluded from the working-day denominator
           cancelledDays++;
           break;
         default:

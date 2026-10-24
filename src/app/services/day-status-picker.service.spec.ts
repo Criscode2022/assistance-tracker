@@ -118,4 +118,38 @@ describe('DayStatusPickerService', () => {
       exitTime: '14:00',
     });
   });
+
+  it('should offer only unlogged and cancelled for a future day', async () => {
+    const course = createMockCourse();
+    svc.saveCourse(course);
+
+    let icons: Array<string | undefined> = [];
+    actionSheet.create.and.callFake(async (opts?: ActionSheetOptions) => {
+      const buttons = (opts?.buttons ?? []) as ActionSheetButton[];
+      icons = buttons.map((b) => b.icon);
+      const cancelled = buttons.find((b) => b.icon === 'ban-outline');
+      return {
+        present: async () => {
+          cancelled?.handler?.();
+        },
+        onDidDismiss: async () => ({}),
+      } as unknown as HTMLIonActionSheetElement;
+    });
+
+    const changed = await service.open(
+      createDay({ date: '2026-05-20', isFuture: true }),
+      course.id,
+    );
+    expect(changed).toBeTrue();
+    expect(icons.filter(Boolean)).toEqual(['remove-circle-outline', 'ban-outline']);
+    expect(svc.getDayRecord('2026-05-20', course.id).status).toBe('cancelled');
+  });
+
+  it('should not open a picker for a holiday', async () => {
+    const changed = await service.open(
+      createDay({ status: 'holiday', holidayName: 'Puente' }),
+    );
+    expect(changed).toBeFalse();
+    expect(actionSheet.create).not.toHaveBeenCalled();
+  });
 });

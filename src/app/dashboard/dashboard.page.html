@@ -28,7 +28,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="dashboard-content">
 
   <app-empty-courses *ngIf="courses.length === 0" class="page-shell"></app-empty-courses>
 
@@ -165,6 +165,8 @@
           [class.is-today]="day.isToday"
           [class.is-future]="day.isFuture"
           [style.grid-column]="weekdayColumn(day)"
+          [attr.title]="day.holidayName || null"
+          [attr.aria-label]="day.holidayName || null"
           (click)="openStatusPicker(day)">
           <span class="period-day-num">{{ dayNumber(day) }}</span>
         </button>

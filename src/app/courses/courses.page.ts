@@ -21,7 +21,7 @@ import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AttendanceService } from '../services/attendance.service';
 import { LanguageService } from '../services/language.service';
-import { Course, CourseExport, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
+import { Course, CourseExport, CourseHoliday, CourseModule, DayRecord, PeriodMode } from '../models/attendance.model';
 import { CREATE_COURSE_NAV } from '../constants/empty-courses';
 import { CourseImportService } from '../services/course-import.service';
 
@@ -37,9 +37,11 @@ export interface CourseFormModel {
   minAttendancePercent: number;
   periodMode: PeriodMode;
   modules: CourseModule[];
+  holidays: CourseHoliday[];
 }
 
 type ModuleField = 'name' | 'startDate' | 'endDate';
+type HolidayField = 'name' | 'date';
 
 interface ModuleFieldError {
   kind: string;
@@ -59,6 +61,7 @@ const VALIDATED_COURSE_FIELDS = [
   'maxTardiness',
   'minAttendancePercent',
   'periodMode',
+  'holidays',
 ] as const satisfies readonly CourseFormField[];
 
 const courseFormSchema = (schemaPath: SchemaPathTree<CourseFormModel>) => {
@@ -116,7 +119,40 @@ const courseFormSchema = (schemaPath: SchemaPathTree<CourseFormModel>) => {
     }
     return null;
   });
+
+  validate(schemaPath.holidays, (ctx) => {
+    const holidays = ctx.value();
+    const start = ctx.valueOf(schemaPath.startDate);
+    const end = ctx.valueOf(schemaPath.endDate);
+    const seen = new Set<string>();
+    for (const holiday of holidays) {
+      const name = holiday.name.trim();
+      const date = holiday.date.trim();
+      if (!name) {
+        return { kind: 'holidayName', message: 'COURSES.ERRORS.HOLIDAY_NAME_REQUIRED' };
+      }
+      if (!date) {
+        return { kind: 'holidayDate', message: 'COURSES.ERRORS.HOLIDAY_DATE_REQUIRED' };
+      }
+      if (seen.has(date)) {
+        return { kind: 'holidayDuplicate', message: 'COURSES.ERRORS.HOLIDAY_DUPLICATE' };
+      }
+      seen.add(date);
+      if ((start && date < start) || (end && date > end)) {
+        return { kind: 'holidayRange', message: 'COURSES.ERRORS.HOLIDAY_OUT_OF_RANGE' };
+      }
+      if (isWeekendDate(date)) {
+        return { kind: 'holidayWeekend', message: 'COURSES.ERRORS.HOLIDAY_WEEKEND' };
+      }
+    }
+    return null;
+  });
 };
+
+function isWeekendDate(date: string): boolean {
+  const dow = new Date(`${date}T12:00:00`).getDay();
+  return dow === 0 || dow === 6;
+}
 
 @Component({
   selector: 'app-courses',
@@ -157,6 +193,7 @@ export class CoursesPage implements OnDestroy {
   protected readonly formSubmitted = signal(false);
 
   private readonly moduleFieldTouched = new Set<string>();
+  private readonly holidayFieldTouched = new Set<string>();
 
   protected readonly selectMode = signal(false);
   private readonly selectedIds = new Set<string>();
@@ -237,6 +274,7 @@ export class CoursesPage implements OnDestroy {
       minAttendancePercent: 75,
       periodMode: 'month',
       modules: [],
+      holidays: [],
     };
   }
 
@@ -282,6 +320,85 @@ export class CoursesPage implements OnDestroy {
 
   protected trackModuleById(_index: number, mod: CourseModule): string {
     return mod.id;
+  }
+
+  protected addHoliday(): void {
+    const current = this.courseModel();
+    this.courseModel.set({
+      ...current,
+      holidays: [
+        ...current.holidays,
+        { id: this.svc.generateId(), date: '', name: '' },
+      ],
+    });
+  }
+
+  protected removeHoliday(id: string): void {
+    const current = this.courseModel();
+    this.courseModel.set({
+      ...current,
+      holidays: current.holidays.filter((h) => h.id !== id),
+    });
+  }
+
+  protected updateHoliday(id: string, patch: Partial<CourseHoliday>): void {
+    const current = this.courseModel();
+    if (!current.holidays.some((h) => h.id === id)) return;
+
+    for (const key of Object.keys(patch) as HolidayField[]) {
+      this.holidayFieldTouched.add(`${id}:${key}`);
+    }
+
+    this.courseModel.set({
+      ...current,
+      holidays: current.holidays.map((holiday) =>
+        holiday.id === id ? { ...holiday, ...patch } : holiday,
+      ),
+    });
+  }
+
+  protected trackHolidayById(_index: number, holiday: CourseHoliday): string {
+    return holiday.id;
+  }
+
+  protected shouldShowHolidayFieldErrors(holidayId: string, field: HolidayField): boolean {
+    return (
+      (this.holidayFieldTouched.has(`${holidayId}:${field}`) || this.formSubmitted()) &&
+      this.holidayFieldErrors(holidayId, field).length > 0
+    );
+  }
+
+  protected holidayFieldErrors(holidayId: string, field: HolidayField): ModuleFieldError[] {
+    const data = this.courseModel();
+    const holiday = data.holidays.find((h) => h.id === holidayId);
+    if (!holiday) return [];
+
+    const errors: ModuleFieldError[] = [];
+    if (field === 'name' && !holiday.name.trim()) {
+      errors.push({ kind: 'required', message: 'COURSES.ERRORS.HOLIDAY_NAME_REQUIRED' });
+    }
+
+    if (field === 'date') {
+      const date = holiday.date.trim();
+      if (!date) {
+        errors.push({ kind: 'required', message: 'COURSES.ERRORS.HOLIDAY_DATE_REQUIRED' });
+      } else {
+        if (
+          (data.startDate && date < data.startDate) ||
+          (data.endDate && date > data.endDate)
+        ) {
+          errors.push({ kind: 'range', message: 'COURSES.ERRORS.HOLIDAY_OUT_OF_RANGE' });
+        }
+        if (isWeekendDate(date)) {
+          errors.push({ kind: 'weekend', message: 'COURSES.ERRORS.HOLIDAY_WEEKEND' });
+        }
+        if (data.holidays.some((other) => other.id !== holiday.id && other.date === date)) {
+          errors.push({ kind: 'duplicate', message: 'COURSES.ERRORS.HOLIDAY_DUPLICATE' });
+        }
+      }
+    }
+
+    return errors;
   }
 
   protected shouldShowModuleFieldErrors(moduleId: string, field: ModuleField): boolean {
@@ -379,6 +496,7 @@ export class CoursesPage implements OnDestroy {
     this.courseModel.set(this.blankForm());
     this.formSubmitted.set(false);
     this.moduleFieldTouched.clear();
+    this.holidayFieldTouched.clear();
   }
 
   private fieldState(field: CourseFormField) {
@@ -417,9 +535,11 @@ export class CoursesPage implements OnDestroy {
       minAttendancePercent: normalized.minAttendancePercent,
       periodMode: normalized.periodMode ?? 'month',
       modules: normalized.modules ?? [],
+      holidays: normalized.holidays ?? [],
     });
     this.formSubmitted.set(false);
     this.moduleFieldTouched.clear();
+    this.holidayFieldTouched.clear();
     this.showForm = true;
   }
 
@@ -428,6 +548,7 @@ export class CoursesPage implements OnDestroy {
     this.editingId = null;
     this.formSubmitted.set(false);
     this.moduleFieldTouched.clear();
+    this.holidayFieldTouched.clear();
   }
 
   protected saveForm(): void {
@@ -447,6 +568,7 @@ export class CoursesPage implements OnDestroy {
       minAttendancePercent: Number(data.minAttendancePercent),
       periodMode: data.periodMode,
       modules: data.periodMode === 'module' ? data.modules : [],
+      holidays: data.holidays,
     };
     this.svc.saveCourse(course);
     this.courses = this.svc.getCourses();

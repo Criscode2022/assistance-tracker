@@ -180,4 +180,44 @@ describe('CloudSyncService', () => {
     expect(course?.modules?.length).toBe(1);
     expect(course?.modules?.[0].name).toBe('Part 1');
   });
+
+  it('should map holidays from cloud', async () => {
+    const downloadNeon = createMockNeonService(
+      { user: { id: 'user-1' } },
+      createMockNeonClient({
+        courses: () =>
+          Promise.resolve({
+            data: [
+              {
+                id: 'cloud-h',
+                name: 'Holiday course',
+                start_date: '2026-05-01',
+                end_date: '2026-05-31',
+                start_time: '09:00',
+                hours_per_day: 5,
+                max_absences: 3,
+                max_tardiness: 7,
+                min_attendance_percent: 75,
+                holidays: [{ id: 'h1', date: '2026-05-01', name: 'Día del Trabajo' }],
+              },
+            ],
+            error: null,
+          }),
+        attendance_records: () => Promise.resolve({ data: [], error: null }),
+        user_preferences: () =>
+          Promise.resolve({ data: { selected_course_id: 'cloud-h' }, error: null }),
+      }),
+    );
+    const downloadSync = new CloudSyncService(
+      attendance,
+      appMode,
+      downloadNeon as unknown as NeonService,
+    );
+
+    await downloadSync.downloadFromCloud();
+
+    expect(attendance.getCourse('cloud-h')?.holidays).toEqual([
+      { id: 'h1', date: '2026-05-01', name: 'Día del Trabajo' },
+    ]);
+  });
 });
