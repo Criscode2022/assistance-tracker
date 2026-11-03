@@ -64,7 +64,6 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
-/.agents
 
 # System files
 .DS_Store
@@ -75,3 +74,15 @@ Thumbs.db
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# From angular-ai-template: secrets, editor files, and the caches its tools write.
+!.vscode/mcp.json
+.nx/
+__screenshots__/
+.env
+.env.*
+.mcp.json.local
+.claude/settings.local.json
+*.pem
+*.key
+._*

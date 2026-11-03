@@ -2,6 +2,7 @@
   "name": "presencia",
   "version": "1.0.0",
   "scripts": {
+    "update-from-template": "node scripts/update-from-template.mjs",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
