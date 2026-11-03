@@ -53,7 +53,7 @@
     "@angular/language-service": "^21.2.0",
     "@capacitor/cli": "8.3.4",
     "@ionic/angular-toolkit": "^12.0.0",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/jasmine": "~5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
