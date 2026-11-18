@@ -11,6 +11,7 @@ Presencia tiene **194 tests en tres capas** más un workflow de **GitHub Actions
 | Unitario | Jasmine + Karma (ChromeHeadlessCI) | 145 en 24 specs | Servicios, guards, mapper, páginas | `npm run test:ci` |
 | Integración | Jasmine + Karma (`*.integration.spec.ts`) | 6 en 2 specs | Rutas + guards, persistencia localStorage | `npm run test:integration` |
 | E2E | Playwright (Chromium en CI) | 43 en 8 ficheros | Shell, dashboard, log, cursos, settings | `npm run e2e:ci` |
+| E2E en navegador | Maestro (Chromium, fuera de CI) | 5 flujos | Pestañas vacías, formulario de curso, crear y borrar, registrar un día, idioma | `maestro test .maestro/` |
 
 `npm run test:ci` ejecuta todos los specs de Karma, integración incluida (151); `test:integration` repite solo los 6 de integración. En local, Playwright añade Pixel 7 e iPhone 14 a Chromium, así que los 43 flujos corren tres veces.
 

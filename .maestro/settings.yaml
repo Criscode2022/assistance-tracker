@@ -1,0 +1,35 @@
+# Configuración: the language switch turns the whole app into English and back, tabs included.
+# Catalog: CA-004. "Borrar todos los datos" is at the bottom of the page, inside ion-content's
+# scroller, which Maestro's web driver can't scroll, so it isn't covered here.
+url: http://localhost:4200
+name: Settings
+tags:
+  - settings
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: subflows/create-course.yaml
+    env:
+      NAME: Diseño
+      START: "01052026"
+      END: "12182030"
+- openLink: http://localhost:4200/config
+- assertVisible: "Configuración"
+- tapOn: "English"
+- assertVisible: "Settings"
+- openLink: http://localhost:4200/dashboard
+- assertVisible: "Overview"
+- assertVisible: "Courses"
+- assertVisible: "History"
+- tapOn: "Log"
+- assertVisible: "Unlogged"
+
+# The choice is kept: back in Configuración, Español brings the Spanish tabs back.
+- openLink: http://localhost:4200/config
+- assertVisible: "Settings"
+- tapOn: "Español"
+- assertVisible: "Configuración"
+- openLink: http://localhost:4200/dashboard
+- assertVisible: "Resumen"
+- assertVisible: "Cursos"

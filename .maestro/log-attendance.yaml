@@ -1,0 +1,38 @@
+# Logging a day: tapping a day in Registro opens the status sheet, and the chosen status shows on
+# the day; Resumen then shows the course. The course spans 2026 to 2030, so the current month
+# always has working days.
+url: http://localhost:4200
+name: Log attendance
+tags:
+  - log
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: subflows/create-course.yaml
+    env:
+      NAME: Programación
+      START: "01052026"
+      END: "12182030"
+- tapOn: "Registro"
+- assertVisible: "Sin registrar"
+# The first day of the month in the list.
+- tapOn:
+    text: "Sin registrar"
+    index: 0
+- assertVisible: "Presente"
+- tapOn: "Falta"
+- assertVisible:
+    text: "Falta"
+    index: 0
+- tapOn:
+    text: "Sin registrar"
+    index: 0
+- tapOn: "Presente"
+- assertVisible:
+    text: "Presente"
+    index: 0
+
+- tapOn: "Resumen"
+- assertVisible: "Programación"
+- assertVisible: "Faltas"

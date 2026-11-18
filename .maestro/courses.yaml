@@ -1,0 +1,41 @@
+# A course is created, shows on its card, becomes the selected course on every tab, and can be
+# deleted after a confirmation. Catalog: C-002, C-006, G-014.
+url: http://localhost:4200
+name: Create and delete a course
+tags:
+  - courses
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: subflows/create-course.yaml
+    env:
+      NAME: Desarrollo Web
+      START: "01052026"
+      END: "12182030"
+- assertVisible: "Mis Cursos"
+- assertVisible: "Desarrollo Web"
+- tapOn: "Resumen"
+- assertNotVisible: "Sin cursos"
+- assertVisible: "Desarrollo Web"
+# Registro opens on the course: its days are listed (the course picker's text is in a shadow root
+# Maestro can't read).
+- tapOn: "Registro"
+- assertVisible: "Sin registrar"
+
+# The card's trash button asks first; Cancelar keeps the course. Ionic moves the button's
+# aria-label into its shadow root, so the tap finds it by its icon's name.
+- tapOn: "Cursos"
+- tapOn:
+    id: "trash-outline"
+- assertVisible: "Eliminar curso"
+- tapOn: "\\s*Cancelar\\s*"
+- assertNotVisible: "Eliminar curso"
+- assertVisible: "Desarrollo Web"
+- tapOn:
+    id: "trash-outline"
+- assertVisible: "Eliminar curso"
+- tapOn:
+    text: "\\s*Eliminar\\s*"
+    rightOf: "\\s*Cancelar\\s*"
+- assertVisible: "Sin cursos"

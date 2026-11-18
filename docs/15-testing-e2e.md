@@ -65,3 +65,37 @@ test('D-001: loads stats for selected course', async ({ page }) => {
 Los tabs se pulsan con `getByRole('tab', { name: 'Resumen' | 'Registro' | … })` — Ionic sí expone `role="tab"` en esta app.
 
 La PWA pinta dashboard, log, historial y cursos **offline**. No se afirma login/sync Neon en CI (eso requeriría secretos y correo verificado).
+
+## Maestro
+
+Además de Playwright, `.maestro/` tiene 5 flujos de [Maestro](https://maestro.dev) que usan la app en Chromium como una persona, en español y offline: sin sembrar `localStorage`, crean el curso desde el formulario. Los IDs del catálogo van en el comentario de cada flujo.
+
+| Flujo | Comprueba |
+|-------|-----------|
+| `smoke.yaml` | Resumen, Registro, Historial y Cursos abren con su estado vacío |
+| `course-validation.yaml` | El formulario nombra cada campo obligatorio al salir de él, no guarda incompleto y rechaza un fin anterior al inicio (C-020 a C-023, C-030) |
+| `courses.yaml` | Un curso se crea, queda seleccionado en todas las pestañas y se borra tras confirmar; Cancelar lo conserva (C-002, C-006, G-014) |
+| `log-attendance.yaml` | Pulsar un día en Registro abre la hoja de estados, y el estado elegido se ve en el día |
+| `settings.yaml` | El idioma cambia la app entera, pestañas incluidas, y se recuerda (CA-004) |
+
+El curso cubre de 2026 a 2030, así que el mes en curso siempre tiene días hábiles. Las fechas se escriben como MMDDYYYY: chromedriver las teclea en orden estadounidense aunque el campo muestre dd/mm/aaaa.
+
+```yaml
+- tapOn:
+    id: "ng\\.form\\d+\\.startDate"
+- inputText: ${START}
+- tapOn:
+    id: "ng\\.form\\d+\\.endDate"
+- inputText: ${END}
+```
+
+Maestro no puede hacer scroll dentro de `ion-content`, así que lo que queda bajo el pliegue de una página (el final de Configuración) se queda fuera de estos flujos.
+
+```bash
+npm start                # en :4200
+maestro test .maestro/   # los 5 flujos
+```
+
+Los agentes tienen además el servidor MCP de Maestro (`maestro` en `.mcp.json`), que arranca `scripts/maestro-mcp.mjs`: inspecciona la pantalla, corre un flujo y ayuda a escribir los nuevos. El script busca Java y el CLI, porque Maestro no arranca sin `JAVA_HOME`.
+
+Los flujos de Maestro no están en CI, que sigue corriendo Playwright. Comprobado el 18 de noviembre de 2026: los 5 pasan en local.

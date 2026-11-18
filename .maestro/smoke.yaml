@@ -1,0 +1,20 @@
+# The app opens on Resumen with no courses, and every tab shows its empty state.
+# Needs the dev server: npm start
+# Run: maestro test .maestro/smoke.yaml
+url: http://localhost:4200
+name: Smoke - tabs open
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Sin cursos"
+- assertVisible: "Crea tu primer curso para comenzar"
+- tapOn: "Registro"
+- assertVisible: "Sin cursos"
+- tapOn: "Historial"
+- assertVisible: "Sin cursos"
+- tapOn: "Cursos"
+- assertVisible: "Mis Cursos"
+- tapOn: "Resumen"
+- assertVisible: "\\s*Crear curso\\s*"

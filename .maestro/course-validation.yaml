@@ -1,0 +1,44 @@
+# The new-course form names each missing field once it is left, keeps Guardar curso from saving
+# while anything is missing, and refuses an end before the start.
+# Catalog: C-020, C-021, C-022, C-023, C-030.
+# Dates are typed as MMDDYYYY; subflows/create-course.yaml says why the start date is filled
+# before the end date.
+url: http://localhost:4200
+name: Course form validation
+tags:
+  - courses
+---
+- launchApp:
+    clearState: true
+- tapOn: "\\s*Crear curso\\s*"
+- assertVisible: "Nuevo Curso"
+# No errors on a form nobody has touched.
+- assertNotVisible: "Escribe el nombre del curso."
+# Leave each required field empty.
+- tapOn:
+    id: "ng\\.form\\d+\\.name"
+- tapOn:
+    id: "ng\\.form\\d+\\.startDate"
+- tapOn:
+    id: "ng\\.form\\d+\\.endDate"
+- tapOn:
+    id: "ng\\.form\\d+\\.name"
+- assertVisible: "Escribe el nombre del curso."
+- assertVisible: "Selecciona la fecha de inicio."
+- assertVisible: "Selecciona la fecha de fin."
+- tapOn: "\\s*Guardar curso\\s*"
+- assertVisible: "Nuevo Curso"
+
+- tapOn:
+    id: "ng\\.form\\d+\\.name"
+- inputText: "Inglés B2"
+- assertNotVisible: "Escribe el nombre del curso."
+- tapOn:
+    id: "ng\\.form\\d+\\.startDate"
+- inputText: "03022026"
+- tapOn:
+    id: "ng\\.form\\d+\\.endDate"
+- inputText: "02022026"
+- assertVisible: "La fecha de fin debe ser igual o posterior a la de inicio."
+- tapOn: "\\s*Guardar curso\\s*"
+- assertVisible: "Nuevo Curso"

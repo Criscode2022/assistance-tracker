@@ -11,6 +11,10 @@
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "maestro": {
+      "command": "node",
+      "args": ["scripts/maestro-mcp.mjs"]
     }
   }
 }

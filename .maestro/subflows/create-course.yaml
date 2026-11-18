@@ -1,0 +1,34 @@
+# Opens the new-course form and saves a course with a name and a date range; the rest keeps its
+# defaults.
+# Params:
+#   NAME   the course's name (required)
+#   START  first day as MMDDYYYY: chromedriver types a date field in en-US order, whatever order
+#          the field shows (dd/mm/yyyy on a Spanish machine)
+#   END    last day, same format
+#
+# The inputs have no id (signal forms set their name, which Maestro shows as the id), so Maestro
+# types into the focused input through an XPath built from class names, and both date inputs have
+# the same classes: whatever is typed goes into the first one. Touching the end date while it is
+# empty gives it the input-invalid class, which tells the two apart until it is filled.
+url: http://localhost:4200
+---
+- openLink: http://localhost:4200/courses?create=1
+- assertVisible: "Nuevo Curso"
+- tapOn:
+    id: "ng\\.form\\d+\\.name"
+- inputText: ${NAME}
+- tapOn:
+    id: "ng\\.form\\d+\\.endDate"
+- tapOn:
+    id: "ng\\.form\\d+\\.name"
+- assertVisible: "Selecciona la fecha de fin."
+- tapOn:
+    id: "ng\\.form\\d+\\.startDate"
+- inputText: ${START}
+- tapOn:
+    id: "ng\\.form\\d+\\.endDate"
+- inputText: ${END}
+- assertNotVisible: "Selecciona la fecha de fin."
+- tapOn: "\\s*Guardar curso\\s*"
+- assertNotVisible: "Nuevo Curso"
+- assertVisible: ${NAME}
